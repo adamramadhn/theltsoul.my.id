@@ -26,7 +26,6 @@
             min-height: 100vh;
         }
 
-        /* ── particles canvas ── */
         #particles {
             position: fixed;
             inset: 0;
@@ -36,7 +35,6 @@
 
         .container { max-width: 800px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
 
-        /* ── nav ── */
         nav {
             display: flex; justify-content: space-between; align-items: center;
             padding: 20px 24px; max-width: 800px; margin: 0 auto;
@@ -48,7 +46,6 @@
         }
         nav .links a:hover { color: var(--text); }
 
-        /* ── hero ── */
         .hero {
             padding: 80px 0 48px; text-align: center;
         }
@@ -64,8 +61,12 @@
             background: linear-gradient(to right, #e4e4ed, var(--accent));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .hero p {
-            color: var(--muted); font-size: 1.1rem; max-width: 480px; margin: 0 auto 32px;
+        .hero .tagline {
+            color: var(--muted); font-size: 1.1rem; max-width: 500px;
+            margin: 0 auto 8px;
+        }
+        .hero .company {
+            color: var(--accent); font-size: 0.95rem; margin-bottom: 32px;
         }
         .hero .btn {
             display: inline-block; padding: 12px 32px;
@@ -75,7 +76,6 @@
         }
         .hero .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-glow); }
 
-        /* ── sections ── */
         section { padding: 64px 0; }
         section h2 {
             font-size: 1.3rem; font-weight: 700; margin-bottom: 24px;
@@ -96,7 +96,20 @@
         .card .meta { font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; }
         .card p { font-size: 0.92rem; color: var(--muted); line-height: 1.7; }
 
-        /* ── skills pills ── */
+        .card .store-badges {
+            display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;
+        }
+        .card .store-badges a {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; border-radius: 8px;
+            background: var(--bg); border: 1px solid var(--border);
+            color: var(--text); text-decoration: none; font-size: 0.85rem;
+            transition: 0.2s;
+        }
+        .card .store-badges a:hover {
+            border-color: var(--accent); background: rgba(124,92,252,0.08);
+        }
+
         .skills-grid { display: flex; flex-wrap: wrap; gap: 10px; }
         .skill-pill {
             padding: 8px 18px; border-radius: 50px; font-size: 0.85rem;
@@ -104,8 +117,24 @@
             color: var(--text); transition: 0.2s;
         }
         .skill-pill:hover { border-color: var(--accent); background: rgba(124,92,252,0.08); }
+        .skill-pill.highlight {
+            border-color: var(--accent);
+            background: rgba(124,92,252,0.12);
+        }
 
-        /* ── contact ── */
+        .freelance-card {
+            background: linear-gradient(135deg, rgba(124,92,252,0.08), rgba(168,85,247,0.05));
+            border: 1px solid var(--accent);
+            border-radius: var(--radius); padding: 24px;
+            text-align: center;
+        }
+        .freelance-card h3 {
+            color: var(--accent); font-size: 1.1rem; margin-bottom: 8px;
+        }
+        .freelance-card p {
+            color: var(--muted); font-size: 0.92rem; max-width: 450px; margin: 0 auto;
+        }
+
         .contact-links {
             display: flex; flex-wrap: wrap; gap: 16px;
         }
@@ -118,14 +147,12 @@
         }
         .contact-links a:hover { border-color: var(--accent); }
 
-        /* ── footer ── */
         footer {
             text-align: center; padding: 32px 0;
             color: var(--muted); font-size: 0.85rem;
             border-top: 1px solid var(--border); margin-top: 24px;
         }
 
-        /* ── responsive ── */
         @media (max-width: 600px) {
             .hero h1 { font-size: 1.8rem; }
             .hero { padding: 48px 0 32px; }
@@ -136,58 +163,78 @@
 </head>
 <body>
 
-<!-- particles -->
 <canvas id="particles"></canvas>
 
-<!-- nav -->
 <nav>
     <span class="logo">~/theltsoul</span>
     <div class="links">
         <a href="#tentang">Tentang</a>
         <a href="#proyek">Proyek</a>
+        <a href="#freelance">Freelance</a>
         <a href="#kontak">Kontak</a>
     </div>
 </nav>
 
-<!-- hero -->
 <section class="hero">
     <div class="avatar">A</div>
     <h1>Adam Ramadhan</h1>
-    <p>Pengembang yang suka ngoprek teknologi, bikin bot, dan nulis kode bersih. Kadang main musik juga.</p>
+    <p class="tagline">Mobile Programmer — Spesialis Flutter</p>
+    <p class="company">PT Nutech Integrasi (by Telkom Indonesia)</p>
     <a href="#kontak" class="btn">Hubungi Saya</a>
 </section>
 
 <div class="container">
 
-    <!-- tentang -->
     <section id="tentang">
         <h2>Tentang</h2>
         <div class="card">
-            <p>Saya seorang developer dari Indonesia yang tertarik di bidang backend, automation, dan AI. Keseharian ngoprek Python, ngerjain project Flutter, dan eksperimen dengan LLM. Domain ini jadi tempat saya menaruh hasil karya dan eksperimen.</p>
+            <p>Saya <strong>mobile programmer</strong> yang fokus di <strong>Flutter</strong> dan saat ini bekerja di <strong>PT Nutech Integrasi</strong> — bagian dari Telkom Indonesia. Keseharian saya membangun aplikasi mobile dari 0 sampai rilis, ngoprek state management, integrasi API, dan optimasi performa. Domain ini tempat saya menampilkan hasil karya dan eksperimen.</p>
         </div>
 
         <h2 style="margin-top: 40px;">Skills</h2>
         <div class="skills-grid">
+            <span class="skill-pill highlight">Flutter</span>
+            <span class="skill-pill highlight">Dart</span>
             <span class="skill-pill">Python</span>
-            <span class="skill-pill">Dart / Flutter</span>
             <span class="skill-pill">JavaScript</span>
             <span class="skill-pill">FastAPI</span>
+            <span class="skill-pill">Firebase</span>
             <span class="skill-pill">PostgreSQL</span>
-            <span class="skill-pill">Docker</span>
+            <span class="skill-pill">REST API</span>
             <span class="skill-pill">Git</span>
+            <span class="skill-pill">Docker</span>
             <span class="skill-pill">Linux</span>
-            <span class="skill-pill">LLM / AI</span>
-            <span class="skill-pill">Automation</span>
+            <span class="skill-pill">CI/CD</span>
         </div>
     </section>
 
-    <!-- proyek -->
     <section id="proyek">
         <h2>Proyek</h2>
 
         <div class="card">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
+                <img src="https://play-lh.googleusercontent.com/-P4E4QHxN5Lt-LLEhKb3_nBsUqHUnPjDE6Wiy2FEx9EQPct3mRbnV8l38ANcRZXKRm0=w240-h480" alt="C-Access" style="width:48px;height:48px;border-radius:10px;">
+                <div>
+                    <h3 style="margin:0;">C-Access</h3>
+                    <div class="meta" style="margin:0;">KAI Commuter — Flutter</div>
+                </div>
+            </div>
+            <p>Aplikasi resmi KAI Commuter untuk pengalaman naik kereta yang lebih mudah. Fitur meliputi pembelian tiket, jadwal real-time, info stasiun, dan riwayat perjalanan — tersedia di Android & iOS.</p>
+            <div class="store-badges">
+                <a href="https://play.google.com/store/apps/details?id=com.kci.access" target="_blank" rel="noopener">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M22.018 13.298l-3.919 2.218-3.515-3.493 3.543-3.521 3.891 2.202a1.49 1.49 0 0 1 0 2.594zM1.337.924a1.482 1.482 0 0 0-.338.514v21.124c0 .548.439.902.933.902l11.404-10.958L1.337.924zm12.062 10.874l-3.525-3.504L16.28 2.4a1.46 1.46 0 0 0-.592-.12c-.307 0-.604.087-.867.259l-7.9 4.591-3.519-3.5 11.314 10.888 2.677 2.576-3.574 2.017c-.275.186-.59.279-.9.279-.303 0-.606-.088-.875-.264L4.23 15.09l-2.893 2.87L12.1 23.84c.286.17.606.257.925.257.315 0 .631-.087.918-.256l8.074-4.706.001-.001-8.719-8.336z"/></svg>
+                    Google Play
+                </a>
+                <a href="https://apps.apple.com/id/app/c-access/id6450940965" target="_blank" rel="noopener">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                    App Store
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
             <h3>Hermes Agent</h3>
-            <div class="meta">AI Agent — 2025</div>
+            <div class="meta">AI Agent — Flutter & Python</div>
             <p>AI agent pribadi yang bisa ngontrol desktop, ngerjain task kompleks, dan integrasi dengan berbagai platform. Udah jadi daily driver.</p>
         </div>
 
@@ -200,11 +247,20 @@
         <div class="card">
             <h3>Patchfly</h3>
             <div class="meta">CLI & API — 2025</div>
-            <p>Tool deployment simpel buat project kecil-kecilan. Push code langsung live via CLI.</p>
+            <p>Tool deployment simpel untuk project kecil. Push code langsung live via CLI.</p>
         </div>
     </section>
 
-    <!-- kontak -->
+    <section id="freelance">
+        <h2>Freelance</h2>
+        <div class="freelance-card">
+            <h3>📱 Open Freelance</h3>
+            <p>Terima jasa pembuatan aplikasi mobile dengan <strong>harga ramah mahasiswa</strong> 💰.<br>
+            Mau bikin aplikasi Flutter? Mulai dari MVP, redesign, sampai full development — diskusi dulu aja, gratis.<br>
+            <span style="color:var(--accent);font-weight:600;">#StudentFriendly</span></p>
+        </div>
+    </section>
+
     <section id="kontak">
         <h2>Kontak</h2>
         <div class="contact-links">
@@ -216,16 +272,19 @@
                 <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
                 adam@theltsoul.my.id
             </a>
+            <a href="https://www.linkedin.com/in/adamramadhn" target="_blank" rel="noopener">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                LinkedIn
+            </a>
         </div>
     </section>
 
 </div>
 
 <footer>
-    <div class="container">© 2026 theltsoul.my.id — Dibikin dengan ☕ dan 🎧</div>
+    <div class="container">© 2026 theltsoul.my.id — Dibikin dengan Flutter & ☕</div>
 </footer>
 
-<!-- particles script -->
 <script>
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
@@ -270,8 +329,6 @@ for (let i = 0; i < count; i++) particles.push(new Particle());
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     particles.forEach(p => { p.update(); p.draw(); });
-
-    // lines between close particles
     for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
             const dx = particles[i].x - particles[j].x;
