@@ -1,163 +1,330 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>theltsoul — Adam Ramadhan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --bg: #0a0a0f;
-            --surface: #12121a;
-            --border: #1e1e2a;
-            --text: #e4e4ed;
-            --muted: #787891;
+            --bg: #07070d;
+            --surface: #0e0e18;
+            --surface2: #151525;
+            --border: #1e1e32;
+            --border-light: #2a2a44;
+            --text: #e8e8f0;
+            --text-secondary: #8888a8;
+            --text-tertiary: #5c5c78;
             --accent: #7c5cfc;
-            --accent-glow: rgba(124, 92, 252, 0.25);
+            --accent-soft: rgba(124, 92, 252, 0.12);
+            --accent-glow: rgba(124, 92, 252, 0.22);
+            --accent2: #a855f7;
+            --green: #34d399;
+            --blue: #60a5fa;
+            --orange: #fb923c;
+            --radius-sm: 8px;
             --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
         }
 
+        html { scroll-behavior: smooth; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* ══════════ PARTICLES ══════════ */
         #particles {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
         }
 
-        .container { max-width: 800px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+        /* ══════════ CONTAINER ══════════ */
+        .container {
+            max-width: 800px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1;
+        }
 
+        /* ══════════ NAV ══════════ */
         nav {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 24px; max-width: 800px; margin: 0 auto;
+            padding: 20px 24px; max-width: 800px; margin: 0 auto; position: relative; z-index: 1;
         }
-        nav .logo { font-weight: 700; font-size: 1.2rem; color: var(--accent); }
+        nav .logo {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800; font-size: 1.2rem; color: var(--accent);
+            letter-spacing: -0.5px;
+        }
         nav .links a {
-            color: var(--muted); text-decoration: none; font-size: 0.9rem;
-            margin-left: 24px; transition: color 0.2s;
+            color: var(--text-secondary); text-decoration: none; font-size: 0.88rem;
+            margin-left: 24px; transition: color 0.2s; font-weight: 500;
         }
         nav .links a:hover { color: var(--text); }
 
+        /* ══════════ HERO ══════════ */
         .hero {
-            padding: 80px 0 48px; text-align: center;
+            padding: 72px 0 56px; text-align: center;
+            opacity: 0; transform: translateY(24px);
+            animation: heroIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
         }
-        .hero .avatar {
-            width: 96px; height: 96px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), #a855f7);
-            display: inline-flex; align-items: center; justify-content: center;
-            font-size: 2.5rem; font-weight: 700; color: #fff;
-            margin-bottom: 24px; box-shadow: 0 0 60px var(--accent-glow);
+        @keyframes heroIn {
+            to { opacity: 1; transform: translateY(0); }
         }
+
+        .hero .avatar-ring {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--accent), var(--accent2), #ec4899, var(--accent));
+            padding: 3px; margin: 0 auto 28px;
+            animation: ringSpin 6s linear infinite;
+            box-shadow: 0 0 60px var(--accent-glow);
+        }
+        @keyframes ringSpin { to { transform: rotate(360deg); } }
+        .hero .avatar-ring .inner {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: var(--bg);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.8rem; font-weight: 800; color: #fff;
+        }
+
+        .hero .typing-line {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem; color: var(--accent);
+            margin-bottom: 14px; min-height: 1.4em;
+        }
+        .hero .typing-line::after {
+            content: '▊';
+            animation: blink 1s step-end infinite;
+            font-size: 0.75rem;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
         .hero h1 {
-            font-size: 2.5rem; font-weight: 800; margin-bottom: 12px;
-            background: linear-gradient(to right, #e4e4ed, var(--accent));
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.8rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -1px;
+            background: linear-gradient(135deg, #e8e8f0 0%, var(--accent) 60%, var(--accent2) 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
+
         .hero .tagline {
-            color: var(--muted); font-size: 1.1rem; max-width: 500px;
-            margin: 0 auto 8px;
+            color: var(--text-secondary); font-size: 1.08rem; max-width: 480px;
+            margin: 0 auto 6px;
         }
-        .hero .company {
-            color: var(--accent); font-size: 0.95rem; margin-bottom: 32px;
+        .hero .company-badge {
+            display: inline-block; margin-top: 6px;
+            padding: 5px 16px; border-radius: 50px;
+            background: var(--accent-soft); border: 1px solid rgba(124,92,252,0.25);
+            font-size: 0.82rem; color: var(--accent); font-weight: 600;
+        }
+
+        .hero .hero-cta {
+            display: flex; gap: 12px; justify-content: center; margin-top: 28px; flex-wrap: wrap;
         }
         .hero .btn {
-            display: inline-block; padding: 12px 32px;
-            background: var(--accent); color: #fff; border-radius: var(--radius);
-            text-decoration: none; font-weight: 600; font-size: 0.95rem;
-            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 28px; border-radius: var(--radius);
+            font-weight: 600; font-size: 0.9rem; text-decoration: none;
+            transition: 0.25s; cursor: pointer;
         }
-        .hero .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-glow); }
+        .hero .btn-primary {
+            background: var(--accent); color: #fff;
+            box-shadow: 0 4px 24px var(--accent-glow);
+        }
+        .hero .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 36px var(--accent-glow); }
+        .hero .btn-outline {
+            background: transparent; color: var(--text-secondary);
+            border: 1px solid var(--border-light);
+        }
+        .hero .btn-outline:hover { border-color: var(--accent); color: var(--text); background: var(--accent-soft); }
 
+        .hero .mini-stats {
+            display: flex; justify-content: center; gap: 32px; margin-top: 32px;
+            padding-top: 24px; border-top: 1px solid var(--border);
+        }
+        .hero .mini-stats .stat-num {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.3rem; font-weight: 800; color: var(--accent); display: block;
+        }
+        .hero .mini-stats .stat-label {
+            font-size: 0.72rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        /* ══════════ SECTIONS ══════════ */
         section { padding: 64px 0; }
+
         section h2 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 1.3rem; font-weight: 700; margin-bottom: 24px;
-            display: flex; align-items: center; gap: 8px;
+            display: flex; align-items: center; gap: 10px; letter-spacing: -0.3px;
         }
         section h2::before {
             content: ''; display: inline-block; width: 3px; height: 20px;
-            background: var(--accent); border-radius: 2px;
+            background: linear-gradient(to bottom, var(--accent), var(--accent2));
+            border-radius: 2px;
         }
 
-        .card {
+        /* ══════════ SCROLL REVEAL ══════════ */
+        .reveal {
+            opacity: 0; transform: translateY(28px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.visible {
+            opacity: 1; transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+
+        /* ══════════ ABOUT CARD ══════════ */
+        .about-card {
+            background: linear-gradient(135deg, rgba(124,92,252,0.04), rgba(168,85,247,0.02));
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 16px;
+            backdrop-filter: blur(8px);
+        }
+        .about-card p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.8; }
+        .about-card strong { color: var(--text); font-weight: 600; }
+
+        /* ══════════ SKILLS ══════════ */
+        .skills-category { margin-bottom: 20px; }
+        .skills-category h4 {
+            font-size: 0.78rem; font-weight: 700; color: var(--text-tertiary);
+            margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+        }
+        .skills-row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .skill-item {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 7px 16px; border-radius: 50px;
             background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 20px 24px; margin-bottom: 16px;
-            transition: border-color 0.2s, transform 0.2s;
+            font-size: 0.82rem; font-weight: 500; color: var(--text);
+            transition: 0.25s;
         }
-        .card:hover { border-color: var(--accent); transform: translateY(-2px); }
-        .card h3 { font-size: 1.05rem; margin-bottom: 4px; }
-        .card .meta { font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; }
-        .card p { font-size: 0.92rem; color: var(--muted); line-height: 1.7; }
+        .skill-item:hover {
+            border-color: var(--accent); background: var(--accent-soft);
+            transform: translateY(-1px);
+        }
+        .skill-item .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .skill-item.primary .dot { background: var(--accent); }
+        .skill-item.secondary .dot { background: var(--green); }
+        .skill-item.tool .dot { background: var(--blue); }
+        .skill-item.other .dot { background: var(--orange); }
 
-        .card .store-badges {
-            display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;
+        /* ══════════ PROJECT CARDS ══════════ */
+        .project-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 16px;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
         }
-        .card .store-badges a {
+        .project-card:hover {
+            border-color: var(--accent); transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(124,92,252,0.1);
+        }
+        .project-card .card-header {
+            display: flex; align-items: center; gap: 14px; margin-bottom: 12px; flex-wrap: wrap;
+        }
+        .project-card .card-icon {
+            width: 48px; height: 48px; border-radius: var(--radius);
+            background: var(--accent-soft); display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; flex-shrink: 0;
+        }
+        .project-card .card-icon img {
+            width: 48px; height: 48px; border-radius: var(--radius);
+        }
+        .project-card h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.08rem; font-weight: 700; margin-bottom: 2px; }
+        .project-card .meta { font-size: 0.82rem; color: var(--text-tertiary); margin-bottom: 10px; }
+        .project-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; }
+
+        .project-card .stack-badges {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px;
+        }
+        .project-card .stack-badge {
+            padding: 3px 10px; border-radius: 50px;
+            font-size: 0.7rem; font-weight: 600;
+            background: var(--surface2); border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+        }
+
+        .project-card .store-links {
+            display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;
+        }
+        .project-card .store-link {
             display: inline-flex; align-items: center; gap: 6px;
-            padding: 8px 16px; border-radius: 8px;
-            background: var(--bg); border: 1px solid var(--border);
-            color: var(--text); text-decoration: none; font-size: 0.85rem;
+            padding: 7px 16px; border-radius: var(--radius-sm);
+            background: var(--surface2); border: 1px solid var(--border-light);
+            color: var(--text); text-decoration: none; font-size: 0.8rem; font-weight: 500;
             transition: 0.2s;
         }
-        .card .store-badges a:hover {
-            border-color: var(--accent); background: rgba(124,92,252,0.08);
+        .project-card .store-link:hover {
+            border-color: var(--accent); background: var(--accent-soft);
         }
 
-        .skills-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-        .skill-pill {
-            padding: 8px 18px; border-radius: 50px; font-size: 0.85rem;
-            background: var(--surface); border: 1px solid var(--border);
-            color: var(--text); transition: 0.2s;
-        }
-        .skill-pill:hover { border-color: var(--accent); background: rgba(124,92,252,0.08); }
-        .skill-pill.highlight {
-            border-color: var(--accent);
-            background: rgba(124,92,252,0.12);
-        }
-
+        /* ══════════ FREELANCE ══════════ */
         .freelance-card {
-            background: linear-gradient(135deg, rgba(124,92,252,0.08), rgba(168,85,247,0.05));
-            border: 1px solid var(--accent);
-            border-radius: var(--radius); padding: 24px;
-            text-align: center;
+            background: linear-gradient(135deg, rgba(124,92,252,0.1), rgba(168,85,247,0.05));
+            border: 1px solid rgba(124,92,252,0.3);
+            border-radius: var(--radius-xl); padding: 28px 32px; text-align: center;
         }
         .freelance-card h3 {
-            color: var(--accent); font-size: 1.1rem; margin-bottom: 8px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--accent); font-size: 1.15rem; font-weight: 700; margin-bottom: 8px;
         }
         .freelance-card p {
-            color: var(--muted); font-size: 0.92rem; max-width: 450px; margin: 0 auto;
+            color: var(--text-secondary); font-size: 0.92rem; max-width: 460px; margin: 0 auto;
+        }
+        .freelance-card .tag {
+            display: inline-block; margin-top: 14px;
+            padding: 5px 18px; border-radius: 50px;
+            background: var(--accent); color: #fff; font-weight: 700; font-size: 0.85rem;
+            box-shadow: 0 4px 16px var(--accent-glow);
         }
 
+        /* ══════════ CONTACT ══════════ */
         .contact-links {
-            display: flex; flex-wrap: wrap; gap: 16px;
+            display: flex; flex-wrap: wrap; gap: 12px;
         }
         .contact-links a {
             display: flex; align-items: center; gap: 8px;
             padding: 12px 20px; background: var(--surface);
             border: 1px solid var(--border); border-radius: var(--radius);
-            color: var(--text); text-decoration: none; font-size: 0.9rem;
-            transition: 0.2s;
+            color: var(--text); text-decoration: none; font-size: 0.88rem; font-weight: 500;
+            transition: 0.25s;
         }
-        .contact-links a:hover { border-color: var(--accent); }
+        .contact-links a:hover {
+            border-color: var(--accent); background: var(--accent-soft);
+            transform: translateY(-1px);
+        }
 
+        /* ══════════ FOOTER ══════════ */
         footer {
             text-align: center; padding: 32px 0;
-            color: var(--muted); font-size: 0.85rem;
+            color: var(--text-tertiary); font-size: 0.82rem;
             border-top: 1px solid var(--border); margin-top: 24px;
         }
 
+        /* ══════════ RESPONSIVE ══════════ */
         @media (max-width: 600px) {
-            .hero h1 { font-size: 1.8rem; }
-            .hero { padding: 48px 0 32px; }
+            .hero h1 { font-size: 2rem; }
+            .hero { padding: 48px 0 36px; }
+            .hero .mini-stats { gap: 20px; }
             nav .links a { margin-left: 16px; font-size: 0.8rem; }
             .contact-links { flex-direction: column; }
+            .hero .hero-cta { flex-direction: column; align-items: center; }
+        }
+
+        /* ══════════ REDUCED MOTION ══════════ */
+        @media (prefers-reduced-motion: reduce) {
+            .hero { animation: none; opacity: 1; transform: none; }
+            .hero .avatar-ring { animation: none; }
+            .reveal { transition: none; }
         }
     </style>
 </head>
@@ -175,100 +342,170 @@
     </div>
 </nav>
 
+<!-- ══════════ HERO ══════════ -->
 <section class="hero">
-    <div class="avatar">A</div>
+    <div class="avatar-ring">
+        <div class="inner">A</div>
+    </div>
+    <div class="typing-line" id="typing"></div>
     <h1>Adam Ramadhan</h1>
     <p class="tagline">Mobile Programmer — Spesialis Flutter</p>
-    <p class="company">PT Nutech Integrasi (by Telkom Indonesia)</p>
-    <a href="#kontak" class="btn">Hubungi Saya</a>
+    <div class="company-badge">⚡ PT Nutech Integrasi · Telkom Indonesia</div>
+    <div class="hero-cta">
+        <a href="#kontak" class="btn btn-primary">Hubungi Saya</a>
+        <a href="#proyek" class="btn btn-outline">Lihat Proyek ↓</a>
+    </div>
+    <div class="mini-stats">
+        <div>
+            <span class="stat-num">5+</span>
+            <span class="stat-label">Proyek</span>
+        </div>
+        <div>
+            <span class="stat-num">Flutter</span>
+            <span class="stat-label">Spesialis</span>
+        </div>
+        <div>
+            <span class="stat-num">2</span>
+            <span class="stat-label">Platform</span>
+        </div>
+    </div>
 </section>
 
 <div class="container">
 
+    <!-- ══════════ TENTANG + SKILLS ══════════ -->
     <section id="tentang">
-        <h2>Tentang</h2>
-        <div class="card">
+        <h2 class="reveal">Tentang</h2>
+        <div class="about-card reveal reveal-delay-1">
             <p>Saya <strong>mobile programmer</strong> yang fokus di <strong>Flutter</strong> dan saat ini bekerja di <strong>PT Nutech Integrasi</strong> — bagian dari Telkom Indonesia. Keseharian saya membangun aplikasi mobile dari 0 sampai rilis, ngoprek state management, integrasi API, dan optimasi performa. Domain ini tempat saya menampilkan hasil karya dan eksperimen.</p>
         </div>
 
-        <h2 style="margin-top: 40px;">Skills</h2>
-        <div class="skills-grid">
-            <span class="skill-pill highlight">Flutter</span>
-            <span class="skill-pill highlight">Dart</span>
-            <span class="skill-pill">Python</span>
-            <span class="skill-pill">JavaScript</span>
-            <span class="skill-pill">FastAPI</span>
-            <span class="skill-pill">Firebase</span>
-            <span class="skill-pill">PostgreSQL</span>
-            <span class="skill-pill">REST API</span>
-            <span class="skill-pill">Git</span>
-            <span class="skill-pill">Docker</span>
-            <span class="skill-pill">Linux</span>
-            <span class="skill-pill">CI/CD</span>
+        <h2 style="margin-top:40px;" class="reveal">Skills</h2>
+
+        <div class="skills-category reveal reveal-delay-1">
+            <h4>Core · Mobile</h4>
+            <div class="skills-row">
+                <span class="skill-item primary"><span class="dot"></span>Flutter</span>
+                <span class="skill-item primary"><span class="dot"></span>Dart</span>
+            </div>
+        </div>
+
+        <div class="skills-category reveal reveal-delay-2">
+            <h4>Backend &amp; Tools</h4>
+            <div class="skills-row">
+                <span class="skill-item other"><span class="dot"></span>Python</span>
+                <span class="skill-item tool"><span class="dot"></span>FastAPI</span>
+                <span class="skill-item tool"><span class="dot"></span>Firebase</span>
+                <span class="skill-item tool"><span class="dot"></span>PostgreSQL</span>
+                <span class="skill-item other"><span class="dot"></span>REST API</span>
+                <span class="skill-item tool"><span class="dot"></span>Docker</span>
+            </div>
+        </div>
+
+        <div class="skills-category reveal reveal-delay-3">
+            <h4>Workflow</h4>
+            <div class="skills-row">
+                <span class="skill-item other"><span class="dot"></span>Git</span>
+                <span class="skill-item other"><span class="dot"></span>Linux</span>
+                <span class="skill-item other"><span class="dot"></span>CI/CD</span>
+                <span class="skill-item other"><span class="dot"></span>JavaScript</span>
+            </div>
         </div>
     </section>
 
+    <!-- ══════════ PROYEK ══════════ -->
     <section id="proyek">
-        <h2>Proyek</h2>
+        <h2 class="reveal">Proyek</h2>
 
-        <div class="card">
-            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap;">
-                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAACXBIWXMAACxLAAAsSwGlPZapAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAZTSURBVHgB7ZxhctNWEMd3JTnpDDC43yAxVBkI7TfSExBOQDgB8QnSnIDkBIQT4JwAOEGcE9T91jZhIkrc8FGdSafjSHrbt3IMjpPUT9JKllz/PjFYnkh/775d7Xu7ADNmzJjx/wWhQhy59XqtdsMlwvroZ4jkB0HNX/I8Dwqk1AJ+ethYtYFWLAufENEKAbqGX/X1g3W00J2Qwv0o+qe95Pk+5ECpBGQLm7NvrVoWPCOgNf1fdRBCP2g7AtoNgkiL+dkDIUohYN/S8BkgrYOgaNcxELNx0G1BRiYqIAvnILwkgFWYCOgpUNtZhJyIgCc/3HFJOa+AYA1KQSzkcy1kBxJSuICfv7+/oZTaggJcNSl63W2dBdF2kjWyMAHZ6iBy3nx1V/JAR0lC9IHo46UvIH6HRC6w0AgrUBjoRUTNe4fHbaOroQCOXLc+Vwt2kKATgU4twtNOkrSCo7Pj3FyxtPj6hp/ou16FvLFoc+G37s64yyayBg4E4RwP0Xqsk+A6Ebs0uRTncBiLy3kcgPrIog9bBFtzFNmrWtCX+hFcyAXqLBx0fxx3VWECsmjzzo11RHyWNupelcv1UyDY0B+KBiT9g24vHh5vjbsudwHzSlVGF/zj5UV28bcyFkmetr4lkystyAkW7mS5sWcj7OWQ5/l867aNX4ILpyD80AqoGQeo1JDXC6KnpleLW2DsqrVbem2in0AWX7vVa6XdeFyETJ1nErR74enzJAFOVMD4xqPaHgcDkIJ43YNt07RimO7DxhYiB5qxcCq1vXA4PuqOIibgHw/urjmW/QbkEmQ/VFHz/oeTd5CB7oN7a2jR9fcVW13YTFtgEBHw5NH9F0SqBVIgvOudnTalSlB9z7D3hgKMrxTskv47aSx7mMwCSotnmj6kgSO1dNE1k4D91AF/BiEUYLNx8KkFFSJ1GsNuYYH1FoSooniMAylRkfMWpaIt0Wbj8LgFFSSVBZ48arzUvi9SIdGL+es06UNZSLwG9iOaw+ueQLpi/spUVpJbYGRzYiqS64VKbULFSWSB59Z3BAJwMWDxoNuEipPMAvvWJwJXUmAKSCSg3tiWqbnp1yfJvdlJYiygTprXQWjtU0i7MCUYC2iR3vgWIgj+zlQgKBPmLiy1kRO7bz7nVCaBkYD8zgtiZSp6D1OEkYCoLBeE4B02mCLMXBhJbGOb94RhishtU+k6pmn9YwoWED2YMgq3wGljJmBGChaQSnekLStFW2CdN95hijASkDDLUYmLzOO3t2GKMBOQ5KKnss6Mz51UASMBw9ARTH6xwNOm+WMkoN6I5uS3DQJYllxVpwwYBxEi2AcRyOWjbzAlmNcDnbAFQmBp2huyYyzg3V/jEnwbBLAseDEt6UyiPDAikNoIqs85N6UPYE6ExBvrfy4vHgmdjPd7welS1aszid9ESFlSm+H1+bmbb6DiJBZw8cMn3hBqgwQ6mPD5Qqgwqd6F0Q75RIGI6xGpnSP3jgsVJZWAHJEVkVhAma/V9qoqYqYTqt3lxRYCCrkger0geFq1EwuZyllnQY1TEaH3ZHKraImZD5lzJ+Z8LdwDkGpJRS9U4WbW9oZRuE9ZpxCr/G+laL8XRu8krF2kzUFeRIZ2ekH0OutD8hvPN7Ubrwhw/dJfSNFgPYpop1KCziBDss004POM/bPc//3DZhFSvFeOT3HJ9/GiR6DaSR4yboNF7t40PZKSrFP9y7cgB/q/vL0lF6GHIR6o8/66psOszY7ag7bu/n5snKLl2i+cr5CXu5r6/XrOq8zNjobt/kwhHetfhYQn2V2bPG2Bu2fh6c6gEJFHU7euPD01cefCZybww3JB1UJ4fD6NY9wa5etVvqPF2R92269jomgjp8E97YWD47EbYKk7lZIwGDLBD38uQPvi56579Td9f7TcdXFMFNUJcoLM3vULs8DzFGdDW147UvAL7zWbbJcikmsR1HmCm6LY0vKvZCfoXC/UhfupBTc/owslJWm7beFrIL+11OxwS++LbECZSNm5PrHpbXmnOMZkmMnATHT8HTMxITMKN6AUAxiZuA8vtNf0HW3kuEaKzUoYUBoBh4lHCcQRl9MVo1zxOq7MISUppYCjsKA8uZeHlSlCFy28fT4ab4DPY/RI0V+WTo8UAk/0bRc90XfGjBkzZsxIxL8T4BbkWleajAAAAABJRU5ErkJggg==" alt="C-Access" style="width:48px;height:48px;border-radius:10px;">
+        <div class="project-card reveal reveal-delay-1">
+            <div class="card-header">
+                <img src="data:image/png;base64,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" alt="C-Access" class="card-icon">
                 <div>
-                    <h3 style="margin:0;">C-Access</h3>
-                    <div class="meta" style="margin:0;">KAI Commuter — Flutter</div>
+                    <h3>C-Access</h3>
+                    <div class="meta">KAI Commuter · Flutter</div>
                 </div>
             </div>
-            <p>Aplikasi resmi KAI Commuter untuk pengalaman naik kereta yang lebih mudah. Fitur meliputi pembelian tiket, jadwal real-time, info stasiun, dan riwayat perjalanan — tersedia di Android & iOS.</p>
-            <div class="store-badges">
-                <a href="https://play.google.com/store/apps/details?id=com.kci.access" target="_blank" rel="noopener" style="gap:4px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.807 1.626a1 1 0 0 1 0 1.732l-2.807 1.626L15.206 12l2.492-2.492zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"/></svg>
+            <p>Aplikasi resmi KAI Commuter untuk pengalaman naik kereta yang lebih mudah. Fitur meliputi pembelian tiket, jadwal real-time, info stasiun, dan riwayat perjalanan — tersedia di Android &amp; iOS.</p>
+            <div class="stack-badges">
+                <span class="stack-badge">Flutter</span>
+                <span class="stack-badge">GetX</span>
+                <span class="stack-badge">Firebase</span>
+                <span class="stack-badge">Dio</span>
+                <span class="stack-badge">Sentry</span>
+            </div>
+            <div class="store-links">
+                <a href="https://play.google.com/store/apps/details?id=com.kci.access" target="_blank" rel="noopener" class="store-link">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.807 1.626a1 1 0 0 1 0 1.732l-2.807 1.626L15.206 12l2.492-2.492zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"></path></svg>
                     Google Play
                 </a>
-                <a href="https://apps.apple.com/id/app/c-access/id6450940965" target="_blank" rel="noopener" style="gap:4px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11.941 6.281c-.562-1.128-2.105-3.281-4.281-3.281-2.934 0-5.66 3.375-5.66 7.82 0 2.479 1.105 4.682 2.863 6.072.959.757 1.956 1.386 2.956 1.386.904 0 1.651-.637 2.498-1.26.951-.7 1.504-1.107 2.504-1.107.97 0 1.535.416 2.488 1.12.852.634 1.572 1.272 2.478 1.272 1.066 0 2.475-1.337 3.444-2.582.601-.771.549-.771 1.054-1.579-2.793-1.026-3.646-4.654-1.451-6.667-1.116-1.438-2.775-2.282-4.425-2.282-1.326 0-2.437.591-3.148 1.107-.382.277-.717.562-1.068.562-.27 0-.6-.252-.89-.459zM14.787 3.252c.562-1.482.39-3.252-.39-4.252-1.005-.72-2.519-.84-3.779-.84-.416 0-.833.013-1.254.027-1.095.026-2.185.067-2.948.419.457.562.845 1.785 1.009 2.561.23 1.09.299 2.233.262 3.18.188-.011.394-.018.617-.018 1.358 0 2.714.325 3.878.893.328-1.133.876-2.114 1.605-2.97z"/></svg>
+                <a href="https://apps.apple.com/id/app/c-access/id6450940965" target="_blank" rel="noopener" class="store-link">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M11.941 6.281c-.562-1.128-2.105-3.281-4.281-3.281-2.934 0-5.66 3.375-5.66 7.82 0 2.479 1.105 4.682 2.863 6.072.959.757 1.956 1.386 2.956 1.386.904 0 1.651-.637 2.498-1.26.951-.7 1.504-1.107 2.504-1.107.97 0 1.535.416 2.488 1.12.852.634 1.572 1.272 2.478 1.272 1.066 0 2.475-1.337 3.444-2.582.601-.771.549-.771 1.054-1.579-2.793-1.026-3.646-4.654-1.451-6.667-1.116-1.438-2.775-2.282-4.425-2.282-1.326 0-2.437.591-3.148 1.107-.382.277-.717.562-1.068.562-.27 0-.6-.252-.89-.459zM14.787 3.252c.562-1.482.39-3.252-.39-4.252-1.005-.72-2.519-.84-3.779-.84-.416 0-.833.013-1.254.027-1.095.026-2.185.067-2.948.419.457.562.845 1.785 1.009 2.561.23 1.09.299 2.233.262 3.18.188-.011.394-.018.617-.018 1.358 0 2.714.325 3.878.893.328-1.133.876-2.114 1.605-2.97z"></path></svg>
                     App Store
                 </a>
             </div>
         </div>
 
-        <div class="card">
-            <h3>Hermes Agent</h3>
-            <div class="meta">AI Agent — Flutter & Python</div>
+        <div class="project-card reveal reveal-delay-2">
+            <div class="card-header">
+                <div class="card-icon">🤖</div>
+                <div>
+                    <h3>Hermes Agent</h3>
+                    <div class="meta">AI Agent · Flutter &amp; Python</div>
+                </div>
+            </div>
             <p>AI agent pribadi yang bisa ngontrol desktop, ngerjain task kompleks, dan integrasi dengan berbagai platform. Udah jadi daily driver.</p>
+            <div class="stack-badges">
+                <span class="stack-badge">Python</span>
+                <span class="stack-badge">Flutter</span>
+                <span class="stack-badge">LLM</span>
+                <span class="stack-badge">MCP</span>
+            </div>
         </div>
 
-        <div class="card">
-            <h3>DOM Apps</h3>
-            <div class="meta">Flutter — 2024</div>
+        <div class="project-card reveal reveal-delay-3">
+            <div class="card-header">
+                <div class="card-icon">📦</div>
+                <div>
+                    <h3>DOM Apps</h3>
+                    <div class="meta">Flutter · 2024</div>
+                </div>
+            </div>
             <p>Ekosistem aplikasi Flutter untuk internal, termasuk absensi, POS, dan manajemen data.</p>
+            <div class="stack-badges">
+                <span class="stack-badge">Flutter</span>
+                <span class="stack-badge">GetX</span>
+                <span class="stack-badge">Hive</span>
+                <span class="stack-badge">Firebase</span>
+            </div>
         </div>
 
     </section>
 
+    <!-- ══════════ FREELANCE ══════════ -->
     <section id="freelance">
-        <h2>Freelance</h2>
-        <div class="freelance-card">
+        <h2 class="reveal">Freelance</h2>
+        <div class="freelance-card reveal reveal-delay-1">
             <h3>📱 Open Freelance</h3>
-            <p>Terima jasa pembuatan aplikasi mobile dengan <strong>harga ramah mahasiswa</strong> 💰.<br>
-            Mau bikin aplikasi Flutter? Mulai dari MVP, redesign, sampai full development — diskusi dulu aja, gratis.<br>
-            <span style="color:var(--accent);font-weight:600;">#StudentFriendly</span></p>
+            <p>Terima jasa pembuatan aplikasi mobile dengan <strong style="color:var(--text);">harga ramah mahasiswa</strong> 💰.<br>
+            Mau bikin aplikasi Flutter? Mulai dari MVP, redesign, sampai full development — diskusi dulu aja, gratis.</p>
+            <div class="tag">#StudentFriendly</div>
         </div>
     </section>
 
+    <!-- ══════════ KONTAK ══════════ -->
     <section id="kontak">
-        <h2>Kontak</h2>
-        <div class="contact-links">
+        <h2 class="reveal">Kontak</h2>
+        <div class="contact-links reveal reveal-delay-1">
             <a href="https://github.com/adamramadhn" target="_blank" rel="noopener">
-                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"></path></svg>
                 adamramadhn
             </a>
             <a href="mailto:adam@theltsoul.my.id">
-                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"></path></svg>
                 adam@theltsoul.my.id
             </a>
             <a href="https://www.linkedin.com/in/adam-r-51594a207" target="_blank" rel="noopener">
-                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"></path></svg>
                 LinkedIn
             </a>
         </div>
@@ -277,14 +514,53 @@
 </div>
 
 <footer>
-    <div class="container">© 2026 theltsoul.my.id — Dibikin dengan Flutter & ☕</div>
+    <div class="container">© 2026 theltsoul.my.id — Dibikin dengan Flutter &amp; ☕</div>
 </footer>
 
 <script>
+/* ══════════ TYPING EFFECT ══════════ */
+const typingEl = document.getElementById('typing');
+const lines = ['$ whoami', 'mobile_programmer', 'flutter.dev', 'adam@theltsoul'];
+let lineIdx = 0, charIdx = 0, isDeleting = false;
+
+function type() {
+    const current = lines[lineIdx];
+    if (!isDeleting) {
+        typingEl.textContent = current.substring(0, charIdx + 1);
+        charIdx++;
+        if (charIdx === current.length) {
+            isDeleting = true;
+            setTimeout(type, 1800);
+            return;
+        }
+    } else {
+        typingEl.textContent = current.substring(0, charIdx - 1);
+        charIdx--;
+        if (charIdx === 0) {
+            isDeleting = false;
+            lineIdx = (lineIdx + 1) % lines.length;
+        }
+    }
+    setTimeout(type, isDeleting ? 50 : 90);
+}
+setTimeout(type, 600);
+
+/* ══════════ SCROLL REVEAL ══════════ */
+const reveals = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+reveals.forEach(el => revealObserver.observe(el));
+
+/* ══════════ PARTICLES ══════════ */
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 let particles = [];
-const count = 60;
+const count = 50;
 
 function resize() {
     canvas.width = window.innerWidth;
@@ -294,16 +570,14 @@ window.addEventListener('resize', resize);
 resize();
 
 class Particle {
-    constructor() {
-        this.reset();
-    }
+    constructor() { this.reset(); }
     reset() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
         this.size = Math.random() * 2 + 0.5;
-        this.speedX = (Math.random() - 0.5) * 0.4;
-        this.speedY = (Math.random() - 0.5) * 0.4;
-        this.opacity = Math.random() * 0.5 + 0.1;
+        this.speedX = (Math.random() - 0.5) * 0.35;
+        this.speedY = (Math.random() - 0.5) * 0.35;
+        this.opacity = Math.random() * 0.45 + 0.08;
     }
     update() {
         this.x += this.speedX;
@@ -329,11 +603,11 @@ function animate() {
             const dx = particles[i].x - particles[j].x;
             const dy = particles[i].y - particles[j].y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 140) {
+            if (dist < 130) {
                 ctx.beginPath();
                 ctx.moveTo(particles[i].x, particles[i].y);
                 ctx.lineTo(particles[j].x, particles[j].y);
-                ctx.strokeStyle = `rgba(124, 92, 252, ${0.08 * (1 - dist / 140)})`;
+                ctx.strokeStyle = `rgba(124, 92, 252, ${0.06 * (1 - dist / 130)})`;
                 ctx.stroke();
             }
         }
@@ -342,6 +616,8 @@ function animate() {
 }
 animate();
 </script>
+
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"8f43b33d4cfc4c15a1e3b5feab6608d2","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 
 </body>
 </html>
