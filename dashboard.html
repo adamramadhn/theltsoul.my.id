@@ -29,8 +29,6 @@
             --blue-soft: rgba(96, 165, 250, 0.12);
             --orange: #fb923c;
             --orange-soft: rgba(251, 146, 60, 0.12);
-            --red: #f87171;
-            --red-soft: rgba(248, 113, 113, 0.12);
             --radius-sm: 8px;
             --radius: 12px;
             --radius-lg: 16px;
@@ -64,16 +62,75 @@
             background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(124,92,252,0.1));
         }
 
+        /* ══════════ PASSWORD GATE ══════════ */
+        .password-gate {
+            position: fixed; inset: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg);
+        }
+        .password-gate .gate-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-xl); padding: 40px 36px;
+            text-align: center; max-width: 400px; width: 90%;
+        }
+        .password-gate .gate-icon {
+            font-size: 2.5rem; margin-bottom: 16px;
+        }
+        .password-gate h2 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.3rem; font-weight: 700; margin-bottom: 8px;
+        }
+        .password-gate p {
+            color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 24px;
+        }
+        .password-gate input[type="password"] {
+            width: 100%; padding: 12px 16px; border-radius: var(--radius);
+            border: 1px solid var(--border); background: var(--surface2);
+            color: var(--text); font-size: 0.95rem; outline: none;
+            margin-bottom: 16px; transition: border-color 0.2s;
+        }
+        .password-gate input[type="password"]:focus {
+            border-color: var(--accent);
+        }
+        .password-gate button {
+            width: 100%; padding: 12px 24px; border-radius: var(--radius);
+            border: none; background: var(--accent); color: #fff;
+            font-size: 0.9rem; font-weight: 600; cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .password-gate button:hover { opacity: 0.9; }
+        .password-gate .error {
+            color: #f87171; font-size: 0.8rem; margin-top: 12px; display: none;
+        }
+        .password-gate .hint {
+            color: var(--text-tertiary); font-size: 0.72rem; margin-top: 16px;
+        }
+
+        /* ══════════ DASHBOARD (hidden until unlocked) ══════════ */
+        .dashboard-wrapper {
+            display: none; position: relative; z-index: 1;
+        }
+        .dashboard-wrapper.unlocked { display: block; }
+
         /* ══════════ NAV ══════════ */
         .nav {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 24px; max-width: 1100px; margin: 0 auto; position: relative; z-index: 1;
+            padding: 20px 24px; max-width: 1100px; margin: 0 auto;
         }
         .nav .logo {
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-weight: 800; font-size: 1.2rem; color: var(--accent);
             letter-spacing: -0.5px; text-decoration: none;
         }
+        .nav .nav-right {
+            display: flex; align-items: center; gap: 16px;
+        }
+        .nav .lock-btn {
+            color: var(--text-secondary); text-decoration: none; font-size: 0.82rem;
+            font-weight: 500; transition: color 0.2s; cursor: pointer;
+            background: none; border: none; display: flex; align-items: center; gap: 4px;
+        }
+        .nav .lock-btn:hover { color: var(--text); }
         .nav .back-link {
             color: var(--text-secondary); text-decoration: none; font-size: 0.88rem;
             font-weight: 500; transition: color 0.2s; display: flex; align-items: center; gap: 6px;
@@ -82,7 +139,7 @@
 
         /* ══════════ HEADER ══════════ */
         .dashboard-header {
-            text-align: center; padding: 48px 24px 40px; position: relative; z-index: 1;
+            text-align: center; padding: 48px 24px 40px;
         }
         .dashboard-header .status-badge {
             display: inline-flex; align-items: center; gap: 8px;
@@ -112,7 +169,7 @@
 
         /* ══════════ CONTAINER ══════════ */
         .container {
-            max-width: 1100px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1;
+            max-width: 1100px; margin: 0 auto; padding: 0 24px;
         }
 
         /* ══════════ GRID ══════════ */
@@ -140,7 +197,6 @@
         .stat-card .card-icon.green { background: var(--green-soft); }
         .stat-card .card-icon.blue { background: var(--blue-soft); }
         .stat-card .card-icon.orange { background: var(--orange-soft); }
-        .stat-card .card-icon.red { background: var(--red-soft); }
 
         .stat-card .stat-value {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -208,7 +264,6 @@
         .fill.purple { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
         .fill.green { background: var(--green); }
         .fill.blue { background: var(--blue); }
-        .fill.orange { background: var(--orange); }
 
         /* ══════════ TERMINAL ══════════ */
         .terminal {
@@ -259,6 +314,22 @@
 </head>
 <body>
 
+<!-- ══════════ PASSWORD GATE ══════════ -->
+<div class="password-gate" id="password-gate">
+    <div class="gate-card">
+        <div class="gate-icon">🔐</div>
+        <h2>Agent Dashboard</h2>
+        <p>Masukkan password untuk mengakses dashboard Oyeng.</p>
+        <input type="password" id="password-input" placeholder="Password..." autofocus>
+        <button onclick="unlockDashboard()">Unlock</button>
+        <div class="error" id="password-error">Password salah. Coba lagi.</div>
+        <div class="hint">💡 Hint: nama agent ini (lowercase)</div>
+    </div>
+</div>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div class="dashboard-wrapper" id="dashboard">
+
 <div class="bg-decoration">
     <div class="gradient-orb orb-1"></div>
     <div class="gradient-orb orb-2"></div>
@@ -266,7 +337,10 @@
 
 <nav class="nav">
     <a href="index.html" class="logo">~/theltsoul</a>
-    <a href="index.html" class="back-link">← Kembali ke Portfolio</a>
+    <div class="nav-right">
+        <button class="lock-btn" onclick="lockDashboard()">🔒 Lock</button>
+        <a href="index.html" class="back-link">← Portfolio</a>
+    </div>
 </nav>
 
 <header class="dashboard-header">
@@ -275,7 +349,7 @@
         Oyeng Agent — Online
     </div>
     <h1>🧠 Agent Dashboard</h1>
-    <p>Real-time overview of Oyeng AI Research Assistant — memory, stats, and activity.</p>
+    <p>Real-time overview of Oyeng AI Research Assistant — capabilities, stats, and activity.</p>
 </header>
 
 <div class="container">
@@ -284,63 +358,63 @@
     <div class="stats-grid">
         <div class="stat-card">
             <div class="card-icon purple">🧠</div>
-            <span class="stat-value" id="memory-count">—</span>
-            <span class="stat-label">Memory Entries</span>
-            <span class="stat-sub">System prompt + Honcho</span>
+            <span class="stat-value">2</span>
+            <span class="stat-label">Memory Tiers</span>
+            <span class="stat-sub">Hot cache + cold storage</span>
         </div>
         <div class="stat-card">
             <div class="card-icon green">✅</div>
-            <span class="stat-value" id="conclusions-count">—</span>
+            <span class="stat-value">113+</span>
             <span class="stat-label">Honcho Conclusions</span>
             <span class="stat-sub">Auto-extracted observations</span>
         </div>
         <div class="stat-card">
             <div class="card-icon blue">⚡</div>
-            <span class="stat-value" id="cron-count">—</span>
+            <span class="stat-value">4</span>
             <span class="stat-label">Active Cron Jobs</span>
             <span class="stat-sub">Scheduled automation</span>
         </div>
         <div class="stat-card">
             <div class="card-icon orange">🛠️</div>
-            <span class="stat-value" id="skills-count">—</span>
-            <span class="stat-label">Skills Loaded</span>
-            <span class="stat-sub">Available capabilities</span>
+            <span class="stat-value">80+</span>
+            <span class="stat-label">Skills Available</span>
+            <span class="stat-sub">Reusable capabilities</span>
         </div>
     </div>
 
-    <!-- ══════════ MEMORY + HONCHO ══════════ -->
+    <!-- ══════════ MEMORY + IDENTITY ══════════ -->
     <div class="wide-grid">
         <div class="card">
-            <h3><span class="dot" style="background:var(--accent)"></span> Memory Usage</h3>
+            <h3><span class="dot" style="background:var(--accent)"></span> Memory Architecture</h3>
             <div class="list-item">
                 <div class="item-left">
                     <div class="item-icon">💾</div>
                     <div>
-                        <div class="item-name">System Prompt Memory</div>
-                        <div class="item-sub">Hot cache — injected every turn</div>
+                        <div class="item-name">Hot Cache</div>
+                        <div class="item-sub">System prompt — injected every turn</div>
                     </div>
                 </div>
                 <div class="item-right">
-                    <div class="item-value" id="memory-usage">—</div>
+                    <div class="item-value">~2.2K chars</div>
                 </div>
             </div>
             <div class="progress-bar">
-                <div class="fill purple" id="memory-bar" style="width: 0%"></div>
+                <div class="fill purple" style="width: 97%"></div>
             </div>
             <div class="list-item" style="margin-top: 12px;">
                 <div class="item-left">
                     <div class="item-icon">🧊</div>
                     <div>
-                        <div class="item-name">Honcho Cold Storage</div>
+                        <div class="item-name">Cold Storage</div>
                         <div class="item-sub">Vector search long-term memory</div>
                     </div>
                 </div>
                 <div class="item-right">
-                    <div class="item-value" id="honcho-usage">—</div>
+                    <div class="item-value">113+ entries</div>
                 </div>
             </div>
             <div class="progress-bar">
-                <div class="fill blue" id="honcho-bar" style="width: 0%"></div>
+                <div class="fill blue" style="width: 100%"></div>
             </div>
         </div>
 
@@ -349,65 +423,53 @@
             <div class="list-item">
                 <div class="item-left">
                     <div class="item-icon">🏷️</div>
-                    <div>
-                        <div class="item-name">Name</div>
-                    </div>
+                    <div><div class="item-name">Name</div></div>
                 </div>
-                <div class="item-right"><div class="item-value">Oyeng (Hermes)</div></div>
+                <div class="item-right"><div class="item-value">Oyeng</div></div>
             </div>
             <div class="list-item">
                 <div class="item-left">
                     <div class="item-icon">🤖</div>
-                    <div>
-                        <div class="item-name">Model</div>
-                    </div>
+                    <div><div class="item-name">Model</div></div>
                 </div>
                 <div class="item-right"><div class="item-value">OWL Alpha</div></div>
             </div>
             <div class="list-item">
                 <div class="item-left">
                     <div class="item-icon">🔄</div>
-                    <div>
-                        <div class="item-name">Fallback</div>
-                    </div>
+                    <div><div class="item-name">Fallback</div></div>
                 </div>
                 <div class="item-right"><div class="item-value">GLM 4.5</div></div>
             </div>
             <div class="list-item">
                 <div class="item-left">
                     <div class="item-icon">📡</div>
-                    <div>
-                        <div class="item-name">Provider</div>
-                    </div>
+                    <div><div class="item-name">Provider</div></div>
                 </div>
                 <div class="item-right"><div class="item-value">OpenRouter</div></div>
             </div>
             <div class="list-item">
                 <div class="item-left">
                     <div class="item-icon">🔗</div>
-                    <div>
-                        <div class="item-name">Honcho API</div>
-                    </div>
+                    <div><div class="item-name">Memory Sync</div></div>
                 </div>
                 <div class="item-right">
-                    <span class="item-status active">localhost:8000</span>
+                    <span class="item-status active">Every 6h</span>
                 </div>
             </div>
             <div class="list-item">
                 <div class="item-left">
                     <div class="item-icon">📊</div>
-                    <div>
-                        <div class="item-name">Embedding Server</div>
-                    </div>
+                    <div><div class="item-name">Embedding</div></div>
                 </div>
                 <div class="item-right">
-                    <span class="item-status active">localhost:8787</span>
+                    <span class="item-status active">Local</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ══════════ CRON + SKILLS ══════════ -->
+    <!-- ══════════ CRON + PLATFORMS ══════════ -->
     <div class="wide-grid">
         <div class="card">
             <h3><span class="dot" style="background:var(--orange)"></span> Cron Jobs</h3>
@@ -515,123 +577,111 @@
 </div>
 
 <footer class="dashboard-footer">
-    <div class="container">Oyeng Agent Dashboard · Powered by Hermes · <span id="current-time"></span></div>
+    <div class="container">Oyeng Agent Dashboard · <span id="current-time"></span></div>
 </footer>
 
+</div>
+
 <script>
-// ══════════ ANIMATED COUNTERS ══════════
-function animateCounter(el, target, suffix = '') {
-    let current = 0;
-    const step = Math.max(1, Math.floor(target / 40));
-    const interval = setInterval(() => {
-        current += step;
-        if (current >= target) {
-            current = target;
-            clearInterval(interval);
-        }
-        el.textContent = current + suffix;
-    }, 30);
+// ══════════ PASSWORD PROTECTION ══════════
+const DASHBOARD_PASSWORD = 'oyeng';
+const STORAGE_KEY = 'oyeng_dashboard_unlocked';
+
+function unlockDashboard() {
+    const input = document.getElementById('password-input');
+    const error = document.getElementById('password-error');
+    if (input.value.toLowerCase() === DASHBOARD_PASSWORD) {
+        document.getElementById('password-gate').style.display = 'none';
+        document.getElementById('dashboard').classList.add('unlocked');
+        sessionStorage.setItem(STORAGE_KEY, 'true');
+        startTerminalAnimation();
+    } else {
+        error.style.display = 'block';
+        input.value = '';
+        input.focus();
+    }
 }
 
-// ══════════ FETCH REAL DATA ══════════
-async function fetchStats() {
-    try {
-        // Fetch cron jobs
-        const cronRes = await fetch('/api/cron/list');
-        const cronData = await cronRes.json();
-        const activeCrons = cronData.filter(c => c.enabled).length;
-        animateCounter(document.getElementById('cron-count'), activeCrons);
+function lockDashboard() {
+    document.getElementById('password-gate').style.display = 'flex';
+    document.getElementById('dashboard').classList.remove('unlocked');
+    sessionStorage.removeItem(STORAGE_KEY);
+    document.getElementById('password-input').value = '';
+    document.getElementById('password-error').style.display = 'none';
+}
 
-        // Fetch memory stats
-        const memRes = await fetch('/api/memory/stats');
-        const memData = await memRes.json();
-        animateCounter(document.getElementById('memory-count'), memData.entries);
-        animateCounter(document.getElementById('conclusions-count'), memData.conclusions);
+// Allow Enter key to submit
+document.getElementById('password-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') unlockDashboard();
+});
 
-        // Update memory bar
-        const memPct = memData.usage_percent;
-        document.getElementById('memory-usage').textContent = memPct + '%';
-        document.getElementById('memory-bar').style.width = memPct + '%';
-
-        // Update honcho bar
-        document.getElementById('honcho-usage').textContent = memData.conclusions + ' entries';
-        document.getElementById('honcho-bar').style.width = Math.min(100, memData.conclusions) + '%';
-
-    } catch (e) {
-        // Fallback: show static data
-        animateCounter(document.getElementById('memory-count'), 12);
-        animateCounter(document.getElementById('conclusions-count'), 113);
-        animateCounter(document.getElementById('cron-count'), 4);
-        animateCounter(document.getElementById('skills-count'), 80);
-        document.getElementById('memory-usage').textContent = '97%';
-        document.getElementById('memory-bar').style.width = '97%';
-        document.getElementById('honcho-usage').textContent = '113 entries';
-        document.getElementById('honcho-bar').style.width = '100%';
-    }
+// Check if already unlocked in this session
+if (sessionStorage.getItem(STORAGE_KEY) === 'true') {
+    document.getElementById('password-gate').style.display = 'none';
+    document.getElementById('dashboard').classList.add('unlocked');
+    startTerminalAnimation();
 }
 
 // ══════════ TERMINAL ANIMATION ══════════
 const terminalLines = [
-    { prompt: '$', cmd: 'oyeng status', output: '' },
-    { prompt: '', cmd: '', output: '┌─────────────────────────────────────┐' },
-    { prompt: '', cmd: '', output: '│  🧠 Oyeng AI Research Assistant     │' },
-    { prompt: '', cmd: '', output: '│  Status: ● Online                   │' },
-    { prompt: '', cmd: '', output: '│  Model: OWL Alpha (OpenRouter)      │' },
-    { prompt: '', cmd: '', output: '│  Memory: 12 entries (97% capacity)  │' },
-    { prompt: '', cmd: '', output: '│  Honcho: 113 conclusions            │' },
-    { prompt: '', cmd: '', output: '│  Cron Jobs: 4 active                │' },
-    { prompt: '', cmd: '', output: '│  Platforms: TG, Discord, Gmail, GH  │' },
-    { prompt: '', cmd: '', output: '└─────────────────────────────────────┘' },
-    { prompt: '', cmd: '', output: '' },
-    { prompt: '$', cmd: 'uptime', output: '' },
-    { prompt: '', cmd: '', output: 'Services running via launchd:', output_class: 'info' },
-    { prompt: '', cmd: '', output: '  ✓ dev.honcho.api     (port 8000)' },
-    { prompt: '', cmd: '', output: '  ✓ dev.honcho.deriver (queue)' },
-    { prompt: '', cmd: '', output: '  ✓ dev.hermes.embedding (port 8787)' },
-    { prompt: '', cmd: '', output: '' },
-    { prompt: '$', cmd: '', output: '', cursor: true },
+    { output: '┌─────────────────────────────────────┐' },
+    { output: '│  🧠 Oyeng AI Research Assistant     │' },
+    { output: '│  Status: ● Online                   │' },
+    { output: '│  Model: OWL Alpha (OpenRouter)      │' },
+    { output: '│  Memory: 2 tiers (hot + cold)       │' },
+    { output: '│  Honcho: 113+ conclusions           │' },
+    { output: '│  Cron Jobs: 4 active                │' },
+    { output: '│  Platforms: TG, Discord, Gmail, GH  │' },
+    { output: '└─────────────────────────────────────┘' },
+    { output: '' },
+    { prompt: '$', cmd: 'uptime' },
+    { output: 'Services running via launchd:', cls: 'info' },
+    { output: '  ✓ Honcho API + Deriver' },
+    { output: '  ✓ Embedding Server' },
+    { output: '' },
+    { prompt: '$', cmd: '', cursor: true },
 ];
 
 let lineIdx = 0;
-function typeTerminal() {
-    if (lineIdx >= terminalLines.length) return;
-    const line = terminalLines[lineIdx];
+function startTerminalAnimation() {
     const body = document.getElementById('terminal-body');
-    const div = document.createElement('div');
-    div.className = 'line';
-
-    if (line.cursor) {
-        div.innerHTML = `<span class="prompt">$</span><span class="cursor"></span>`;
-    } else if (line.output && !line.cmd) {
-        const cls = line.output_class || 'output';
-        div.innerHTML = `<span class="${cls}">${line.output}</span>`;
-    } else if (line.cmd) {
-        div.innerHTML = `<span class="prompt">${line.prompt}</span><span class="cmd">${line.cmd}</span>`;
+    // Clear initial lines
+    body.innerHTML = '';
+    function typeLine() {
+        if (lineIdx >= terminalLines.length) return;
+        const line = terminalLines[lineIdx];
+        const div = document.createElement('div');
+        div.className = 'line';
+        if (line.cursor) {
+            div.innerHTML = `<span class="prompt">$</span><span class="cursor"></span>`;
+        } else if (line.output) {
+            const cls = line.cls || 'output';
+            div.innerHTML = `<span class="${cls}">${line.output}</span>`;
+        } else if (line.cmd) {
+            div.innerHTML = `<span class="prompt">${line.prompt}</span><span class="cmd">${line.cmd}</span>`;
+        }
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
+        lineIdx++;
+        setTimeout(typeLine, 120 + Math.random() * 80);
     }
-
-    body.appendChild(div);
-    body.scrollTop = body.scrollHeight;
-    lineIdx++;
-    setTimeout(typeTerminal, 120 + Math.random() * 80);
+    typeLine();
 }
 
 // ══════════ CLOCK ══════════
 function updateClock() {
     const now = new Date();
-    document.getElementById('current-time').textContent = now.toLocaleString('id-ID', {
-        timeZone: 'Asia/Jakarta',
-        dateStyle: 'medium',
-        timeStyle: 'short'
-    });
+    const el = document.getElementById('current-time');
+    if (el) {
+        el.textContent = now.toLocaleString('id-ID', {
+            timeZone: 'Asia/Jakarta',
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        });
+    }
 }
-
-// ══════════ INIT ══════════
-document.addEventListener('DOMContentLoaded', () => {
-    fetchStats();
-    setTimeout(typeTerminal, 500);
-    updateClock();
-    setInterval(updateClock, 1000);
-});
+updateClock();
+setInterval(updateClock, 1000);
 </script>
 
 </body>
