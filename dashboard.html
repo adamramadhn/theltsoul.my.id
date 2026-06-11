@@ -105,6 +105,14 @@
         .password-gate .hint {
             color: var(--text-tertiary); font-size: 0.72rem; margin-top: 16px;
         }
+        .password-gate .back-to-portfolio {
+            display: inline-block; margin-top: 14px;
+            color: var(--text-secondary); text-decoration: none; font-size: 0.82rem;
+            font-weight: 500; transition: color 0.2s;
+        }
+        .password-gate .back-to-portfolio:hover {
+            color: var(--accent);
+        }
 
         /* ══════════ DASHBOARD (hidden until unlocked) ══════════ */
         .dashboard-wrapper {
@@ -351,6 +359,7 @@
         <p>Masukkan password untuk mengakses dashboard Oyeng.</p>
         <input type="password" id="password-input" placeholder="Password..." autofocus>
         <button onclick="unlockDashboard()">Unlock</button>
+        <a href="index.html" class="back-to-portfolio">← Kembali ke Portfolio</a>
         <div class="error" id="password-error">Password salah. Coba lagi.</div>
     </div>
 </div>
