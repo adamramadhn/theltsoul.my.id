@@ -332,6 +332,7 @@
                 <div class="live-title">
                     <span class="dot inactive" id="live-dot"></span>
                     <span id="live-label">Harga Live — TLKM</span>
+                    <span class="cache-badge" id="cache-badge" style="display:none; font-size: 0.65rem; padding: 2px 8px; border-radius: 50px; background: var(--yellow-soft); color: var(--yellow); font-weight: 600; margin-left: 6px;">CACHE</span>
                 </div>
                 <div class="toggle-wrap">
                     <span class="toggle-label" id="toggle-label">Auto-fetch: OFF</span>
@@ -553,6 +554,8 @@ const DASHBOARD_PASSWORD = String.fromCharCode(67,97,107,114,97,86,105,115,116,9
 const STORAGE_KEY = 'oyeng_stock_unlocked';
 const FETCH_INTERVAL = 10 * 60 * 1000; // 10 minutes
 const STOCK_STORAGE_KEY = 'oyeng_last_stock';
+const CACHE_PREFIX = 'oyeng_stock_cache_';
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes cache validity
 
 let autoFetchTimer = null;
 let countdownTimer = null;
@@ -588,6 +591,8 @@ function unlockDashboard() {
         document.getElementById('dashboard').classList.add('unlocked');
         sessionStorage.setItem(STORAGE_KEY, 'true');
         restoreLastStock();
+        // Restore price from cache if available
+        restorePriceFromCache(currentStock);
         initCharts();
     } else {
         error.style.display = 'block';
@@ -598,6 +603,7 @@ function unlockDashboard() {
 
 function lockDashboard() {
     stopAutoFetch();
+    // Don't clear price cache — keep it for next unlock
     document.getElementById('password-gate').style.display = 'flex';
     document.getElementById('dashboard').classList.remove('unlocked');
     sessionStorage.removeItem(STORAGE_KEY);
@@ -639,14 +645,117 @@ function restoreLastStock() {
     }
 }
 
+// ═══════════════════════════════════════════
+// PRICE CACHE (localStorage)
+// ═══════════════════════════════════════════
+function getCacheKey(stock) {
+    return CACHE_PREFIX + stock;
+}
+
+function savePriceCache(stock, priceData) {
+    try {
+        const cache = {
+            stock: stock,
+            data: priceData,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(getCacheKey(stock), JSON.stringify(cache));
+    } catch (e) {
+        // localStorage full or unavailable — silent fail
+    }
+}
+
+function loadPriceCache(stock) {
+    try {
+        const raw = localStorage.getItem(getCacheKey(stock));
+        if (!raw) return null;
+        const cache = JSON.parse(raw);
+        // Validate structure
+        if (!cache || !cache.data || !cache.timestamp) return null;
+        // Validate stock matches
+        if (cache.stock !== stock) return null;
+        // Check TTL
+        const age = Date.now() - cache.timestamp;
+        if (age > CACHE_TTL) {
+            // Expired — remove it
+            localStorage.removeItem(getCacheKey(stock));
+            return null;
+        }
+        return cache;
+    } catch (e) {
+        return null;
+    }
+}
+
+function clearPriceCache(stock) {
+    if (stock) {
+        localStorage.removeItem(getCacheKey(stock));
+    } else {
+        // Clear all stock caches
+        Object.keys(STOCK_NAMES).forEach(s => {
+            localStorage.removeItem(getCacheKey(s));
+        });
+    }
+}
+
+function restorePriceFromCache(stock) {
+    const cache = loadPriceCache(stock);
+    if (!cache) return false;
+
+    const d = cache.data;
+    const age = Date.now() - cache.timestamp;
+    const ageMin = Math.floor(age / 60000);
+
+    // Restore to memory
+    lastPriceData = d;
+
+    // Update display
+    const priceEl = document.getElementById('price-value');
+    priceEl.textContent = 'Rp ' + d.price.toLocaleString('id-ID');
+    priceEl.className = 'price-value ' + (d.change > 0 ? 'up' : d.change < 0 ? 'down' : 'neutral');
+
+    const sign = d.change >= 0 ? '+' : '';
+    const arrow = d.change >= 0 ? '▲' : '▼';
+    const changeEl = document.getElementById('price-change');
+    changeEl.textContent = `${arrow} ${sign}${d.change.toLocaleString('id-ID')} (${sign}${d.changePct.toFixed(2)}%)`;
+    changeEl.className = 'price-change ' + (d.change > 0 ? 'up' : d.change < 0 ? 'down' : 'neutral');
+
+    document.getElementById('pd-open').textContent = 'Rp ' + (d.open ? d.open.toLocaleString('id-ID') : '—');
+    document.getElementById('pd-high').textContent = 'Rp ' + (d.high ? d.high.toLocaleString('id-ID') : '—');
+    document.getElementById('pd-low').textContent = 'Rp ' + (d.low ? d.low.toLocaleString('id-ID') : '—');
+    document.getElementById('pd-prev').textContent = 'Rp ' + (d.prevClose ? d.prevClose.toLocaleString('id-ID') : '—');
+    document.getElementById('pd-vol').textContent = d.volume ? formatVolume(d.volume) : '—';
+    document.getElementById('pd-range').textContent = (d.weekLow && d.weekHigh) ? d.weekLow.toLocaleString('id-ID') + ' – ' + d.weekHigh.toLocaleString('id-ID') : '—';
+
+    // Show cached dot (yellow = cached, not live)
+    document.getElementById('live-dot').className = 'dot active';
+
+    // Enable analyze button
+    document.getElementById('btn-analyze').disabled = false;
+
+    // Show cache badge
+    document.getElementById('cache-badge').style.display = 'inline-flex';
+
+    // Show cache age in status
+    const timeStr = new Date(cache.timestamp).toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const cacheLabel = ageMin < 1 ? 'Baru saja' : `${ageMin} menit lalu`;
+    updateFetchStatus('success', `Cache: ${timeStr} (${cacheLabel}) — Auto-fetch untuk data terbaru`);
+
+    return true;
+}
+
 function onStockChange() {
     currentStock = document.getElementById('stock-selector').value;
     localStorage.setItem(STOCK_STORAGE_KEY, currentStock);
     updateStockDisplay();
     resetPriceDisplay();
     document.getElementById('analysis-panel').classList.remove('visible');
-    document.getElementById('btn-analyze').disabled = true;
     lastPriceData = null;
+    // Try to restore from cache for this stock
+    const hasCache = restorePriceFromCache(currentStock);
+    if (!hasCache) {
+        updateFetchStatus('idle', 'Klik toggle untuk mulai auto-fetch');
+    }
     // If auto-fetch is running, restart it for new stock
     if (isAutoFetchActive) {
         stopAutoFetch();
@@ -668,8 +777,10 @@ function resetPriceDisplay() {
     ['pd-open','pd-high','pd-low','pd-prev','pd-vol','pd-range'].forEach(id => {
         document.getElementById(id).textContent = '—';
     });
-    updateFetchStatus('idle', 'Klik toggle untuk mulai auto-fetch');
-    document.getElementById('fs-timer').textContent = '';
+    document.getElementById('live-dot').className = 'dot inactive';
+    document.getElementById('btn-analyze').disabled = true;
+    document.getElementById('cache-badge').style.display = 'none';
+    // Don't clear status here — let caller decide
 }
 
 // ═══════════════════════════════════════════
@@ -779,6 +890,12 @@ async function fetchPrice() {
         const weekLow = meta.fiftyTwoWeekLow || 0;
 
         lastPriceData = { price, prevClose, change, changePct, open, high, low, volume, weekHigh, weekLow };
+
+        // Save to cache
+        savePriceCache(currentStock, lastPriceData);
+
+        // Hide cache badge — this is live data
+        document.getElementById('cache-badge').style.display = 'none';
 
         // Update display
         const priceEl = document.getElementById('price-value');
