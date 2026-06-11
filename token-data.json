@@ -1,0 +1,15 @@
+{
+  "last_updated": "2025-01-09T10:30:00Z",
+  "period_days": 7,
+  "input_tokens": "~2.5M",
+  "output_tokens": "~420K",
+  "total_tokens": "~2.9M",
+  "sessions": 47,
+  "avg_tokens_session": "~62K",
+  "platform_split": {
+    "telegram": 45,
+    "discord": 30,
+    "cli": 15,
+    "cron": 10
+  }
+}

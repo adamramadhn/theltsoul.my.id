@@ -442,7 +442,7 @@
                     <div class="item-sub">Context + system prompt + skills + memory</div>
                 </div>
             </div>
-            <div class="item-right"><div class="item-value" id="token-input">~2.5M</div></div>
+            <div class="item-right"><div class="item-value" id="token-input">Loading...</div></div>
         </div>
         <div class="progress-bar">
             <div class="fill purple" style="width: 78%"></div>
@@ -455,7 +455,7 @@
                     <div class="item-sub">Responses + tool calls + reasoning</div>
                 </div>
             </div>
-            <div class="item-right"><div class="item-value" id="token-output">~420K</div></div>
+            <div class="item-right"><div class="item-value" id="token-output">Loading...</div></div>
         </div>
         <div class="progress-bar">
             <div class="fill blue" style="width: 45%"></div>
@@ -468,7 +468,7 @@
                     <div class="item-sub">All platforms combined</div>
                 </div>
             </div>
-            <div class="item-right"><div class="item-value" style="color:var(--accent)">~2.9M</div></div>
+            <div class="item-right"><div class="item-value" style="color:var(--accent)" id="token-total">Loading...</div></div>
         </div>
         <div class="list-item" style="margin-top: 8px;">
             <div class="item-left">
@@ -478,7 +478,7 @@
                     <div class="item-sub">7-day active conversations</div>
                 </div>
             </div>
-            <div class="item-right"><div class="item-value">47+</div></div>
+            <div class="item-right"><div class="item-value" id="token-sessions">Loading...</div></div>
         </div>
         <div class="list-item">
             <div class="item-left">
@@ -488,7 +488,7 @@
                     <div class="item-sub">Including context injection</div>
                 </div>
             </div>
-            <div class="item-right"><div class="item-value">~62K</div></div>
+            <div class="item-right"><div class="item-value" id="token-avg">Loading...</div></div>
         </div>
         <div class="list-item">
             <div class="item-left">
@@ -908,7 +908,58 @@ function updateLastUpdated() {
     }
 }
 
+// Update token usage UI elements
+function updateTokenUI(data) {
+    const inputEl = document.getElementById('token-input');
+    const outputEl = document.getElementById('token-output');
+    const totalEl = document.getElementById('token-total');
+    const sessionsEl = document.getElementById('token-sessions');
+    const avgEl = document.getElementById('token-avg');
+
+    if (inputEl) inputEl.textContent = data.inputTokens;
+    if (outputEl) outputEl.textContent = data.outputTokens;
+    if (totalEl) totalEl.textContent = data.totalTokens;
+    if (sessionsEl) sessionsEl.textContent = data.sessions + '+';
+    if (avgEl) avgEl.textContent = data.avgTokens;
+}
+
+// Fetch token usage from token-data.json
+async function fetchTokenUsage() {
+    try {
+        const response = await fetch('token-data.json', { cache: 'no-cache' });
+        if (response.ok) {
+            const data = await response.json();
+            const parsed = {
+                inputTokens: data.input_tokens,
+                outputTokens: data.output_tokens,
+                totalTokens: data.total_tokens,
+                sessions: data.sessions,
+                avgTokens: data.avg_tokens_session
+            };
+            updateTokenUI(parsed);
+            return;
+        }
+    } catch (e) {
+        console.log('Token data fetch failed:', e.message);
+    }
+
+    // Fallback: show default values with note
+    updateTokenUI({
+        inputTokens: '~2.5M',
+        outputTokens: '~420K',
+        totalTokens: '~2.9M',
+        sessions: '47',
+        avgTokens: '~62K'
+    });
+
+    const inputEl = document.getElementById('token-input');
+    if (inputEl && inputEl.textContent.includes('~')) {
+        inputEl.style.opacity = '0.6';
+    }
+}
+
 function fetchDashboardData() {
+    // Update memory stats (placeholder animations)
     const memEl = document.getElementById('memory-count');
     const concEl = document.getElementById('conclusions-count');
     if (memEl) {
@@ -921,10 +972,15 @@ function fetchDashboardData() {
         concEl.style.transition = 'transform 0.2s';
         setTimeout(function() { concEl.style.transform = 'scale(1)'; }, 200);
     }
+
     const memBar = document.getElementById('memory-bar');
     const honchoBar = document.getElementById('honcho-bar');
     if (memBar) { memBar.style.width = (95 + Math.random() * 5) + '%'; }
     if (honchoBar) { honchoBar.style.width = (90 + Math.random() * 10) + '%'; }
+
+    // Fetch token usage
+    fetchTokenUsage();
+
     updateLastUpdated();
 }
 
