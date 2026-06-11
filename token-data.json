@@ -1,35 +1,19 @@
 {
-  "last_updated": "2025-01-09T10:30:00Z",
-  "period_days": 7,
-  "input_tokens": "~2.5M",
-  "output_tokens": "~420K",
-  "total_tokens": "~2.9M",
-  "sessions": 47,
-  "avg_tokens_session": "~62K",
-  "platform_split": {
-    "telegram": 45,
-    "discord": 30,
-    "cli": 15,
-    "cron": 10
+  "data": {
+    "token_usage": 186430884,
+    "sessions": 103,
+    "models": 1,
+    "primary_model": "Glm 4.7",
+    "primary_provider": "z.ai",
+    "fallback_chain": [],
+    "usage_list": [
+      {
+        "order": 0,
+        "model": "Glm 4.7",
+        "provider": "z.ai",
+        "is_primary": true
+      }
+    ]
   },
-  "model_usage": [
-    {
-      "model": "DeepSeek V4 Flash Free",
-      "provider": "OpenCode Zen",
-      "tokens": "~1.5M",
-      "percentage": 52
-    },
-    {
-      "model": "OWL Alpha",
-      "provider": "OpenRouter",
-      "tokens": "~870K",
-      "percentage": 30
-    },
-    {
-      "model": "GLM 4.7",
-      "provider": "z.ai",
-      "tokens": "~530K",
-      "percentage": 18
-    }
-  ]
+  "last_updated": "2026-06-12T17:20:00+07:00"
 }
