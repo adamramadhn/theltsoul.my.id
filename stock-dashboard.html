@@ -624,6 +624,15 @@ function unlockDashboard() {
         const hasCache = restorePriceFromCache(currentStock);
         // Update API key status indicator
         updateApiKeyStatus();
+        // Restore toggle state from localStorage
+        const savedToggle = loadToggleState();
+        if (savedToggle) {
+            isAutoFetchActive = true;
+            document.getElementById('auto-fetch-toggle').checked = true;
+            document.getElementById('toggle-label').textContent = 'Auto-fetch: ON';
+            document.getElementById('toggle-label').style.color = 'var(--green)';
+            startAutoFetch();
+        }
         initCharts();
         // If no cache (first visit), auto-fetch once so user sees data immediately
         if (!hasCache) {
@@ -697,6 +706,25 @@ function savePriceCache(stock, priceData) {
         localStorage.setItem(getCacheKey(stock), JSON.stringify(cache));
     } catch (e) {
         // localStorage full or unavailable — silent fail
+    }
+}
+
+// ═══════════════════════════════════════════
+// TOGGLE STATE PERSISTENCE
+// ═══════════════════════════════════════════
+const TOGGLE_STORAGE_KEY = 'oyeng_stock_auto_fetch';
+
+function saveToggleState(enabled) {
+    try {
+        localStorage.setItem(TOGGLE_STORAGE_KEY, enabled ? '1' : '0');
+    } catch (e) {}
+}
+
+function loadToggleState() {
+    try {
+        return localStorage.getItem(TOGGLE_STORAGE_KEY) === '1';
+    } catch (e) {
+        return false;
     }
 }
 
@@ -833,6 +861,8 @@ function toggleAutoFetch() {
     const toggle = document.getElementById('auto-fetch-toggle');
     isAutoFetchActive = toggle.checked;
     const label = document.getElementById('toggle-label');
+    // Persist toggle state
+    saveToggleState(isAutoFetchActive);
 
     if (isAutoFetchActive) {
         label.textContent = 'Auto-fetch: ON';
