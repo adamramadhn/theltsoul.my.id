@@ -11,5 +11,25 @@
     "discord": 30,
     "cli": 15,
     "cron": 10
-  }
+  },
+  "model_usage": [
+    {
+      "model": "OWL Alpha",
+      "provider": "OpenRouter",
+      "tokens": "~1.8M",
+      "percentage": 62
+    },
+    {
+      "model": "GLM 4.5",
+      "provider": "z.ai",
+      "tokens": "~720K",
+      "percentage": 25
+    },
+    {
+      "model": "OpenCode Zen",
+      "provider": "OpenCode",
+      "tokens": "~380K",
+      "percentage": 13
+    }
+  ]
 }

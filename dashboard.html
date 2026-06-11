@@ -502,6 +502,61 @@
         </div>
     </div>
 
+    <!-- ══════════ TOKEN USAGE BY MODEL ══════════ -->
+    <div class="wide-grid" style="margin-bottom: 32px;">
+        <div class="card">
+            <h3><span class="dot" style="background:var(--accent)"></span> 🤖 Token Usage by Model</h3>
+            <div id="model-usage-list">
+                <!-- Dynamic content loaded from token-data.json -->
+                Loading model usage data...
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="dot" style="background:var(--green)"></span> 📈 Model Efficiency</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">⚡</div>
+                    <div>
+                        <div class="item-name">Most Used</div>
+                        <div class="item-sub">Primary workload</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">OWL Alpha</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">💰</div>
+                    <div>
+                        <div class="item-name">Cost Optimizer</div>
+                        <div class="item-sub">Free tier fallback</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">GLM 4.5</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🎯</div>
+                    <div>
+                        <div class="item-name">Coding Tasks</div>
+                        <div class="item-sub">Auto-routed by smart router</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">OpenCode Zen</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔄</div>
+                    <div>
+                        <div class="item-name">Rotator Active</div>
+                        <div class="item-sub">Free model rotation</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Yes</span></div>
+            </div>
+        </div>
+    </div>
+
     <!-- ══════════ AI MODEL LIST + PROVIDERS ══════════ -->
     <div class="wide-grid" style="margin-bottom: 32px;">
         <div class="card">
@@ -923,6 +978,44 @@ function updateTokenUI(data) {
     if (avgEl) avgEl.textContent = data.avgTokens;
 }
 
+// Update model usage UI from JSON data
+function updateModelUsageUI(modelData) {
+    const container = document.getElementById('model-usage-list');
+    if (!container || !modelData || !Array.isArray(modelData)) return;
+
+    let html = '';
+    const colors = ['purple', 'orange', 'blue', 'green'];
+    const icons = ['⭐', '🔄', '🎲', '🧠'];
+
+    modelData.forEach((model, idx) => {
+        const color = colors[idx % colors.length];
+        const icon = icons[idx % icons.length];
+        const statusClass = idx === 0 ? 'active' : 'idle';
+
+        html += `
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">${icon}</div>
+                    <div>
+                        <div class="item-name">${model.model}</div>
+                        <div class="item-sub">${model.provider}</div>
+                    </div>
+                </div>
+                <div class="item-right">
+                    <div class="item-value">${model.tokens}</div>
+                    <span class="item-status ${statusClass}" style="margin-top:2px">${model.percentage}%</span>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="fill ${color}" style="width: ${model.percentage}%"></div>
+            </div>
+            ${idx < modelData.length - 1 ? '<div class="list-item" style="margin-top: 12px;"></div>' : ''}
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
 // Fetch token usage from token-data.json
 async function fetchTokenUsage() {
     try {
@@ -937,6 +1030,12 @@ async function fetchTokenUsage() {
                 avgTokens: data.avg_tokens_session
             };
             updateTokenUI(parsed);
+
+            // Update model usage if available
+            if (data.model_usage && Array.isArray(data.model_usage)) {
+                updateModelUsageUI(data.model_usage);
+            }
+
             return;
         }
     } catch (e) {
@@ -951,6 +1050,13 @@ async function fetchTokenUsage() {
         sessions: '47',
         avgTokens: '~62K'
     });
+
+    // Fallback model usage
+    updateModelUsageUI([
+        { model: 'OWL Alpha', provider: 'OpenRouter', tokens: '~1.8M', percentage: 62 },
+        { model: 'GLM 4.5', provider: 'z.ai', tokens: '~720K', percentage: 25 },
+        { model: 'OpenCode Zen', provider: 'OpenCode', tokens: '~380K', percentage: 13 }
+    ]);
 
     const inputEl = document.getElementById('token-input');
     if (inputEl && inputEl.textContent.includes('~')) {
