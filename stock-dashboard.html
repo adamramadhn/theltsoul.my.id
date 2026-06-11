@@ -387,6 +387,27 @@
                 <span class="fs-text" id="fs-text">Klik toggle untuk mulai auto-fetch</span>
                 <span class="fs-timer" id="fs-timer"></span>
             </div>
+
+            <!-- ═══ API KEY STATUS ═══ -->
+            <div class="api-key-bar" id="api-key-bar" style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border);">
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span id="api-status-dot" style="width:7px; height:7px; border-radius:50%; background:var(--text-tertiary); flex-shrink:0;"></span>
+                        <span id="api-status-text" style="font-size:0.72rem; color:var(--text-tertiary);">Twelve Data API: tidak ada key</span>
+                    </div>
+                    <button onclick="toggleApiKeyInput()" style="padding:3px 10px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface2); color:var(--text-secondary); font-size:0.72rem; font-weight:600; cursor:pointer;">⚙️ Set API Key</button>
+                </div>
+                <div id="api-key-input-wrap" style="display:none; margin-top:10px;">
+                    <div style="display:flex; gap:6px;">
+                        <input type="text" id="api-key-input" placeholder="Masukkan Twelve Data API key..." style="flex:1; padding:7px 12px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:0.8rem; font-family:'JetBrains Mono',monospace; outline:none;">
+                        <button onclick="saveApiKey()" style="padding:7px 14px; border-radius:var(--radius-sm); border:none; background:var(--accent); color:#fff; font-size:0.78rem; font-weight:600; cursor:pointer;">Simpan</button>
+                        <button onclick="toggleApiKeyInput()" style="padding:7px 10px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface2); color:var(--text-secondary); font-size:0.78rem; cursor:pointer;">✕</button>
+                    </div>
+                    <div style="font-size:0.68rem; color:var(--text-tertiary); margin-top:5px;">
+                        Dapatkan API key gratis di <a href="https://twelvedata.com/register" target="_blank" style="color:var(--accent);">twelvedata.com</a> (800 request/hari). Key tersimpan di browser.
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- ═══ ANALYZE BUTTON ═══ -->
@@ -601,6 +622,8 @@ function unlockDashboard() {
         restoreLastStock();
         // Restore price from cache if available
         restorePriceFromCache(currentStock);
+        // Update API key status indicator
+        updateApiKeyStatus();
         initCharts();
     } else {
         error.style.display = 'block';
@@ -838,104 +861,180 @@ function stopAutoFetch() {
 }
 
 // ═══════════════════════════════════════════
-// FETCH PRICE (Yahoo Finance via CORS proxy)
+// FETCH PRICE (Twelve Data API + Yahoo Finance fallback)
 // ═══════════════════════════════════════════
+// API Key config — user needs to set this after getting key from https://twelvedata.com/register
+const TWELVE_DATA_API_KEY = localStorage.getItem('twelvedata_api_key') || '';
+
+function setTwelveDataApiKey(key) {
+    if (key && key.trim()) {
+        localStorage.setItem('twelvedata_api_key', key.trim());
+        return true;
+    }
+    return false;
+}
+
+function toggleApiKeyInput() {
+    const wrap = document.getElementById('api-key-input-wrap');
+    const isHidden = wrap.style.display === 'none';
+    wrap.style.display = isHidden ? 'block' : 'none';
+    if (isHidden) {
+        // Pre-fill with existing key if any
+        const existing = localStorage.getItem('twelvedata_api_key') || '';
+        document.getElementById('api-key-input').value = existing;
+        setTimeout(() => document.getElementById('api-key-input').focus(), 100);
+    }
+}
+
+function saveApiKey() {
+    const input = document.getElementById('api-key-input');
+    const key = input.value.trim();
+    if (key) {
+        localStorage.setItem('twelvedata_api_key', key);
+        // Reload to pick up new key
+        location.reload();
+    } else {
+        // Clear key
+        localStorage.removeItem('twelvedata_api_key');
+        updateApiKeyStatus();
+    }
+    document.getElementById('api-key-input-wrap').style.display = 'none';
+}
+
+function updateApiKeyStatus() {
+    const hasKey = !!(localStorage.getItem('twelvedata_api_key'));
+    const dot = document.getElementById('api-status-dot');
+    const text = document.getElementById('api-status-text');
+    if (hasKey) {
+        dot.style.background = 'var(--green)';
+        dot.style.boxShadow = '0 0 6px rgba(52,211,153,0.5)';
+        text.textContent = 'Twelve Data API: ✓ Connected';
+        text.style.color = 'var(--green)';
+    } else {
+        dot.style.background = 'var(--text-tertiary)';
+        dot.style.boxShadow = 'none';
+        text.textContent = 'Twelve Data API: tidak ada key (Yahoo Finance fallback)';
+        text.style.color = 'var(--text-tertiary)';
+    }
+}
+
 async function fetchPrice() {
     updateFetchStatus('fetching', 'Mengambil data harga...');
     document.getElementById('fs-timer').textContent = '';
 
-    const symbol = currentStock + '.JK';
-
-    // Build list of all URLs to try (direct + CORS proxies)
-    const urls = [
-        { url: `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`, timeout: 8000 },
-        { url: `https://query2.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`, timeout: 8000 },
-        { url: `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`)}`, timeout: 12000 },
-        { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`)}`, timeout: 12000 },
-    ];
-
-    let data = null;
+    const symbol = currentStock;
+    let priceData = null;
     let lastError = '';
-    let attemptCount = 0;
 
-    for (const { url, timeout } of urls) {
-        attemptCount++;
+    // ── SOURCE 1: Twelve Data API (primary) ──
+    if (TWELVE_DATA_API_KEY) {
         try {
-            const resp = await fetch(url, { signal: AbortSignal.timeout(timeout) });
+            const tdUrl = `https://api.twelvedata.com/quote?symbol=${symbol}.JK&apikey=${TWELVE_DATA_API_KEY}`;
+            const resp = await fetch(tdUrl, { signal: AbortSignal.timeout(10000) });
             if (resp.ok) {
                 const json = await resp.json();
-                // Validate response structure
-                if (json && json.chart && json.chart.result && json.chart.result[0] && json.chart.result[0].meta) {
-                    data = json;
-                    break;
+                if (json && json.close && !json.code) {
+                    // Twelve Data response parsed successfully
+                    const price = parseFloat(json.close);
+                    const prevClose = parseFloat(json.previous_close) || parseFloat(json.close);
+                    const change = price - prevClose;
+                    const changePct = prevClose ? (change / prevClose) * 100 : 0;
+                    const open = parseFloat(json.open) || 0;
+                    const high = parseFloat(json.high) || 0;
+                    const low = parseFloat(json.low) || 0;
+                    const volume = parseInt(json.volume) || 0;
+                    const weekHigh = parseFloat(json.fifty_two_week_high) || parseFloat(json.high) || 0;
+                    const weekLow = parseFloat(json.fifty_two_week_low) || parseFloat(json.low) || 0;
+
+                    priceData = { price, prevClose, change, changePct, open, high, low, volume, weekHigh, weekLow };
+                } else if (json.code === 401 || json.message?.includes('API key')) {
+                    lastError = 'Twelve Data: API key invalid';
+                } else if (json.code === 429 || json.message?.includes('limit')) {
+                    lastError = 'Twelve Data: Rate limit exceeded';
                 } else {
-                    lastError = 'Invalid response structure';
+                    lastError = `Twelve Data: ${json.message || 'No data'}`;
                 }
             } else {
-                lastError = `HTTP ${resp.status}`;
+                lastError = `Twelve Data: HTTP ${resp.status}`;
             }
         } catch(e) {
-            lastError = e.name === 'TimeoutError' ? 'Timeout' : (e.message || 'Network error');
-            continue; // Try next URL
+            lastError = e.name === 'TimeoutError' ? 'Twelve Data: Timeout' : `Twelve Data: ${e.message || 'Network error'}`;
         }
     }
 
-    // If all URLs failed
-    if (!data) {
+    // ── SOURCE 2: Yahoo Finance (fallback if Twelve Data failed or no API key) ──
+    if (!priceData) {
+        const yahooSymbol = symbol + '.JK';
+        const urls = [
+            { url: `https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=5d&interval=1d`, timeout: 8000 },
+            { url: `https://query2.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=5d&interval=1d`, timeout: 8000 },
+            { url: `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=5d&interval=1d`)}`, timeout: 12000 },
+            { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=5d&interval=1d`)}`, timeout: 12000 },
+        ];
+
+        for (const { url, timeout } of urls) {
+            try {
+                const resp = await fetch(url, { signal: AbortSignal.timeout(timeout) });
+                if (resp.ok) {
+                    const json = await resp.json();
+                    if (json && json.chart && json.chart.result && json.chart.result[0] && json.chart.result[0].meta) {
+                        const meta = json.chart.result[0].meta;
+                        const p = meta.regularMarketPrice;
+                        const pc = meta.chartPreviousClose || meta.previousClose;
+                        priceData = {
+                            price: p, prevClose: pc, change: p - pc,
+                            changePct: pc ? ((p - pc) / pc) * 100 : 0,
+                            open: meta.regularMarketOpen || 0,
+                            high: meta.regularMarketDayHigh || 0,
+                            low: meta.regularMarketDayLow || 0,
+                            volume: meta.regularMarketVolume || 0,
+                            weekHigh: meta.fiftyTwoWeekHigh || 0,
+                            weekLow: meta.fiftyTwoWeekLow || 0
+                        };
+                        break;
+                    } else {
+                        lastError = 'Yahoo: Invalid response';
+                    }
+                }
+            } catch(e) {
+                lastError = e.name === 'TimeoutError' ? 'Yahoo: Timeout' : `Yahoo: ${e.message || 'Network'}`;
+                continue;
+            }
+        }
+    }
+
+    // ── All sources failed ──
+    if (!priceData) {
         consecutiveFailures++;
-        // Check if we have cached data to fall back to
         const cache = loadPriceCache(currentStock);
         if (cache) {
             const ageMin = Math.floor((Date.now() - cache.timestamp) / 60000);
             const timeStr = new Date(cache.timestamp).toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit' });
-            // Restore from cache silently
             restorePriceFromCache(currentStock);
             const retryMsg = consecutiveFailures >= 3 ? ` — ${consecutiveFailures}x gagal berturut, cek jaringan!` : '';
             updateFetchStatus('error', `Fetch gagal (${lastError}) — Cache ${timeStr} (${ageMin}m lalu). Auto-fetch coba lagi.${retryMsg}`);
             return;
         }
-
-        // No cache either — show helpful error
         let errorMsg = 'Gagal fetch dari semua sumber';
-        if (lastError.includes('Timeout')) {
-            errorMsg += ' — koneksi lambat. Cek jaringan atau coba lagi.';
-        } else if (lastError.includes('Network') || lastError.includes('Failed to fetch')) {
-            errorMsg += ' — tidak bisa reach server. Mungkin CORS proxy down.';
-        } else {
-            errorMsg += ` (${lastError})`;
-        }
-        if (consecutiveFailures >= 3) {
-            errorMsg += ` — ${consecutiveFailures}x gagal berturut. Matikan toggle & coba lagi nanti.`;
-        } else {
-            errorMsg += ' — Auto-fetch akan coba lagi.';
-        }
+        if (lastError.includes('Timeout')) errorMsg += ' — koneksi lambat.';
+        else if (lastError.includes('Network') || lastError.includes('Failed')) errorMsg += ' — tidak bisa reach server.';
+        else if (lastError.includes('API key')) errorMsg += ' — API key tidak valid.';
+        else if (lastError.includes('Rate limit')) errorMsg += ' — rate limit, tunggu sebentar.';
+        else errorMsg += ` (${lastError})`;
+        if (consecutiveFailures >= 3) errorMsg += ` — ${consecutiveFailures}x gagal berturut. Matikan toggle & coba lagi.`;
+        else errorMsg += ' — Auto-fetch akan coba lagi.';
         updateFetchStatus('error', errorMsg);
         return;
     }
 
+    // ── Success — update display ──
     try {
-        const result = data.chart.result[0];
-        const meta = result.meta;
-        const price = meta.regularMarketPrice;
-        const prevClose = meta.chartPreviousClose || meta.previousClose;
-        const change = price - prevClose;
-        const changePct = (change / prevClose) * 100;
-        const open = meta.regularMarketOpen || 0;
-        const high = meta.regularMarketDayHigh || 0;
-        const low = meta.regularMarketDayLow || 0;
-        const volume = meta.regularMarketVolume || 0;
-        const weekHigh = meta.fiftyTwoWeekHigh || 0;
-        const weekLow = meta.fiftyTwoWeekLow || 0;
+        const { price, prevClose, change, changePct, open, high, low, volume, weekHigh, weekLow } = priceData;
+        lastPriceData = priceData;
 
-        lastPriceData = { price, prevClose, change, changePct, open, high, low, volume, weekHigh, weekLow };
-
-        // Save to cache
         savePriceCache(currentStock, lastPriceData);
-
-        // Hide cache badge — this is live data
         document.getElementById('cache-badge').style.display = 'none';
 
-        // Update display
         const priceEl = document.getElementById('price-value');
         priceEl.textContent = 'Rp ' + price.toLocaleString('id-ID');
         priceEl.className = 'price-value ' + (change > 0 ? 'up' : change < 0 ? 'down' : 'neutral');
@@ -943,7 +1042,7 @@ async function fetchPrice() {
         const changeEl = document.getElementById('price-change');
         const sign = change >= 0 ? '+' : '';
         const arrow = change >= 0 ? '▲' : '▼';
-        changeEl.textContent = `${arrow} ${sign}${change.toLocaleString('id-ID')} (${sign}${changePct.toFixed(2)}%)`;
+        changeEl.textContent = `${arrow} ${sign}${Math.abs(change).toLocaleString('id-ID')} (${sign}${changePct.toFixed(2)}%)`;
         changeEl.className = 'price-change ' + (change > 0 ? 'up' : change < 0 ? 'down' : 'neutral');
 
         document.getElementById('pd-open').textContent = 'Rp ' + (open ? open.toLocaleString('id-ID') : '—');
@@ -953,20 +1052,13 @@ async function fetchPrice() {
         document.getElementById('pd-vol').textContent = volume ? formatVolume(volume) : '—';
         document.getElementById('pd-range').textContent = (weekLow && weekHigh) ? weekLow.toLocaleString('id-ID') + ' – ' + weekHigh.toLocaleString('id-ID') : '—';
 
-        // Update live dot
         document.getElementById('live-dot').className = 'dot active';
-
-        // Enable analyze button
         document.getElementById('btn-analyze').disabled = false;
-
-        // Reset consecutive failures on success
         consecutiveFailures = 0;
 
         const now = new Date();
         const timeStr = now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit' });
         updateFetchStatus('success', `Terakhir update: ${timeStr}`);
-
-        // Start countdown
         startCountdown();
 
     } catch(e) {
