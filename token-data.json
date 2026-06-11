@@ -1,11 +1,11 @@
 {
-  "last_updated": "2025-01-09T10:30:00Z",
+  "last_updated": "2026-06-11T12:31:00.687806+00:00",
   "period_days": 7,
-  "input_tokens": "~2.5M",
-  "output_tokens": "~420K",
-  "total_tokens": "~2.9M",
-  "sessions": 47,
-  "avg_tokens_session": "~62K",
+  "input_tokens": "~8.1M",
+  "output_tokens": "~641K",
+  "total_tokens": "~177.6M",
+  "sessions": 85,
+  "avg_tokens_session": "~2.1M",
   "platform_split": {
     "telegram": 45,
     "discord": 30,
@@ -16,19 +16,19 @@
     {
       "model": "OWL Alpha",
       "provider": "OpenRouter",
-      "tokens": "~1.8M",
+      "tokens": "~110.1M",
       "percentage": 62
     },
     {
       "model": "GLM 4.5",
       "provider": "z.ai",
-      "tokens": "~720K",
+      "tokens": "~44.4M",
       "percentage": 25
     },
     {
       "model": "OpenCode Zen",
       "provider": "OpenCode",
-      "tokens": "~380K",
+      "tokens": "~23.1M",
       "percentage": 13
     }
   ]
