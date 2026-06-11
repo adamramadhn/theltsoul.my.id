@@ -568,16 +568,12 @@
             <span id="errorText"></span>
         </div>
 
-        <!-- ══════════ STATUS TOGGLE ══════════ -->
-        <div class="status-banner status-enabled" id="laporanStatus">
+        <!-- Status banner (read-only, controlled by Oyeng) -->
+        <div class="status-banner" id="laporanStatus">
             <div class="status-info">
                 <span class="status-icon" id="statusIcon">🟢</span>
                 <span class="status-text" id="statusText">Laporan isu sedang <strong>AKTIF</strong></span>
             </div>
-            <label class="toggle-switch" title="Nyalakan / Matikan laporan isu">
-                <input type="checkbox" id="toggleLaporan" checked>
-                <span class="toggle-slider"></span>
-            </label>
         </div>
 
         <form id="laporanForm" enctype="multipart/form-data" novalidate>
@@ -817,15 +813,9 @@ form.addEventListener('submit', async (e) => {
 });
 }); // end DOMContentLoaded
 
-/* ══════════ LAPORAN TOGGLE (ENABLE/DISABLE) ══════════ */
-// ═══════════════════════════════════════════════════════
-// DEFAULT STATE — bisa diubah lewat command Oyeng:
-// "nyalakan laporan isu" → ubah jadi true
-// "matikan laporan isu" → ubah jadi false
-// ═══════════════════════════════════════════════════════
+/* ══════════ LAPORAN STATUS (Controlled by Oyeng via skill) ══════════ */
 var LAPORAN_ENABLED_DEFAULT = true;
 
-const toggleLaporan = document.getElementById('toggleLaporan');
 const laporanStatus = document.getElementById('laporanStatus');
 const statusIcon = document.getElementById('statusIcon');
 const statusText = document.getElementById('statusText');
@@ -833,10 +823,7 @@ const submitBtn = document.getElementById('submitBtn');
 const laporanForm = document.getElementById('laporanForm');
 
 function updateLaporanStatus() {
-    const enabled = toggleLaporan.checked;
-
-    // Persist ke localStorage
-    localStorage.setItem('laporanIsuEnabled', JSON.stringify(enabled));
+    const enabled = LAPORAN_ENABLED_DEFAULT;
 
     // Update banner
     if (enabled) {
@@ -856,17 +843,8 @@ function updateLaporanStatus() {
     }
 }
 
-// Load saved state from localStorage, fallback ke default
-const savedState = localStorage.getItem('laporanIsuEnabled');
-if (savedState !== null) {
-    toggleLaporan.checked = JSON.parse(savedState);
-} else {
-    toggleLaporan.checked = LAPORAN_ENABLED_DEFAULT;
-}
+// Apply state immediately
 updateLaporanStatus();
-
-// Listen for toggle changes
-toggleLaporan.addEventListener('change', updateLaporanStatus);
 
 function sendToDiscord(submission, webhookUrl) {
     const levelEmoji = {
