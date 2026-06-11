@@ -404,7 +404,7 @@
                         <button onclick="toggleApiKeyInput()" style="padding:7px 10px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface2); color:var(--text-secondary); font-size:0.78rem; cursor:pointer;">✕</button>
                     </div>
                     <div style="font-size:0.68rem; color:var(--text-tertiary); margin-top:5px;">
-                        Dapatkan API key gratis di <a href="https://twelvedata.com/register" target="_blank" style="color:var(--accent);">twelvedata.com</a> (800 request/hari). Key tersimpan di browser.
+                        Opsional: API key untuk saham US (AAPL, GOOGL, dll). Gratis di <a href="https://twelvedata.com/register" target="_blank" style="color:var(--accent);">twelvedata.com</a>. Saham IDX pakai Yahoo Finance.
                     </div>
                 </div>
             </div>
@@ -926,27 +926,66 @@ async function fetchPrice() {
     let priceData = null;
     let lastError = '';
 
-    // ── SOURCE 1: Twelve Data API (primary) ──
-    if (TWELVE_DATA_API_KEY) {
+    // ── SOURCE 1: Yahoo Finance (primary — works for IDX stocks) ──
+    const yahooSymbol = symbol + '.JK';
+    const urls = [
+        { url: `https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=5d&interval=1d`, timeout: 8000 },
+        { url: `https://query2.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=5d&interval=1d`, timeout: 8000 },
+        { url: `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=5d&interval=1d`)}`, timeout: 12000 },
+        { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=5d&interval=1d`)}`, timeout: 12000 },
+    ];
+
+    for (const { url, timeout } of urls) {
         try {
-            const tdUrl = `https://api.twelvedata.com/quote?symbol=${symbol}.JK&apikey=${TWELVE_DATA_API_KEY}`;
+            const resp = await fetch(url, { signal: AbortSignal.timeout(timeout) });
+            if (resp.ok) {
+                const json = await resp.json();
+                if (json && json.chart && json.chart.result && json.chart.result[0] && json.chart.result[0].meta) {
+                    const meta = json.chart.result[0].meta;
+                    const p = meta.regularMarketPrice;
+                    const pc = meta.chartPreviousClose || meta.previousClose;
+                    priceData = {
+                        price: p, prevClose: pc, change: p - pc,
+                        changePct: pc ? ((p - pc) / pc) * 100 : 0,
+                        open: meta.regularMarketOpen || 0,
+                        high: meta.regularMarketDayHigh || 0,
+                        low: meta.regularMarketDayLow || 0,
+                        volume: meta.regularMarketVolume || 0,
+                        weekHigh: meta.fiftyTwoWeekHigh || 0,
+                        weekLow: meta.fiftyTwoWeekLow || 0
+                    };
+                    break;
+                } else {
+                    lastError = 'Yahoo: Invalid response';
+                }
+            }
+        } catch(e) {
+            lastError = e.name === 'TimeoutError' ? 'Yahoo: Timeout' : `Yahoo: ${e.message || 'Network'}`;
+            continue;
+        }
+    }
+
+    // ── SOURCE 2: Twelve Data API (optional — for US stocks or if Yahoo fails) ──
+    if (!priceData && TWELVE_DATA_API_KEY) {
+        try {
+            const tdUrl = `https://api.twelvedata.com/quote?symbol=${symbol}&apikey=${TWELVE_DATA_API_KEY}`;
             const resp = await fetch(tdUrl, { signal: AbortSignal.timeout(10000) });
             if (resp.ok) {
                 const json = await resp.json();
                 if (json && json.close && !json.code) {
-                    // Twelve Data response parsed successfully
                     const price = parseFloat(json.close);
                     const prevClose = parseFloat(json.previous_close) || parseFloat(json.close);
                     const change = price - prevClose;
                     const changePct = prevClose ? (change / prevClose) * 100 : 0;
-                    const open = parseFloat(json.open) || 0;
-                    const high = parseFloat(json.high) || 0;
-                    const low = parseFloat(json.low) || 0;
-                    const volume = parseInt(json.volume) || 0;
-                    const weekHigh = parseFloat(json.fifty_two_week_high) || parseFloat(json.high) || 0;
-                    const weekLow = parseFloat(json.fifty_two_week_low) || parseFloat(json.low) || 0;
-
-                    priceData = { price, prevClose, change, changePct, open, high, low, volume, weekHigh, weekLow };
+                    priceData = {
+                        price, prevClose, change, changePct,
+                        open: parseFloat(json.open) || 0,
+                        high: parseFloat(json.high) || 0,
+                        low: parseFloat(json.low) || 0,
+                        volume: parseInt(json.volume) || 0,
+                        weekHigh: parseFloat(json.fifty_two_week_high) || parseFloat(json.high) || 0,
+                        weekLow: parseFloat(json.fifty_two_week_low) || parseFloat(json.low) || 0
+                    };
                 } else if (json.code === 401 || json.message?.includes('API key')) {
                     lastError = 'Twelve Data: API key invalid';
                 } else if (json.code === 429 || json.message?.includes('limit')) {
@@ -959,47 +998,6 @@ async function fetchPrice() {
             }
         } catch(e) {
             lastError = e.name === 'TimeoutError' ? 'Twelve Data: Timeout' : `Twelve Data: ${e.message || 'Network error'}`;
-        }
-    }
-
-    // ── SOURCE 2: Yahoo Finance (fallback if Twelve Data failed or no API key) ──
-    if (!priceData) {
-        const yahooSymbol = symbol + '.JK';
-        const urls = [
-            { url: `https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=5d&interval=1d`, timeout: 8000 },
-            { url: `https://query2.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=5d&interval=1d`, timeout: 8000 },
-            { url: `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=5d&interval=1d`)}`, timeout: 12000 },
-            { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?range=5d&interval=1d`)}`, timeout: 12000 },
-        ];
-
-        for (const { url, timeout } of urls) {
-            try {
-                const resp = await fetch(url, { signal: AbortSignal.timeout(timeout) });
-                if (resp.ok) {
-                    const json = await resp.json();
-                    if (json && json.chart && json.chart.result && json.chart.result[0] && json.chart.result[0].meta) {
-                        const meta = json.chart.result[0].meta;
-                        const p = meta.regularMarketPrice;
-                        const pc = meta.chartPreviousClose || meta.previousClose;
-                        priceData = {
-                            price: p, prevClose: pc, change: p - pc,
-                            changePct: pc ? ((p - pc) / pc) * 100 : 0,
-                            open: meta.regularMarketOpen || 0,
-                            high: meta.regularMarketDayHigh || 0,
-                            low: meta.regularMarketDayLow || 0,
-                            volume: meta.regularMarketVolume || 0,
-                            weekHigh: meta.fiftyTwoWeekHigh || 0,
-                            weekLow: meta.fiftyTwoWeekLow || 0
-                        };
-                        break;
-                    } else {
-                        lastError = 'Yahoo: Invalid response';
-                    }
-                }
-            } catch(e) {
-                lastError = e.name === 'TimeoutError' ? 'Yahoo: Timeout' : `Yahoo: ${e.message || 'Network'}`;
-                continue;
-            }
         }
     }
 
