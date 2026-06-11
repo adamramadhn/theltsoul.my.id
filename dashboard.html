@@ -589,7 +589,7 @@ const STORAGE_KEY = 'oyeng_dashboard_unlocked';
 function unlockDashboard() {
     const input = document.getElementById('password-input');
     const error = document.getElementById('password-error');
-    if (input.value.toLowerCase() === DASHBOARD_PASSWORD) {
+    if (input.value === DASHBOARD_PASSWORD) {
         document.getElementById('password-gate').style.display = 'none';
         document.getElementById('dashboard').classList.add('unlocked');
         sessionStorage.setItem(STORAGE_KEY, 'true');
