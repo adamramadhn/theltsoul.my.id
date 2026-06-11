@@ -621,10 +621,14 @@ function unlockDashboard() {
         sessionStorage.setItem(STORAGE_KEY, 'true');
         restoreLastStock();
         // Restore price from cache if available
-        restorePriceFromCache(currentStock);
+        const hasCache = restorePriceFromCache(currentStock);
         // Update API key status indicator
         updateApiKeyStatus();
         initCharts();
+        // If no cache (first visit), auto-fetch once so user sees data immediately
+        if (!hasCache) {
+            fetchPrice();
+        }
     } else {
         error.style.display = 'block';
         input.value = '';
