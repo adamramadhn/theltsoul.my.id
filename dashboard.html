@@ -366,8 +366,9 @@
 <nav class="nav">
     <a href="index.html" class="logo">~/theltsoul</a>
     <div class="nav-right">
-        <button class="lock-btn" onclick="lockDashboard()">🔒 Lock</button>
+        <a href="stock-dashboard.html" class="back-link">📊 Stock Analysis</a>
         <a href="index.html" class="back-link">← Portfolio</a>
+        <button class="lock-btn" onclick="lockDashboard()">🔒 Lock</button>
     </div>
 </nav>
 
@@ -419,6 +420,37 @@
             <span class="stat-label">Skills Available</span>
             <span class="stat-sub">Reusable capabilities</span>
         </div>
+    </div>
+
+    </div>
+
+    <!-- ══════════ STOCK ANALYSIS QUICK VIEW ══════════ -->
+    <div class="card" style="margin-bottom: 28px; border-color: rgba(251,146,60,0.25);">
+        <h3><span class="dot" style="background:var(--orange)"></span> 📊 Stock Analysis — TLKM</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 16px 0;">
+            <div style="text-align: center; padding: 12px; background: var(--surface2); border-radius: var(--radius);">
+                <div style="font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px;">Harga</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 700; color: var(--red);">Rp 2.750</div>
+                <div style="font-size: 0.72rem; color: var(--red);">▼ -4.96%</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: var(--surface2); border-radius: var(--radius);">
+                <div style="font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px;">Rekomendasi</div>
+                <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--orange);">BUY ON PULLBACK</div>
+                <div style="font-size: 0.72rem; color: var(--text-secondary);">Entry: Rp 2.700-2.800</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: var(--surface2); border-radius: var(--radius);">
+                <div style="font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px;">Target Price</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 700; color: var(--green);">Rp 3.785</div>
+                <div style="font-size: 0.72rem; color: var(--green);">▲ +37.6% upside</div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+            <span style="padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 600; background: var(--green-soft); color: var(--green);">74% Analis: BUY</span>
+            <span style="padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 600; background: var(--orange-soft); color: var(--orange);">Buyback Rp 4T Aktif</span>
+            <span style="padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 600; background: var(--blue-soft); color: var(--blue);">Dividend Yield 5.8%</span>
+            <span style="padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 600; background: var(--red-soft); color: var(--red);">YTD -32%</span>
+        </div>
+        <a href="stock-dashboard.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 20px; border-radius: var(--radius-sm); background: linear-gradient(135deg, var(--orange), #f87171); color: #fff; font-size: 0.85rem; font-weight: 600; text-decoration: none; transition: opacity 0.2s;">Lihat Analisis Lengkap →</a>
     </div>
 
     <!-- ══════════ MEMORY + IDENTITY ══════════ -->
