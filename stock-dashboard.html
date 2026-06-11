@@ -45,6 +45,12 @@
         .password-gate button { width: 100%; padding: 12px 24px; border-radius: var(--radius); border: none; background: var(--accent); color: #fff; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
         .password-gate button:hover { opacity: 0.9; }
         .password-gate .error { color: var(--red); font-size: 0.8rem; margin-top: 12px; display: none; }
+        .password-gate .back-to-portfolio {
+            display: inline-block; margin-top: 14px;
+            color: var(--text-secondary); text-decoration: none; font-size: 0.82rem;
+            font-weight: 500; transition: color 0.2s;
+        }
+        .password-gate .back-to-portfolio:hover { color: var(--accent); }
 
         /* ═══ DASHBOARD ═══ */
         .dashboard-wrapper { display: none; position: relative; z-index: 1; }
@@ -277,6 +283,7 @@
         <p>Masukkan password untuk mengakses dashboard</p>
         <input type="password" id="password-input" placeholder="Password..." autofocus>
         <button onclick="unlockDashboard()">Unlock Dashboard</button>
+        <a href="index.html" class="back-to-portfolio">← Kembali ke Portfolio</a>
         <div class="error" id="password-error">Password salah. Coba lagi.</div>
     </div>
 </div>
