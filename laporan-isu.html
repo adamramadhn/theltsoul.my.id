@@ -887,24 +887,27 @@ function escapeHtml(str) {
 }
 
 /* ══════════ DISCORD WEBHOOK CONFIG ══════════ */
-// Webhook URL embedded during deployment — set by Oyeng agent
-const DISCORD_WEBHOOK_URL = '__WEBHOOK_URL__'; // Will be replaced during build/deploy
+// Webhook URL is set via:
+// 1. URL query param: ?webhook=https://discord.com/api/webhooks/... (admin setup)
+// 2. User input in the setup panel (stored in localStorage)
+// 3. localStorage key 'discordWebhookUrl' if previously configured
+// NEVER hardcode the webhook URL in source code.
+const DISCORD_WEBHOOK_URL = '__WEBHOOK_URL__'; // Placeholder only — replaced at runtime
 
 /* ══════════ INIT ══════════ */
 
-// Auto-configure webhook if embedded or in query param
-if (DISCORD_WEBHOOK_URL && DISCORD_WEBHOOK_URL.startsWith('https://')) {
-    localStorage.setItem('discordWebhookUrl', DISCORD_WEBHOOK_URL);
-} else if (!localStorage.getItem('discordWebhookUrl')) {
-    // Check query param
-    const urlParams = new URLSearchParams(window.location.search);
-    const whParam = urlParams.get('webhook');
-    if (whParam && whParam.startsWith('https://discord.com/api/webhooks/')) {
-        localStorage.setItem('discordWebhookUrl', whParam);
-    } else {
-        // Show setup panel
-        document.getElementById('webhookSetup').style.display = 'block';
-    }
+// Auto-configure webhook if provided via query param (one-time admin setup)
+const urlParams = new URLSearchParams(window.location.search);
+const whParam = urlParams.get('webhook');
+if (whParam && whParam.startsWith('https://discord.com/api/webhooks/')) {
+    localStorage.setItem('discordWebhookUrl', whParam);
+    // Clean URL param from address bar for security
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+
+// Show setup panel if no webhook configured
+if (!localStorage.getItem('discordWebhookUrl')) {
+    document.getElementById('webhookSetup').style.display = 'block';
 }
 
 renderRecent();
