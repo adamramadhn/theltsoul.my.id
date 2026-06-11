@@ -375,9 +375,8 @@
 <nav class="nav">
     <a href="index.html" class="logo">~/theltsoul</a>
     <div class="nav-right">
-        <a href="stock-dashboard.html" class="back-link">📊 Stock Analysis</a>
-        <a href="index.html" class="back-link">← Portfolio</a>
         <button class="lock-btn" onclick="lockDashboard()">🔒 Lock</button>
+        <a href="index.html" class="back-link">← Portfolio</a>
     </div>
 </nav>
 
@@ -424,42 +423,11 @@
             <span class="stat-sub">Scheduled automation</span>
         </div>
         <div class="stat-card">
-            <div class="card-icon orange">🛠️</div>
-            <span class="stat-value">80+</span>
-            <span class="stat-label">Skills Available</span>
-            <span class="stat-sub">Reusable capabilities</span>
+            <div class="card-icon orange">🖥️</div>
+            <span class="stat-value">M2</span>
+            <span class="stat-label">Host Chip</span>
+            <span class="stat-sub">Mac mini · 8 GB RAM</span>
         </div>
-    </div>
-
-    </div>
-
-    <!-- ══════════ STOCK ANALYSIS QUICK VIEW ══════════ -->
-    <div class="card" style="margin-bottom: 28px; border-color: rgba(251,146,60,0.25);">
-        <h3><span class="dot" style="background:var(--orange)"></span> 📊 Stock Analysis — TLKM</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 16px 0;">
-            <div style="text-align: center; padding: 12px; background: var(--surface2); border-radius: var(--radius);">
-                <div style="font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px;">Harga</div>
-                <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 700; color: var(--red);">Rp 2.750</div>
-                <div style="font-size: 0.72rem; color: var(--red);">▼ -4.96%</div>
-            </div>
-            <div style="text-align: center; padding: 12px; background: var(--surface2); border-radius: var(--radius);">
-                <div style="font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px;">Rekomendasi</div>
-                <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--orange);">BUY ON PULLBACK</div>
-                <div style="font-size: 0.72rem; color: var(--text-secondary);">Entry: Rp 2.700-2.800</div>
-            </div>
-            <div style="text-align: center; padding: 12px; background: var(--surface2); border-radius: var(--radius);">
-                <div style="font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px;">Target Price</div>
-                <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 700; color: var(--green);">Rp 3.785</div>
-                <div style="font-size: 0.72rem; color: var(--green);">▲ +37.6% upside</div>
-            </div>
-        </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
-            <span style="padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 600; background: var(--green-soft); color: var(--green);">74% Analis: BUY</span>
-            <span style="padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 600; background: var(--orange-soft); color: var(--orange);">Buyback Rp 4T Aktif</span>
-            <span style="padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 600; background: var(--blue-soft); color: var(--blue);">Dividend Yield 5.8%</span>
-            <span style="padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 600; background: var(--red-soft); color: var(--red);">YTD -32%</span>
-        </div>
-        <a href="stock-dashboard.html" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 20px; border-radius: var(--radius-sm); background: linear-gradient(135deg, var(--orange), #f87171); color: #fff; font-size: 0.85rem; font-weight: 600; text-decoration: none; transition: opacity 0.2s;">Lihat Analisis Lengkap →</a>
     </div>
 
     <!-- ══════════ MEMORY + IDENTITY ══════════ -->
@@ -545,6 +513,100 @@
                 <div class="item-right">
                     <span class="item-status active">Local</span>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ HARDWARE SPECS ══════════ -->
+    <div class="wide-grid">
+        <div class="card">
+            <h3><span class="dot" style="background:var(--green)"></span> 🖥️ Host Hardware</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">💻</div>
+                    <div>
+                        <div class="item-name">Model</div>
+                        <div class="item-sub">Apple Mac mini</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">Mac14,3</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">⚙️</div>
+                    <div>
+                        <div class="item-name">Processor</div>
+                        <div class="item-sub">8-core (4P + 4E)</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">Apple M2</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🧠</div>
+                    <div>
+                        <div class="item-name">Memory</div>
+                        <div class="item-sub">Unified memory</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">8 GB</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🎮</div>
+                    <div>
+                        <div class="item-name">Graphics</div>
+                        <div class="item-sub">Metal 4 support</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">M2 GPU 10-core</div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="dot" style="background:var(--blue)"></span> 💾 Storage & Display</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">💿</div>
+                    <div>
+                        <div class="item-name">Total Storage</div>
+                        <div class="item-sub">Apple SSD</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">228 GB</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">📊</div>
+                    <div>
+                        <div class="item-name">Disk Used</div>
+                        <div class="item-sub">System + Data</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">~12 GB (58%)</div></div>
+            </div>
+            <div class="progress-bar">
+                <div class="fill green" style="width: 58%"></div>
+            </div>
+            <div class="list-item" style="margin-top: 12px;">
+                <div class="item-left">
+                    <div class="item-icon">🖵</div>
+                    <div>
+                        <div class="item-name">Display</div>
+                        <div class="item-sub">Connected monitor</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">2560×1600</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔌</div>
+                    <div>
+                        <div class="item-name">OS</div>
+                        <div class="item-sub">Darwin kernel</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">macOS 26.5</div></div>
             </div>
         </div>
     </div>
@@ -733,7 +795,8 @@ var terminalLines = [
     { output: '\u2502  Honcho: 113+ conclusions           \u2502' },
     { output: '\u2502  Cron Jobs: 4 active                \u2502' },
     { output: '\u2502  Platforms: TG, Discord, Gmail, GH  \u2502' },
-    { output: '\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518' },
+    { output: '\u2502  Host: Mac mini M2 (8GB)          \u2502' },
+    { output: '\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518' },
     { output: '' },
     { prompt: '$', cmd: 'uptime' },
     { output: 'Services running via launchd:', cls: 'info' },
