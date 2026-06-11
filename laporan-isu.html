@@ -770,23 +770,34 @@ function sendToDiscord(submission, webhookUrl) {
         });
     }
 
-    if (submission.screenshots.length > 0) {
+    // If screenshots attached, add image references in embed
+    if (selectedFiles.length > 0) {
         embed.fields.push({
             name: '📎 Screenshot',
-            value: `${submission.screenshots.length} file terlampir (metadata only)`,
+            value: `${selectedFiles.length} file terlampir`,
             inline: true
         });
+        // Discord attachment protocol: reference files by attachment filename
+        embed.image = { url: `attachment://${selectedFiles[0].name}` };
     }
 
-    // Use thread_name in the webhook payload to auto-create a thread
+    const payload = {
+        username: '🐛 Laporan Isu',
+        thread_name: `📱 ${submission.namaAplikasi} — ${submission.level}`,
+        embeds: [embed]
+    };
+
+    // Build multipart/form-data with files
+    const formData = new FormData();
+    formData.append('payload_json', JSON.stringify(payload));
+
+    selectedFiles.forEach((file, idx) => {
+        formData.append(`files[${idx}]`, file, file.name);
+    });
+
     return fetch(webhookUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            username: '🐛 Laporan Isu',
-            thread_name: `📱 ${submission.namaAplikasi} — ${submission.level}`,
-            embeds: [embed]
-        })
+        body: formData
     });
 }
 
