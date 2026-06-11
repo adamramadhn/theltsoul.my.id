@@ -563,6 +563,7 @@ let isAutoFetchActive = false;
 let currentStock = 'TLKM';
 let lastPriceData = null;
 let chartsInitialized = false;
+let consecutiveFailures = 0;
 
 const STOCK_NAMES = {
     'TLKM': 'PT Telekomunikasi Indonesia (Persero) Tbk',
@@ -829,49 +830,71 @@ async function fetchPrice() {
     document.getElementById('fs-timer').textContent = '';
 
     const symbol = currentStock + '.JK';
-    // Try multiple CORS proxies for resilience
-    const proxies = [
-        `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1d&interval=1m`,
-        `https://query2.finance.yahoo.com/v8/finance/chart/${symbol}?range=1d&interval=1m`,
-    ];
 
-    // Also try a CORS proxy wrapper
-    const corsProxied = [
-        `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`)}`,
+    // Build list of all URLs to try (direct + CORS proxies)
+    const urls = [
+        { url: `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`, timeout: 8000 },
+        { url: `https://query2.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`, timeout: 8000 },
+        { url: `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`)}`, timeout: 12000 },
+        { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`)}`, timeout: 12000 },
     ];
 
     let data = null;
-    let fetched = false;
+    let lastError = '';
+    let attemptCount = 0;
 
-    // Try direct first (works in some browsers/environments)
-    for (const url of proxies) {
+    for (const { url, timeout } of urls) {
+        attemptCount++;
         try {
-            const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
+            const resp = await fetch(url, { signal: AbortSignal.timeout(timeout) });
             if (resp.ok) {
-                data = await resp.json();
-                fetched = true;
-                break;
-            }
-        } catch(e) { continue; }
-    }
-
-    // Try CORS proxies
-    if (!fetched) {
-        for (const url of corsProxied) {
-            try {
-                const resp = await fetch(url, { signal: AbortSignal.timeout(10000) });
-                if (resp.ok) {
-                    data = await resp.json();
-                    fetched = true;
+                const json = await resp.json();
+                // Validate response structure
+                if (json && json.chart && json.chart.result && json.chart.result[0] && json.chart.result[0].meta) {
+                    data = json;
                     break;
+                } else {
+                    lastError = 'Invalid response structure';
                 }
-            } catch(e) { continue; }
+            } else {
+                lastError = `HTTP ${resp.status}`;
+            }
+        } catch(e) {
+            lastError = e.name === 'TimeoutError' ? 'Timeout' : (e.message || 'Network error');
+            continue; // Try next URL
         }
     }
 
-    if (!fetched || !data || !data.chart || !data.chart.result || !data.chart.result[0]) {
-        updateFetchStatus('error', 'Gagal fetch — coba lagi nanti');
+    // If all URLs failed
+    if (!data) {
+        consecutiveFailures++;
+        // Check if we have cached data to fall back to
+        const cache = loadPriceCache(currentStock);
+        if (cache) {
+            const ageMin = Math.floor((Date.now() - cache.timestamp) / 60000);
+            const timeStr = new Date(cache.timestamp).toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit' });
+            // Restore from cache silently
+            restorePriceFromCache(currentStock);
+            const retryMsg = consecutiveFailures >= 3 ? ` — ${consecutiveFailures}x gagal berturut, cek jaringan!` : '';
+            updateFetchStatus('error', `Fetch gagal (${lastError}) — Cache ${timeStr} (${ageMin}m lalu). Auto-fetch coba lagi.${retryMsg}`);
+            return;
+        }
+
+        // No cache either — show helpful error
+        let errorMsg = 'Gagal fetch dari semua sumber';
+        if (lastError.includes('Timeout')) {
+            errorMsg += ' — koneksi lambat. Cek jaringan atau coba lagi.';
+        } else if (lastError.includes('Network') || lastError.includes('Failed to fetch')) {
+            errorMsg += ' — tidak bisa reach server. Mungkin CORS proxy down.';
+        } else {
+            errorMsg += ` (${lastError})`;
+        }
+        if (consecutiveFailures >= 3) {
+            errorMsg += ` — ${consecutiveFailures}x gagal berturut. Matikan toggle & coba lagi nanti.`;
+        } else {
+            errorMsg += ' — Auto-fetch akan coba lagi.';
+        }
+        updateFetchStatus('error', errorMsg);
         return;
     }
 
@@ -920,6 +943,9 @@ async function fetchPrice() {
 
         // Enable analyze button
         document.getElementById('btn-analyze').disabled = false;
+
+        // Reset consecutive failures on success
+        consecutiveFailures = 0;
 
         const now = new Date();
         const timeStr = now.toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit' });
