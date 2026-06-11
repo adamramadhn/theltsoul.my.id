@@ -622,18 +622,137 @@
 </div>
 
 <script>
-// ══════════ PASSWORD PROTECTION ══════════
-const DASHBOARD_PASSWORD='CakraVistaA1';
+// ══════════ CONSTANTS ══════════
+const DASHBOARD_PASSWORD='***';
 const STORAGE_KEY = 'oyeng_dashboard_unlocked';
+const REFRESH_INTERVAL = 60 * 60 * 1000; // 1 hour
+let refreshTimer = null;
 
+// ══════════ HELPER FUNCTIONS (defined first) ══════════
+function updateLastUpdated() {
+    const now = new Date();
+    const el = document.getElementById('last-updated');
+    if (el) {
+        el.textContent = 'Last updated: ' + now.toLocaleString('id-ID', {
+            timeZone: 'Asia/Jakarta',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    }
+}
+
+function fetchDashboardData() {
+    const memEl = document.getElementById('memory-count');
+    const concEl = document.getElementById('conclusions-count');
+    if (memEl) {
+        memEl.style.transform = 'scale(1.1)';
+        memEl.style.transition = 'transform 0.2s';
+        setTimeout(function() { memEl.style.transform = 'scale(1)'; }, 200);
+    }
+    if (concEl) {
+        concEl.style.transform = 'scale(1.1)';
+        concEl.style.transition = 'transform 0.2s';
+        setTimeout(function() { concEl.style.transform = 'scale(1)'; }, 200);
+    }
+    const memBar = document.getElementById('memory-bar');
+    const honchoBar = document.getElementById('honcho-bar');
+    if (memBar) { memBar.style.width = (95 + Math.random() * 5) + '%'; }
+    if (honchoBar) { honchoBar.style.width = (90 + Math.random() * 10) + '%'; }
+    updateLastUpdated();
+}
+
+function startAutoRefresh() {
+    fetchDashboardData();
+    refreshTimer = setInterval(fetchDashboardData, REFRESH_INTERVAL);
+}
+
+function manualRefresh() {
+    var btn = document.getElementById('refresh-btn');
+    if (btn) {
+        btn.classList.add('loading');
+        btn.querySelector('span').classList.add('spin');
+    }
+    setTimeout(function() {
+        fetchDashboardData();
+        if (btn) {
+            btn.classList.remove('loading');
+            btn.querySelector('span').classList.remove('spin');
+        }
+    }, 800);
+}
+
+// ══════════ TERMINAL ANIMATION ══════════
+var terminalLines = [
+    { output: '\u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510' },
+    { output: '\u2502  \uD83E\uDDE0 Oyeng AI Research Assistant     \u2502' },
+    { output: '\u2502  Status: \u25CF Online                   \u2502' },
+    { output: '\u2502  Model: OWL Alpha (OpenRouter)      \u2502' },
+    { output: '\u2502  Memory: 2 tiers (hot + cold)       \u2502' },
+    { output: '\u2502  Honcho: 113+ conclusions           \u2502' },
+    { output: '\u2502  Cron Jobs: 4 active                \u2502' },
+    { output: '\u2502  Platforms: TG, Discord, Gmail, GH  \u2502' },
+    { output: '\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518' },
+    { output: '' },
+    { prompt: '$', cmd: 'uptime' },
+    { output: 'Services running via launchd:', cls: 'info' },
+    { output: '  \u2713 Honcho API + Deriver' },
+    { output: '  \u2713 Embedding Server' },
+    { output: '' },
+    { prompt: '$', cmd: '', cursor: true },
+];
+
+var lineIdx = 0;
+function startTerminalAnimation() {
+    var body = document.getElementById('terminal-body');
+    body.innerHTML = '';
+    lineIdx = 0;
+    function typeLine() {
+        if (lineIdx >= terminalLines.length) return;
+        var line = terminalLines[lineIdx];
+        var div = document.createElement('div');
+        div.className = 'line';
+        if (line.cursor) {
+            div.innerHTML = '<span class="prompt">$</span><span class="cursor"></span>';
+        } else if (line.output) {
+            var cls = line.cls || 'output';
+            div.innerHTML = '<span class="' + cls + '">' + line.output + '</span>';
+        } else if (line.cmd) {
+            div.innerHTML = '<span class="prompt">' + line.prompt + '</span><span class="cmd">' + line.cmd + '</span>';
+        }
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
+        lineIdx++;
+        setTimeout(typeLine, 120 + Math.random() * 80);
+    }
+    typeLine();
+}
+
+// ══════════ CLOCK ══════════
+function updateClock() {
+    var now = new Date();
+    var el = document.getElementById('current-time');
+    if (el) {
+        el.textContent = now.toLocaleString('id-ID', {
+            timeZone: 'Asia/Jakarta',
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        });
+    }
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ══════════ PASSWORD PROTECTION ══════════
 function unlockDashboard() {
-    const input = document.getElementById('password-input');
-    const error = document.getElementById('password-error');
+    var input = document.getElementById('password-input');
+    var error = document.getElementById('password-error');
     if (input.value === DASHBOARD_PASSWORD) {
         document.getElementById('password-gate').style.display = 'none';
         document.getElementById('dashboard').classList.add('unlocked');
         sessionStorage.setItem(STORAGE_KEY, 'true');
         startTerminalAnimation();
+        startAutoRefresh();
     } else {
         error.style.display = 'block';
         input.value = '';
@@ -649,180 +768,19 @@ function lockDashboard() {
     document.getElementById('password-error').style.display = 'none';
 }
 
-// Allow Enter key to submit
+// Enter key support
 document.getElementById('password-input').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') unlockDashboard();
 });
 
-// Check if already unlocked in this session
-if (sessionStorage.getItem(STORAGE_KEY) === 'true') {
-    document.getElementById('password-gate').style.display = 'none';
-    document.getElementById('dashboard').classList.add('unlocked');
-    startTerminalAnimation();
-}
-
-// ══════════ TERMINAL ANIMATION ══════════
-const terminalLines = [
-    { output: '┌─────────────────────────────────────┐' },
-    { output: '│  🧠 Oyeng AI Research Assistant     │' },
-    { output: '│  Status: ● Online                   │' },
-    { output: '│  Model: OWL Alpha (OpenRouter)      │' },
-    { output: '│  Memory: 2 tiers (hot + cold)       │' },
-    { output: '│  Honcho: 113+ conclusions           │' },
-    { output: '│  Cron Jobs: 4 active                │' },
-    { output: '│  Platforms: TG, Discord, Gmail, GH  │' },
-    { output: '└─────────────────────────────────────┘' },
-    { output: '' },
-    { prompt: '$', cmd: 'uptime' },
-    { output: 'Services running via launchd:', cls: 'info' },
-    { output: '  ✓ Honcho API + Deriver' },
-    { output: '  ✓ Embedding Server' },
-    { output: '' },
-    { prompt: '$', cmd: '', cursor: true },
-];
-
-let lineIdx = 0;
-function startTerminalAnimation() {
-    const body = document.getElementById('terminal-body');
-    // Clear initial lines
-    body.innerHTML = '';
-    function typeLine() {
-        if (lineIdx >= terminalLines.length) return;
-        const line = terminalLines[lineIdx];
-        const div = document.createElement('div');
-        div.className = 'line';
-        if (line.cursor) {
-            div.innerHTML = `<span class="prompt">$</span><span class="cursor"></span>`;
-        } else if (line.output) {
-            const cls = line.cls || 'output';
-            div.innerHTML = `<span class="${cls}">${line.output}</span>`;
-        } else if (line.cmd) {
-            div.innerHTML = `<span class="prompt">${line.prompt}</span><span class="cmd">${line.cmd}</span>`;
-        }
-        body.appendChild(div);
-        body.scrollTop = body.scrollHeight;
-        lineIdx++;
-        setTimeout(typeLine, 120 + Math.random() * 80);
-    }
-    typeLine();
-}
-
-// ══════════ CLOCK ══════════
-function updateClock() {
-    const now = new Date();
-    const el = document.getElementById('current-time');
-    if (el) {
-        el.textContent = now.toLocaleString('id-ID', {
-            timeZone: 'Asia/Jakarta',
-            dateStyle: 'medium',
-            timeStyle: 'short'
-        });
-    }
-}
-updateClock();
-setInterval(updateClock, 1000);
-
-// ══════════ AUTO REFRESH + MANUAL REFRESH ══════════
-const REFRESH_INTERVAL = 60 * 60 * 1000; // 1 hour in ms
-let refreshTimer = null;
-
-function updateLastUpdated() {
-    const now = new Date();
-    const el = document.getElementById('last-updated');
-    if (el) {
-        el.textContent = 'Last updated: ' + now.toLocaleString('id-ID', {
-            timeZone: 'Asia/Jakarta',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        });
-    }
-}
-
-function fetchDashboardData() {
-    // Simulate data fetch with slight random variations
-    // In production, this would be a real API call
-    const memoryVariation = Math.floor(Math.random() * 3);
-    const conclusionsVariation = Math.floor(Math.random() * 5);
-
-    // Animate counters with new values
-    const memEl = document.getElementById('memory-count');
-    const concEl = document.getElementById('conclusions-count');
-
-    if (memEl) {
-        memEl.style.transform = 'scale(1.1)';
-        memEl.style.transition = 'transform 0.2s';
-        setTimeout(() => { memEl.style.transform = 'scale(1)'; }, 200);
-    }
-    if (concEl) {
-        concEl.style.transform = 'scale(1.1)';
-        concEl.style.transition = 'transform 0.2s';
-        setTimeout(() => { concEl.style.transform = 'scale(1)'; }, 200);
-    }
-
-    // Randomize progress bars slightly for visual feedback
-    const memBar = document.getElementById('memory-bar');
-    const honchoBar = document.getElementById('honcho-bar');
-    if (memBar) {
-        const newWidth = 95 + Math.random() * 5;
-        memBar.style.width = newWidth + '%';
-    }
-    if (honchoBar) {
-        const newWidth = 90 + Math.random() * 10;
-        honchoBar.style.width = newWidth + '%';
-    }
-
-    updateLastUpdated();
-}
-
-function manualRefresh() {
-    const btn = document.getElementById('refresh-btn');
-    if (btn) {
-        btn.classList.add('loading');
-        btn.querySelector('span').classList.add('spin');
-    }
-
-    // Simulate fetch delay
-    setTimeout(() => {
-        fetchDashboardData();
-        if (btn) {
-            btn.classList.remove('loading');
-            btn.querySelector('span').classList.remove('spin');
-        }
-    }, 800);
-}
-
-// Auto refresh every hour
-function startAutoRefresh() {
-    fetchDashboardData();
-    refreshTimer = setInterval(fetchDashboardData, REFRESH_INTERVAL);
-}
-
-// Start auto refresh when dashboard is unlocked
-const originalUnlock = unlockDashboard;
-unlockDashboard = function() {
-    const input = document.getElementById('password-input');
-    const error = document.getElementById('password-error');
-    if (input.value === DASHBOARD_PASSWORD) {
-        document.getElementById('password-gate').style.display = 'none';
-        document.getElementById('dashboard').classList.add('unlocked');
-        sessionStorage.setItem(STORAGE_KEY, 'true');
-        startTerminalAnimation();
-        startAutoRefresh();
-    } else {
-        error.style.display = 'block';
-        input.value = '';
-        input.focus();
-    }
-};
-
-// Also start if already unlocked
+// Auto-unlock if session already active
 if (sessionStorage.getItem(STORAGE_KEY) === 'true') {
     document.getElementById('password-gate').style.display = 'none';
     document.getElementById('dashboard').classList.add('unlocked');
     startTerminalAnimation();
     startAutoRefresh();
 }
+</script>
 
 </body>
 </html>
