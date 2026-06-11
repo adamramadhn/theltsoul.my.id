@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Oyeng Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #07070d;
+            --surface: #0e0e18;
+            --surface2: #151525;
+            --border: #1e1e32;
+            --border-light: #2a2a44;
+            --text: #e8e8f0;
+            --text-secondary: #8888a8;
+            --text-tertiary: #5c5c78;
+            --accent: #7c5cfc;
+            --accent-soft: rgba(124, 92, 252, 0.12);
+            --accent-glow: rgba(124, 92, 252, 0.22);
+            --accent2: #a855f7;
+            --green: #34d399;
+            --green-soft: rgba(52, 211, 153, 0.12);
+            --blue: #60a5fa;
+            --blue-soft: rgba(96, 165, 250, 0.12);
+            --orange: #fb923c;
+            --orange-soft: rgba(251, 146, 60, 0.12);
+            --red: #f87171;
+            --red-soft: rgba(248, 113, 113, 0.12);
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══════════ BACKGROUND ══════════ */
+        .bg-decoration {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+        }
+        .bg-decoration .gradient-orb {
+            position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.25;
+        }
+        .bg-decoration .orb-1 {
+            width: 600px; height: 600px; top: -15%; right: -15%;
+            background: linear-gradient(135deg, rgba(124,92,252,0.3), rgba(168,85,247,0.15));
+        }
+        .bg-decoration .orb-2 {
+            width: 400px; height: 400px; bottom: 5%; left: -10%;
+            background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(124,92,252,0.1));
+        }
+
+        /* ══════════ NAV ══════════ */
+        .nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 24px; max-width: 1100px; margin: 0 auto; position: relative; z-index: 1;
+        }
+        .nav .logo {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800; font-size: 1.2rem; color: var(--accent);
+            letter-spacing: -0.5px; text-decoration: none;
+        }
+        .nav .back-link {
+            color: var(--text-secondary); text-decoration: none; font-size: 0.88rem;
+            font-weight: 500; transition: color 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .nav .back-link:hover { color: var(--text); }
+
+        /* ══════════ HEADER ══════════ */
+        .dashboard-header {
+            text-align: center; padding: 48px 24px 40px; position: relative; z-index: 1;
+        }
+        .dashboard-header .status-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 18px; border-radius: 50px;
+            background: var(--green-soft); border: 1px solid rgba(52,211,153,0.25);
+            font-size: 0.82rem; color: var(--green); font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .dashboard-header .status-badge .pulse {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        .dashboard-header h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.4rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px;
+            background: linear-gradient(135deg, #e8e8f0 0%, var(--accent) 60%, var(--accent2) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .dashboard-header p {
+            color: var(--text-secondary); font-size: 1rem; max-width: 500px; margin: 0 auto;
+        }
+
+        /* ══════════ CONTAINER ══════════ */
+        .container {
+            max-width: 1100px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1;
+        }
+
+        /* ══════════ GRID ══════════ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px; margin-bottom: 32px;
+        }
+
+        /* ══════════ CARDS ══════════ */
+        .stat-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 24px;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .stat-card:hover {
+            border-color: var(--accent); transform: translateY(-2px);
+        }
+        .stat-card .card-icon {
+            width: 44px; height: 44px; border-radius: var(--radius);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; margin-bottom: 14px;
+        }
+        .stat-card .card-icon.purple { background: var(--accent-soft); }
+        .stat-card .card-icon.green { background: var(--green-soft); }
+        .stat-card .card-icon.blue { background: var(--blue-soft); }
+        .stat-card .card-icon.orange { background: var(--orange-soft); }
+        .stat-card .card-icon.red { background: var(--red-soft); }
+
+        .stat-card .stat-value {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2rem; font-weight: 800; color: var(--text); display: block; line-height: 1.2;
+        }
+        .stat-card .stat-label {
+            font-size: 0.82rem; color: var(--text-secondary); font-weight: 500;
+        }
+        .stat-card .stat-sub {
+            font-size: 0.75rem; color: var(--text-tertiary); margin-top: 4px;
+        }
+
+        /* ══════════ WIDE CARDS ══════════ */
+        .wide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 16px; margin-bottom: 32px;
+        }
+
+        .card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 24px;
+        }
+        .card h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1rem; font-weight: 700; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .card h3 .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+        }
+
+        /* ══════════ LIST ITEMS ══════════ */
+        .list-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 0; border-bottom: 1px solid var(--border);
+        }
+        .list-item:last-child { border-bottom: none; }
+        .list-item .item-left {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .list-item .item-icon {
+            width: 32px; height: 32px; border-radius: var(--radius-sm);
+            background: var(--surface2); display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem;
+        }
+        .list-item .item-name { font-size: 0.88rem; font-weight: 500; }
+        .list-item .item-sub { font-size: 0.75rem; color: var(--text-tertiary); }
+        .list-item .item-right { text-align: right; }
+        .list-item .item-value { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+        .list-item .item-status {
+            font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 50px;
+        }
+        .item-status.active { background: var(--green-soft); color: var(--green); }
+        .item-status.idle { background: var(--orange-soft); color: var(--orange); }
+
+        /* ══════════ PROGRESS BAR ══════════ */
+        .progress-bar {
+            width: 100%; height: 6px; background: var(--surface2);
+            border-radius: 3px; overflow: hidden; margin-top: 8px;
+        }
+        .progress-bar .fill {
+            height: 100%; border-radius: 3px; transition: width 1s ease;
+        }
+        .fill.purple { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+        .fill.green { background: var(--green); }
+        .fill.blue { background: var(--blue); }
+        .fill.orange { background: var(--orange); }
+
+        /* ══════════ TERMINAL ══════════ */
+        .terminal {
+            background: #0a0a14; border: 1px solid var(--border);
+            border-radius: var(--radius-lg); overflow: hidden;
+        }
+        .terminal .terminal-header {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 16px; border-bottom: 1px solid var(--border);
+        }
+        .terminal .terminal-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .terminal .terminal-header .dot.red { background: #ef4444; }
+        .terminal .terminal-header .dot.yellow { background: #eab308; }
+        .terminal .terminal-header .dot.green { background: #22c55e; }
+        .terminal .terminal-header .title {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+            color: var(--text-tertiary); margin-left: 8px;
+        }
+        .terminal .terminal-body {
+            padding: 16px; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem; line-height: 1.8; max-height: 300px; overflow-y: auto;
+        }
+        .terminal .line { display: flex; gap: 8px; }
+        .terminal .line .prompt { color: var(--accent); flex-shrink: 0; }
+        .terminal .line .cmd { color: var(--text); }
+        .terminal .line .output { color: var(--text-secondary); }
+        .terminal .line .success { color: var(--green); }
+        .terminal .line .info { color: var(--blue); }
+        .terminal .cursor::after {
+            content: '▊'; animation: blink 1s step-end infinite; color: var(--accent);
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* ══════════ FOOTER ══════════ */
+        .dashboard-footer {
+            text-align: center; padding: 32px 24px;
+            color: var(--text-tertiary); font-size: 0.82rem;
+            border-top: 1px solid var(--border); margin-top: 40px;
+        }
+
+        /* ══════════ RESPONSIVE ══════════ */
+        @media (max-width: 600px) {
+            .dashboard-header h1 { font-size: 1.8rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .wide-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-decoration">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+</div>
+
+<nav class="nav">
+    <a href="index.html" class="logo">~/theltsoul</a>
+    <a href="index.html" class="back-link">← Kembali ke Portfolio</a>
+</nav>
+
+<header class="dashboard-header">
+    <div class="status-badge">
+        <span class="pulse"></span>
+        Oyeng Agent — Online
+    </div>
+    <h1>🧠 Agent Dashboard</h1>
+    <p>Real-time overview of Oyeng AI Research Assistant — memory, stats, and activity.</p>
+</header>
+
+<div class="container">
+
+    <!-- ══════════ STATS GRID ══════════ -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="card-icon purple">🧠</div>
+            <span class="stat-value" id="memory-count">—</span>
+            <span class="stat-label">Memory Entries</span>
+            <span class="stat-sub">System prompt + Honcho</span>
+        </div>
+        <div class="stat-card">
+            <div class="card-icon green">✅</div>
+            <span class="stat-value" id="conclusions-count">—</span>
+            <span class="stat-label">Honcho Conclusions</span>
+            <span class="stat-sub">Auto-extracted observations</span>
+        </div>
+        <div class="stat-card">
+            <div class="card-icon blue">⚡</div>
+            <span class="stat-value" id="cron-count">—</span>
+            <span class="stat-label">Active Cron Jobs</span>
+            <span class="stat-sub">Scheduled automation</span>
+        </div>
+        <div class="stat-card">
+            <div class="card-icon orange">🛠️</div>
+            <span class="stat-value" id="skills-count">—</span>
+            <span class="stat-label">Skills Loaded</span>
+            <span class="stat-sub">Available capabilities</span>
+        </div>
+    </div>
+
+    <!-- ══════════ MEMORY + HONCHO ══════════ -->
+    <div class="wide-grid">
+        <div class="card">
+            <h3><span class="dot" style="background:var(--accent)"></span> Memory Usage</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">💾</div>
+                    <div>
+                        <div class="item-name">System Prompt Memory</div>
+                        <div class="item-sub">Hot cache — injected every turn</div>
+                    </div>
+                </div>
+                <div class="item-right">
+                    <div class="item-value" id="memory-usage">—</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="fill purple" id="memory-bar" style="width: 0%"></div>
+            </div>
+            <div class="list-item" style="margin-top: 12px;">
+                <div class="item-left">
+                    <div class="item-icon">🧊</div>
+                    <div>
+                        <div class="item-name">Honcho Cold Storage</div>
+                        <div class="item-sub">Vector search long-term memory</div>
+                    </div>
+                </div>
+                <div class="item-right">
+                    <div class="item-value" id="honcho-usage">—</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="fill blue" id="honcho-bar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="dot" style="background:var(--green)"></span> Agent Identity</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🏷️</div>
+                    <div>
+                        <div class="item-name">Name</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">Oyeng (Hermes)</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🤖</div>
+                    <div>
+                        <div class="item-name">Model</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">OWL Alpha</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔄</div>
+                    <div>
+                        <div class="item-name">Fallback</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">GLM 4.5</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">📡</div>
+                    <div>
+                        <div class="item-name">Provider</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">OpenRouter</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔗</div>
+                    <div>
+                        <div class="item-name">Honcho API</div>
+                    </div>
+                </div>
+                <div class="item-right">
+                    <span class="item-status active">localhost:8000</span>
+                </div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">📊</div>
+                    <div>
+                        <div class="item-name">Embedding Server</div>
+                    </div>
+                </div>
+                <div class="item-right">
+                    <span class="item-status active">localhost:8787</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ CRON + SKILLS ══════════ -->
+    <div class="wide-grid">
+        <div class="card">
+            <h3><span class="dot" style="background:var(--orange)"></span> Cron Jobs</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔄</div>
+                    <div>
+                        <div class="item-name">Memory Sync</div>
+                        <div class="item-sub">Hermes → Honcho (6h)</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Active</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🎲</div>
+                    <div>
+                        <div class="item-name">Free Model Rotator</div>
+                        <div class="item-sub">Zen + OpenRouter (09:00)</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Active</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">📝</div>
+                    <div>
+                        <div class="item-name">Activity Form</div>
+                        <div class="item-sub">Google Forms (17:15 weekdays)</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Active</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔍</div>
+                    <div>
+                        <div class="item-name">GLM Token Watcher</div>
+                        <div class="item-sub">Token reset monitor</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status idle">Paused</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="dot" style="background:var(--blue)"></span> Platform Connections</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">💬</div>
+                    <div>
+                        <div class="item-name">Telegram</div>
+                        <div class="item-sub">Primary notification channel</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Connected</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🎮</div>
+                    <div>
+                        <div class="item-name">Discord</div>
+                        <div class="item-sub">Multi-channel gateway</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Connected</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">📧</div>
+                    <div>
+                        <div class="item-name">Gmail / Google Workspace</div>
+                        <div class="item-sub">OAuth2 authenticated</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Connected</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🐙</div>
+                    <div>
+                        <div class="item-name">GitHub</div>
+                        <div class="item-sub">gh CLI + API</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Connected</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ TERMINAL ══════════ -->
+    <div class="terminal" style="margin-bottom: 32px;">
+        <div class="terminal-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            <span class="title">oyeng@dashboard ~ %</span>
+        </div>
+        <div class="terminal-body" id="terminal-body">
+            <div class="line"><span class="prompt">$</span><span class="cmd">oyeng status</span></div>
+            <div class="line"><span class="output">Loading agent status...</span></div>
+        </div>
+    </div>
+
+</div>
+
+<footer class="dashboard-footer">
+    <div class="container">Oyeng Agent Dashboard · Powered by Hermes · <span id="current-time"></span></div>
+</footer>
+
+<script>
+// ══════════ ANIMATED COUNTERS ══════════
+function animateCounter(el, target, suffix = '') {
+    let current = 0;
+    const step = Math.max(1, Math.floor(target / 40));
+    const interval = setInterval(() => {
+        current += step;
+        if (current >= target) {
+            current = target;
+            clearInterval(interval);
+        }
+        el.textContent = current + suffix;
+    }, 30);
+}
+
+// ══════════ FETCH REAL DATA ══════════
+async function fetchStats() {
+    try {
+        // Fetch cron jobs
+        const cronRes = await fetch('/api/cron/list');
+        const cronData = await cronRes.json();
+        const activeCrons = cronData.filter(c => c.enabled).length;
+        animateCounter(document.getElementById('cron-count'), activeCrons);
+
+        // Fetch memory stats
+        const memRes = await fetch('/api/memory/stats');
+        const memData = await memRes.json();
+        animateCounter(document.getElementById('memory-count'), memData.entries);
+        animateCounter(document.getElementById('conclusions-count'), memData.conclusions);
+
+        // Update memory bar
+        const memPct = memData.usage_percent;
+        document.getElementById('memory-usage').textContent = memPct + '%';
+        document.getElementById('memory-bar').style.width = memPct + '%';
+
+        // Update honcho bar
+        document.getElementById('honcho-usage').textContent = memData.conclusions + ' entries';
+        document.getElementById('honcho-bar').style.width = Math.min(100, memData.conclusions) + '%';
+
+    } catch (e) {
+        // Fallback: show static data
+        animateCounter(document.getElementById('memory-count'), 12);
+        animateCounter(document.getElementById('conclusions-count'), 113);
+        animateCounter(document.getElementById('cron-count'), 4);
+        animateCounter(document.getElementById('skills-count'), 80);
+        document.getElementById('memory-usage').textContent = '97%';
+        document.getElementById('memory-bar').style.width = '97%';
+        document.getElementById('honcho-usage').textContent = '113 entries';
+        document.getElementById('honcho-bar').style.width = '100%';
+    }
+}
+
+// ══════════ TERMINAL ANIMATION ══════════
+const terminalLines = [
+    { prompt: '$', cmd: 'oyeng status', output: '' },
+    { prompt: '', cmd: '', output: '┌─────────────────────────────────────┐' },
+    { prompt: '', cmd: '', output: '│  🧠 Oyeng AI Research Assistant     │' },
+    { prompt: '', cmd: '', output: '│  Status: ● Online                   │' },
+    { prompt: '', cmd: '', output: '│  Model: OWL Alpha (OpenRouter)      │' },
+    { prompt: '', cmd: '', output: '│  Memory: 12 entries (97% capacity)  │' },
+    { prompt: '', cmd: '', output: '│  Honcho: 113 conclusions            │' },
+    { prompt: '', cmd: '', output: '│  Cron Jobs: 4 active                │' },
+    { prompt: '', cmd: '', output: '│  Platforms: TG, Discord, Gmail, GH  │' },
+    { prompt: '', cmd: '', output: '└─────────────────────────────────────┘' },
+    { prompt: '', cmd: '', output: '' },
+    { prompt: '$', cmd: 'uptime', output: '' },
+    { prompt: '', cmd: '', output: 'Services running via launchd:', output_class: 'info' },
+    { prompt: '', cmd: '', output: '  ✓ dev.honcho.api     (port 8000)' },
+    { prompt: '', cmd: '', output: '  ✓ dev.honcho.deriver (queue)' },
+    { prompt: '', cmd: '', output: '  ✓ dev.hermes.embedding (port 8787)' },
+    { prompt: '', cmd: '', output: '' },
+    { prompt: '$', cmd: '', output: '', cursor: true },
+];
+
+let lineIdx = 0;
+function typeTerminal() {
+    if (lineIdx >= terminalLines.length) return;
+    const line = terminalLines[lineIdx];
+    const body = document.getElementById('terminal-body');
+    const div = document.createElement('div');
+    div.className = 'line';
+
+    if (line.cursor) {
+        div.innerHTML = `<span class="prompt">$</span><span class="cursor"></span>`;
+    } else if (line.output && !line.cmd) {
+        const cls = line.output_class || 'output';
+        div.innerHTML = `<span class="${cls}">${line.output}</span>`;
+    } else if (line.cmd) {
+        div.innerHTML = `<span class="prompt">${line.prompt}</span><span class="cmd">${line.cmd}</span>`;
+    }
+
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+    lineIdx++;
+    setTimeout(typeTerminal, 120 + Math.random() * 80);
+}
+
+// ══════════ CLOCK ══════════
+function updateClock() {
+    const now = new Date();
+    document.getElementById('current-time').textContent = now.toLocaleString('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        dateStyle: 'medium',
+        timeStyle: 'short'
+    });
+}
+
+// ══════════ INIT ══════════
+document.addEventListener('DOMContentLoaded', () => {
+    fetchStats();
+    setTimeout(typeTerminal, 500);
+    updateClock();
+    setInterval(updateClock, 1000);
+});
+</script>
+
+</body>
+</html>
