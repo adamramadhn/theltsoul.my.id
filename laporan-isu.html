@@ -818,6 +818,13 @@ form.addEventListener('submit', async (e) => {
 }); // end DOMContentLoaded
 
 /* ══════════ LAPORAN TOGGLE (ENABLE/DISABLE) ══════════ */
+// ═══════════════════════════════════════════════════════
+// DEFAULT STATE — bisa diubah lewat command Oyeng:
+// "nyalakan laporan isu" → ubah jadi true
+// "matikan laporan isu" → ubah jadi false
+// ═══════════════════════════════════════════════════════
+var LAPORAN_ENABLED_DEFAULT = true;
+
 const toggleLaporan = document.getElementById('toggleLaporan');
 const laporanStatus = document.getElementById('laporanStatus');
 const statusIcon = document.getElementById('statusIcon');
@@ -849,10 +856,12 @@ function updateLaporanStatus() {
     }
 }
 
-// Load saved state from localStorage
+// Load saved state from localStorage, fallback ke default
 const savedState = localStorage.getItem('laporanIsuEnabled');
 if (savedState !== null) {
     toggleLaporan.checked = JSON.parse(savedState);
+} else {
+    toggleLaporan.checked = LAPORAN_ENABLED_DEFAULT;
 }
 updateLaporanStatus();
 
