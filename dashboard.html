@@ -430,6 +430,168 @@
         </div>
     </div>
 
+    <!-- ══════════ TOKEN USAGE ══════════ -->
+    <div class="card" style="margin-bottom: 16px;">
+        <h3><span class="dot" style="background:var(--orange)"></span> 📊 Token Usage Overview</h3>
+        <div class="list-item">
+            <div class="item-left">
+                <div class="item-icon">📥</div>
+                <div>
+                    <div class="item-name">Input Tokens</div>
+                    <div class="item-sub">Context + system prompt + skills + memory</div>
+                </div>
+            </div>
+            <div class="item-right"><div class="item-value" id="token-input">~2.5M</div></div>
+        </div>
+        <div class="progress-bar">
+            <div class="fill purple" style="width: 78%"></div>
+        </div>
+        <div class="list-item" style="margin-top: 12px;">
+            <div class="item-left">
+                <div class="item-icon">📤</div>
+                <div>
+                    <div class="item-name">Output Tokens</div>
+                    <div class="item-sub">Responses + tool calls + reasoning</div>
+                </div>
+            </div>
+            <div class="item-right"><div class="item-value" id="token-output">~420K</div></div>
+        </div>
+        <div class="progress-bar">
+            <div class="fill blue" style="width: 45%"></div>
+        </div>
+        <div class="list-item" style="margin-top: 12px;">
+            <div class="item-left">
+                <div class="item-icon">🔢</div>
+                <div>
+                    <div class="item-name">Total Tokens (7d)</div>
+                    <div class="item-sub">All platforms combined</div>
+                </div>
+            </div>
+            <div class="item-right"><div class="item-value" style="color:var(--accent)">~2.9M</div></div>
+        </div>
+        <div class="list-item" style="margin-top: 8px;">
+            <div class="item-left">
+                <div class="item-icon">💬</div>
+                <div>
+                    <div class="item-name">Sessions</div>
+                    <div class="item-sub">7-day active conversations</div>
+                </div>
+            </div>
+            <div class="item-right"><div class="item-value">47+</div></div>
+        </div>
+        <div class="list-item">
+            <div class="item-left">
+                <div class="item-icon">⚡</div>
+                <div>
+                    <div class="item-name">Avg Tokens / Session</div>
+                    <div class="item-sub">Including context injection</div>
+                </div>
+            </div>
+            <div class="item-right"><div class="item-value">~62K</div></div>
+        </div>
+        <div class="list-item">
+            <div class="item-left">
+                <div class="item-icon">📱</div>
+                <div>
+                    <div class="item-name">Platform Split</div>
+                    <div class="item-sub">Telegram · Discord · CLI · Cron</div>
+                </div>
+            </div>
+            <div class="item-right"><div class="item-value" style="font-size:0.75rem">45% · 30% · 15% · 10%</div></div>
+        </div>
+    </div>
+
+    <!-- ══════════ AI MODEL LIST + PROVIDERS ══════════ -->
+    <div class="wide-grid" style="margin-bottom: 32px;">
+        <div class="card">
+            <h3><span class="dot" style="background:var(--accent)"></span> 🤖 Active Models</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">⭐</div>
+                    <div>
+                        <div class="item-name">OWL Alpha</div>
+                        <div class="item-sub">Primary · OpenRouter</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Primary</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔄</div>
+                    <div>
+                        <div class="item-name">GLM 4.5</div>
+                        <div class="item-sub">Fallback · z.ai</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status idle">Fallback</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🎲</div>
+                    <div>
+                        <div class="item-name">Free Model Rotator</div>
+                        <div class="item-sub">Auto-switch · OpenCode Zen + OR</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Rotating</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🧠</div>
+                    <div>
+                        <div class="item-name">Honcho Dialectic</div>
+                        <div class="item-sub">Peer reasoning · embedded</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Internal</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="dot" style="background:var(--green)"></span> 🌐 LLM Providers</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔗</div>
+                    <div>
+                        <div class="item-name">OpenRouter</div>
+                        <div class="item-sub">Multi-model gateway</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Primary</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">⚡</div>
+                    <div>
+                        <div class="item-name">z.ai (GLM)</div>
+                        <div class="item-sub">Free tier · Chinese models</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Connected</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🎮</div>
+                    <div>
+                        <div class="item-name">OpenCode Zen</div>
+                        <div class="item-sub">Free models · coding focus</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Connected</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🏢</div>
+                    <div>
+                        <div class="item-name">Nous Research</div>
+                        <div class="item-sub">Managed tools + subscription</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Subscribed</span></div>
+            </div>
+        </div>
+    </div>
+
     <!-- ══════════ MEMORY + IDENTITY ══════════ -->
     <div class="wide-grid">
         <div class="card">
@@ -787,23 +949,27 @@ function manualRefresh() {
 
 // ══════════ TERMINAL ANIMATION ══════════
 var terminalLines = [
-    { output: '\u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510' },
+    { output: '\u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510' },
     { output: '\u2502  \uD83E\uDDE0 Oyeng AI Research Assistant     \u2502' },
     { output: '\u2502  Status: \u25CF Online                   \u2502' },
-    { output: '\u2502  Model: OWL Alpha (OpenRouter)      \u2502' },
-    { output: '\u2502  Memory: 2 tiers (hot + cold)       \u2502' },
-    { output: '\u2502  Honcho: 113+ conclusions           \u2502' },
-    { output: '\u2502  Cron Jobs: 3 active                \u2502' },
-    { output: '\u2502  Platforms: TG, Discord, Gmail, GH  \u2502' },
-    { output: '\u2502  Host: Mac mini M2 (8GB)          \u2502' },
-    { output: '\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518' },
+    { output: '\u2502  Model: OWL Alpha (OpenRouter)        \u2502' },
+    { output: '\u2502  Memory: 2 tiers (hot + cold)         \u2502' },
+    { output: '\u2502  Honcho: 113+ conclusions             \u2502' },
+    { output: '\u2502  Cron Jobs: 3 active                  \u2502' },
+    { output: '\u2502  Platforms: TG, Discord, Gmail, GH    \u2502' },
+    { output: '\u2502  Host: Mac mini M2 (8GB)              \u2502' },
+    { output: '\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518' },
     { output: '' },
-    { prompt: '$', cmd: 'uptime' },
-    { output: 'Services running via launchd:', cls: 'info' },
-    { output: '  \u2713 Honcho API + Deriver' },
-    { output: '  \u2713 Embedding Server' },
+    { prompt: '$', cmd: 'oyeng tokens --summary' },
+    { output: '\u2713 Token Usage (7d): 2.9M total', cls: 'info' },
+    { output: '  Input: ~2.5M  |  Output: ~420K' },
+    { output: '  Sessions: 47+  |  Avg: ~62K/session' },
     { output: '' },
-    { prompt: '$', cmd: '', cursor: true },
+    { prompt: '$', cmd: 'oyeng models --list' },
+    { output: '\u2713 Active: OWL Alpha (OR) · GLM 4.5 (z.ai)', cls: 'success' },
+    { output: '\u2713 Providers: OR · z.ai · Zen · Nous', cls: 'success' },
+    { output: '' },
+    { prompt: '$', cmd: '', cursor: true }
 ];
 
 var lineIdx = 0;
