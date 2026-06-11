@@ -759,12 +759,20 @@ function onStockChange() {
     resetPriceDisplay();
     document.getElementById('analysis-panel').classList.remove('visible');
     lastPriceData = null;
-    // Try to restore from cache for this stock
+
+    // 1) Instant: restore from cache if available (no network needed)
     const hasCache = restorePriceFromCache(currentStock);
-    if (!hasCache) {
-        updateFetchStatus('idle', 'Klik toggle untuk mulai auto-fetch');
+    if (hasCache) {
+        // Cache shown immediately — now do a background fetch to update
+        updateFetchStatus('fetching', 'Memperbarui data dari server...');
+        fetchPrice(); // Background refresh — cache badge will hide on success
+    } else {
+        // No cache — fetch immediately so user sees data right away
+        updateFetchStatus('fetching', 'Mengambil data saham ' + currentStock + '...');
+        fetchPrice();
     }
-    // If auto-fetch is running, restart it for new stock
+
+    // 2) If auto-fetch toggle is ON, restart the interval for new stock
     if (isAutoFetchActive) {
         stopAutoFetch();
         startAutoFetch();
