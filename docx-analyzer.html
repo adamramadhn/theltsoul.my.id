@@ -36,6 +36,8 @@
             --green-soft: rgba(52, 211, 153, 0.08);
             --orange: #FBBF24;
             --orange-soft: rgba(251, 191, 36, 0.08);
+            --amber: #F59E0B;
+            --amber-soft: rgba(245, 158, 11, 0.08);
             --radius-sm: 8px;
             --radius: 12px;
             --radius-lg: 16px;
@@ -232,7 +234,7 @@
 
         /* Summary Cards */
         .summary-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 14px; margin-bottom: 28px;
         }
         .summary-card {
@@ -255,6 +257,7 @@
         .summary-card.typo .summary-num { color: var(--coral); }
         .summary-card.numbering .summary-num { color: var(--orange); }
         .summary-card.bad-image .summary-num { color: var(--purple); }
+        .summary-card.phrase .summary-num { color: var(--amber); }
 
         /* Filter Buttons */
         .filter-bar {
@@ -315,6 +318,7 @@
         .type-badge.typo { background: var(--coral-soft); color: var(--coral); }
         .type-badge.numbering { background: var(--orange-soft); color: #D97706; }
         .type-badge.bad-image { background: var(--purple-soft); color: var(--purple); }
+        .type-badge.phrase { background: var(--amber-soft); color: var(--amber); }
 
         /* Severity Badge */
         .severity-badge {
@@ -530,7 +534,7 @@
         </div>
         <div class="config-row">
             <label>Max Tokens</label>
-            <input type="number" id="cfgMaxTokens" placeholder="4096">
+            <input type="number" id="cfgMaxTokens" placeholder="8192">
         </div>
         <div class="config-row">
             <label>Temperature</label>
@@ -552,7 +556,7 @@
     const HERMES_CONFIG = {
         endpoint: localStorage.getItem('hermes_endpoint') || 'http://localhost:3000/v1/chat/completions',
         model: localStorage.getItem('hermes_model') || 'hermes',
-        max_tokens: parseInt(localStorage.getItem('hermes_max_tokens')) || 4096,
+        max_tokens: parseInt(localStorage.getItem('hermes_max_tokens')) || 8192,
         temperature: parseFloat(localStorage.getItem('hermes_temperature')) || 0.1
     };
 
@@ -744,10 +748,11 @@
     // ══════════════════════════════════════════
     const SYSTEM_PROMPT = `Kamu adalah asisten analisis dokumen yang ahli dalam Bahasa Indonesia dan format dokumen teknis. Tugasmu adalah menganalisis konten dari file .docx yang diberikan pengguna, lalu menghasilkan laporan terstruktur dalam format JSON.
 
-Kamu harus mendeteksi tiga jenis masalah:
+Kamu harus mendeteksi empat jenis masalah:
 1. TYPO — kesalahan penulisan kata dalam Bahasa Indonesia (ejaan salah, spasi ganda, huruf hilang, kata tidak baku)
 2. NUMBERING — urutan penomoran pada tabel, gambar, atau daftar yang tidak konsisten atau loncat
 3. BAD_IMAGE — referensi gambar dalam teks yang tidak memiliki gambar aktual (placeholder kosong, gambar rusak, atau caption tanpa gambar)
+4. PHRASE — pola kalimat yang tidak nyambung, janggal, atau sulit dipahami (kalimat yang terpotong, struktur kalimat yang salah, kata yang tidak cocok konteksnya, kalimat yang mengalir tidak natural)
 
 Selalu balas HANYA dengan JSON valid. Jangan tambahkan teks di luar JSON. Jangan gunakan markdown code block.`;
 
@@ -765,11 +770,12 @@ Kembalikan hasil analisis dalam format JSON berikut:
     "total_issues": 0,
     "typo_count": 0,
     "numbering_count": 0,
-    "bad_image_count": 0
+    "bad_image_count": 0,
+    "phrase_count": 0
   },
   "issues": [
     {
-      "type": "TYPO | NUMBERING | BAD_IMAGE",
+      "type": "TYPO | NUMBERING | BAD_IMAGE | PHRASE",
       "severity": "ERROR | WARNING",
       "location": "Nama bagian atau halaman tempat ditemukan",
       "original": "Teks asli yang bermasalah",
@@ -783,6 +789,7 @@ Aturan penting:
 - Untuk TYPO: periksa ejaan Bahasa Indonesia baku (KBBI), bukan Bahasa Inggris
 - Untuk NUMBERING: cek urutan Gambar 3.X, Tabel X, dan daftar bernomor — apakah loncat atau duplikat
 - Untuk BAD_IMAGE: tandai jika ada caption gambar tapi tidak ada data gambar aktual di atasnya
+- Untuk PHRASE: periksa setiap kalimat — apakah ada pola kalimat yang tidak nyambung, janggal, atau sulit dipahami. Contoh: kalimat terpotong di tengah, struktur kalimat salah (misal passive voice yang kacau), kata yang tidak cocok konteks, kalimat yang mengalir tidak natural, pengulangan kata yang tidak perlu, atau kalimat yang tiba-tiba berubah topik tanpa transisi
 - Jika tidak ada masalah pada salah satu kategori, tetap sertakan array kosong
 - severity ERROR = wajib diperbaiki, WARNING = disarankan diperbaiki`;
     }
@@ -848,6 +855,10 @@ Aturan penting:
                 <div class="summary-num">${summary.bad_image_count}</div>
                 <div class="summary-label">Bad Image</div>
             </div>
+            <div class="summary-card phrase">
+                <div class="summary-num">${summary.phrase_count}</div>
+                <div class="summary-label">Kalimat</div>
+            </div>
         `;
 
         // Filter buttons
@@ -855,12 +866,13 @@ Aturan penting:
             ALL: mergedIssues.length,
             TYPO: mergedIssues.filter(i => i.type === 'TYPO').length,
             NUMBERING: mergedIssues.filter(i => i.type === 'NUMBERING').length,
-            BAD_IMAGE: mergedIssues.filter(i => i.type === 'BAD_IMAGE').length
+            BAD_IMAGE: mergedIssues.filter(i => i.type === 'BAD_IMAGE').length,
+            PHRASE: mergedIssues.filter(i => i.type === 'PHRASE').length
         };
 
         filterBar.innerHTML = Object.entries(counts).map(([key, count]) => `
             <button class="filter-btn ${currentFilter === key ? 'active' : ''}" data-filter="${key}">
-                ${key === 'ALL' ? 'Semua' : key === 'BAD_IMAGE' ? 'Bad Image' : key === 'TYPO' ? 'Typo' : 'Numbering'}
+                ${key === 'ALL' ? 'Semua' : key === 'BAD_IMAGE' ? 'Bad Image' : key === 'TYPO' ? 'Typo' : key === 'NUMBERING' ? 'Numbering' : 'Kalimat'}
                 <span class="count">${count}</span>
             </button>
         `).join('');
@@ -914,7 +926,7 @@ Aturan penting:
     }
 
     function formatType(type) {
-        const labels = { TYPO: 'Typo', NUMBERING: 'Numbering', BAD_IMAGE: 'Bad Image' };
+        const labels = { TYPO: 'Typo', NUMBERING: 'Numbering', BAD_IMAGE: 'Bad Image', PHRASE: 'Kalimat' };
         return labels[type] || type;
     }
 
@@ -977,7 +989,8 @@ Aturan penting:
                 total_issues: mergedIssues.length,
                 typo_count: mergedIssues.filter(i => i.type === 'TYPO').length,
                 numbering_count: mergedIssues.filter(i => i.type === 'NUMBERING').length,
-                bad_image_count: mergedIssues.filter(i => i.type === 'BAD_IMAGE').length
+                bad_image_count: mergedIssues.filter(i => i.type === 'BAD_IMAGE').length,
+                phrase_count: mergedIssues.filter(i => i.type === 'PHRASE').length
             };
 
             analysisResult = { summary, issues: mergedIssues };
