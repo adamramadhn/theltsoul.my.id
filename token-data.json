@@ -1,19 +1,21 @@
 {
+  "updated_at": 1781231598.4171526,
+  "last_update": "Auto-updated",
   "data": {
-    "token_usage": 186430884,
-    "sessions": 103,
-    "models": 1,
-    "primary_model": "Glm 4.7",
-    "primary_provider": "z.ai",
-    "fallback_chain": [],
-    "usage_list": [
+    "total_input_tokens": 8597486,
+    "total_output_tokens": 0,
+    "total_tokens": 188767161,
+    "total_sessions": 110,
+    "model_usage": [
       {
-        "order": 0,
-        "model": "Glm 4.7",
-        "provider": "z.ai",
-        "is_primary": true
+        "model": null,
+        "provider": null,
+        "tokens": 103821938,
+        "percentage": 55
       }
-    ]
-  },
-  "last_updated": "2026-06-12T17:20:00+07:00"
+    ],
+    "primary_model": null,
+    "primary_provider": null,
+    "fallback_chain": []
+  }
 }
