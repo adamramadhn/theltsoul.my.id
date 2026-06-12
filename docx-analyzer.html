@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOCX Analyzer — theltsoul</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #FAFBFF;
+            --bg-gradient-start: #F0F4FF;
+            --bg-gradient-end: #FAF5FF;
+            --surface: #FFFFFF;
+            --surface2: #F8F9FC;
+            --surface3: #F0F2F8;
+            --border: #E2E5F1;
+            --border-light: #EEF0F8;
+            --text: #1F2937;
+            --text-secondary: #6B7280;
+            --text-tertiary: #9CA3AF;
+            --accent: #3B82F6;
+            --accent-soft: rgba(59, 130, 246, 0.08);
+            --accent-glow: rgba(59, 130, 246, 0.15);
+            --accent2: #14B8A6;
+            --accent2-soft: rgba(20, 184, 166, 0.08);
+            --purple: #A78BFA;
+            --purple-soft: rgba(167, 139, 250, 0.08);
+            --coral: #FB7185;
+            --coral-soft: rgba(251, 113, 133, 0.08);
+            --green: #34D399;
+            --green-soft: rgba(52, 211, 153, 0.08);
+            --orange: #FBBF24;
+            --orange-soft: rgba(251, 191, 36, 0.08);
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+            --shadow: 0 4px 12px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.03);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.07), 0 4px 8px rgba(0,0,0,0.04);
+            --shadow-xl: 0 20px 48px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.04);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══════════ BACKGROUND DECORATION ══════════ */
+        .bg-decoration {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+        }
+        .bg-decoration .gradient-orb {
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.35;
+        }
+        .bg-decoration .orb-1 {
+            width: 500px; height: 500px; top: -10%; right: -10%;
+            background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(167,139,250,0.2));
+        }
+        .bg-decoration .orb-2 {
+            width: 400px; height: 400px; bottom: 10%; left: -8%;
+            background: linear-gradient(135deg, rgba(20,184,166,0.25), rgba(59,130,246,0.15));
+        }
+        .bg-decoration .orb-3 {
+            width: 300px; height: 300px; top: 40%; right: 5%;
+            background: linear-gradient(135deg, rgba(251,113,133,0.15), rgba(167,139,250,0.1));
+        }
+
+        /* ══════════ CONTAINER ══════════ */
+        .container {
+            max-width: 960px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1;
+        }
+
+        /* ══════════ NAV ══════════ */
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 24px; max-width: 960px; margin: 0 auto; position: relative; z-index: 1;
+        }
+        nav .logo {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800; font-size: 1.2rem; color: var(--accent);
+            letter-spacing: -0.5px; text-decoration: none;
+        }
+        nav .links a {
+            color: var(--text-secondary); text-decoration: none; font-size: 0.88rem;
+            margin-left: 24px; transition: color 0.2s; font-weight: 500;
+        }
+        nav .links a:hover { color: var(--accent); }
+
+        /* ══════════ HERO ══════════ */
+        .hero {
+            padding: 48px 0 40px; text-align: center;
+            opacity: 0; transform: translateY(24px);
+            animation: heroIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+        }
+        @keyframes heroIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hero .hero-icon {
+            width: 80px; height: 80px; border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, var(--accent-soft), var(--purple-soft));
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; font-size: 2.4rem;
+        }
+        .hero h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.4rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--text) 0%, var(--accent) 60%, var(--accent2) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero .tagline {
+            color: var(--text-secondary); font-size: 1.05rem; max-width: 560px;
+            margin: 0 auto; line-height: 1.6;
+        }
+
+        /* ══════════ UPLOAD ZONE ══════════ */
+        .upload-zone {
+            border: 2.5px dashed var(--border);
+            border-radius: var(--radius-xl); padding: 56px 32px;
+            text-align: center; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            background: var(--surface);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 32px;
+        }
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+        .upload-zone .upload-icon {
+            font-size: 3rem; margin-bottom: 16px;
+        }
+        .upload-zone h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.15rem; font-weight: 700; margin-bottom: 6px;
+        }
+        .upload-zone p {
+            color: var(--text-secondary); font-size: 0.9rem;
+        }
+        .upload-zone .upload-formats {
+            display: flex; justify-content: center; gap: 8px; margin-top: 14px;
+        }
+        .upload-zone .format-badge {
+            padding: 4px 14px; border-radius: 50px;
+            font-size: 0.72rem; font-weight: 600;
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        #fileInput { display: none; }
+
+        /* ══════════ FILE INFO ══════════ */
+        .file-info {
+            display: none; align-items: center; gap: 14px;
+            padding: 16px 20px; border-radius: var(--radius-lg);
+            background: var(--surface); border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm); margin-bottom: 24px;
+        }
+        .file-info.visible { display: flex; }
+        .file-info .file-icon {
+            width: 44px; height: 44px; border-radius: var(--radius);
+            background: var(--accent-soft); display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; flex-shrink: 0;
+        }
+        .file-info .file-details { flex: 1; min-width: 0; }
+        .file-info .file-name {
+            font-weight: 600; font-size: 0.92rem; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+        .file-info .file-size {
+            font-size: 0.8rem; color: var(--text-tertiary);
+        }
+        .file-info .btn-remove {
+            background: none; border: none; color: var(--text-tertiary);
+            cursor: pointer; font-size: 1.2rem; padding: 4px 8px;
+            border-radius: var(--radius-sm); transition: all 0.2s;
+        }
+        .file-info .btn-remove:hover { color: var(--coral); background: var(--coral-soft); }
+
+        /* ══════════ ANALYZE BUTTON ══════════ */
+        .analyze-btn {
+            display: none; width: 100%; padding: 16px 32px;
+            border: none; border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, var(--accent), #2563EB);
+            color: #fff; font-size: 1rem; font-weight: 700;
+            cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 20px var(--accent-glow);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            letter-spacing: -0.2px;
+        }
+        .analyze-btn.visible { display: block; }
+        .analyze-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px var(--accent-glow); }
+        .analyze-btn:disabled {
+            opacity: 0.6; cursor: not-allowed; transform: none;
+        }
+
+        /* ══════════ PROGRESS ══════════ */
+        .progress-container {
+            display: none; margin-top: 24px;
+        }
+        .progress-container.visible { display: block; }
+        .progress-bar-bg {
+            width: 100%; height: 6px; border-radius: 3px;
+            background: var(--surface3); overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%; border-radius: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            width: 0%; transition: width 0.4s ease;
+        }
+        .progress-text {
+            text-align: center; margin-top: 10px;
+            font-size: 0.85rem; color: var(--text-secondary);
+        }
+
+        /* ══════════ RESULTS ══════════ */
+        .results { display: none; margin-top: 32px; }
+        .results.visible { display: block; }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px; margin-bottom: 28px;
+        }
+        .summary-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 20px 24px;
+            text-align: center; box-shadow: var(--shadow-sm);
+            transition: all 0.25s ease;
+        }
+        .summary-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+        .summary-card .summary-num {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2rem; font-weight: 800;
+        }
+        .summary-card .summary-label {
+            font-size: 0.75rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 1px;
+            color: var(--text-tertiary); margin-top: 2px;
+        }
+        .summary-card.total .summary-num { color: var(--accent); }
+        .summary-card.typo .summary-num { color: var(--coral); }
+        .summary-card.numbering .summary-num { color: var(--orange); }
+        .summary-card.bad-image .summary-num { color: var(--purple); }
+
+        /* Filter Buttons */
+        .filter-bar {
+            display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 8px 20px; border-radius: 50px;
+            border: 1.5px solid var(--border);
+            background: var(--surface); color: var(--text-secondary);
+            font-size: 0.82rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s ease; font-family: 'Inter', sans-serif;
+        }
+        .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .filter-btn.active {
+            background: var(--accent); color: #fff; border-color: var(--accent);
+        }
+        .filter-btn .count {
+            display: inline-block; margin-left: 6px;
+            padding: 1px 8px; border-radius: 50px;
+            font-size: 0.72rem; font-weight: 700;
+            background: rgba(0,0,0,0.06);
+        }
+        .filter-btn.active .count { background: rgba(255,255,255,0.2); }
+
+        /* Issues Table */
+        .issues-table-wrap {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        .issues-table {
+            width: 100%; border-collapse: collapse;
+        }
+        .issues-table thead th {
+            padding: 14px 18px; text-align: left;
+            font-size: 0.72rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
+            color: var(--text-tertiary);
+            background: var(--surface2); border-bottom: 1px solid var(--border);
+        }
+        .issues-table tbody tr {
+            border-bottom: 1px solid var(--border-light);
+            transition: background 0.15s;
+        }
+        .issues-table tbody tr:last-child { border-bottom: none; }
+        .issues-table tbody tr:hover { background: var(--surface2); }
+        .issues-table td {
+            padding: 14px 18px; font-size: 0.88rem;
+            vertical-align: top;
+        }
+
+        /* Type Badge */
+        .type-badge {
+            display: inline-block; padding: 3px 12px; border-radius: 50px;
+            font-size: 0.72rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .type-badge.typo { background: var(--coral-soft); color: var(--coral); }
+        .type-badge.numbering { background: var(--orange-soft); color: #D97706; }
+        .type-badge.bad-image { background: var(--purple-soft); color: var(--purple); }
+
+        /* Severity Badge */
+        .severity-badge {
+            display: inline-block; padding: 3px 10px; border-radius: 50px;
+            font-size: 0.68rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .severity-badge.error { background: #FEE2E2; color: #DC2626; }
+        .severity-badge.warning { background: #FEF3C7; color: #D97706; }
+
+        /* Suggestion text */
+        .suggestion-text {
+            color: var(--green); font-weight: 500;
+        }
+        .original-text {
+            color: var(--coral); text-decoration: line-through;
+            opacity: 0.8;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center; padding: 48px 24px;
+            color: var(--text-tertiary);
+        }
+        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+        .empty-state h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.1rem; font-weight: 700; color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        /* ══════════ CONFIG SECTION ══════════ */
+        .config-section {
+            margin-top: 40px; padding: 24px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+        }
+        .config-section h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1rem; font-weight: 700; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .config-row {
+            display: flex; gap: 10px; margin-bottom: 10px; align-items: center;
+            flex-wrap: wrap;
+        }
+        .config-row label {
+            font-size: 0.82rem; font-weight: 600; color: var(--text-secondary);
+            min-width: 100px;
+        }
+        .config-row input {
+            flex: 1; padding: 10px 14px; border-radius: var(--radius);
+            border: 1.5px solid var(--border); font-size: 0.88rem;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--surface2); color: var(--text);
+            transition: border-color 0.2s; min-width: 200px;
+        }
+        .config-row input:focus {
+            outline: none; border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+        .config-save-btn {
+            padding: 10px 20px; border: none; border-radius: var(--radius);
+            background: var(--accent); color: #fff;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .config-save-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .config-hint {
+            font-size: 0.78rem; color: var(--text-tertiary); margin-top: 8px;
+        }
+
+        /* ══════════ FOOTER ══════════ */
+        footer {
+            text-align: center; padding: 32px 0;
+            color: var(--text-tertiary); font-size: 0.82rem;
+            border-top: 1px solid var(--border-light); margin-top: 40px;
+        }
+
+        /* ══════════ RESPONSIVE ══════════ */
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 1.8rem; }
+            .hero { padding: 36px 0 28px; }
+            .upload-zone { padding: 40px 20px; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+            .issues-table { font-size: 0.82rem; }
+            .issues-table td, .issues-table th { padding: 10px 12px; }
+            nav .links a { margin-left: 14px; font-size: 0.78rem; }
+            .config-row { flex-direction: column; align-items: stretch; }
+            .config-row label { min-width: auto; }
+        }
+
+        /* ══════════ REDUCED MOTION ══════════ */
+        @media (prefers-reduced-motion: reduce) {
+            .hero { animation: none; opacity: 1; transform: none; }
+        }
+
+        /* ══════════ SCROLL REVEAL ══════════ */
+        .reveal {
+            opacity: 0; transform: translateY(28px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.visible {
+            opacity: 1; transform: translateY(0);
+        }
+
+        /* Spinner */
+        .spinner {
+            display: inline-block; width: 18px; height: 18px;
+            border: 2.5px solid rgba(255,255,255,0.3);
+            border-top-color: #fff; border-radius: 50%;
+            animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<!-- Background decoration -->
+<div class="bg-decoration">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+</div>
+
+<nav>
+    <a href="index.html" class="logo">~/theltsoul</a>
+    <div class="links">
+        <a href="index.html#tentang">Tentang</a>
+        <a href="index.html#proyek">Proyek</a>
+        <a href="laporan-isu.html" style="color:var(--coral);">📋 Laporan Isu</a>
+        <a href="stock-dashboard.html" style="color:var(--accent2);">📊 Stock</a>
+        <a href="dashboard.html" style="color:var(--accent);">🧠 Dashboard</a>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="hero-icon">📄</div>
+    <h1>DOCX Analyzer</h1>
+    <p class="tagline">Upload dokumen .docx, analisis typo Bahasa Indonesia, numbering tabel/gambar, dan bad image — otomatis dengan AI.</p>
+</section>
+
+<div class="container">
+
+    <!-- Upload Zone -->
+    <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon">📂</div>
+        <h3>Drag & Drop file .docx di sini</h3>
+        <p>atau klik untuk memilih file</p>
+        <div class="upload-formats">
+            <span class="format-badge">.docx</span>
+            <span class="format-badge">Max 20MB</span>
+        </div>
+        <input type="file" id="fileInput" accept=".docx">
+    </div>
+
+    <!-- File Info -->
+    <div class="file-info" id="fileInfo">
+        <div class="file-icon">📄</div>
+        <div class="file-details">
+            <div class="file-name" id="fileName"></div>
+            <div class="file-size" id="fileSize"></div>
+        </div>
+        <button class="btn-remove" id="btnRemove" title="Hapus file">✕</button>
+    </div>
+
+    <!-- Analyze Button -->
+    <button class="analyze-btn" id="analyzeBtn">
+        🔍 Analisis Dokumen
+    </button>
+
+    <!-- Progress -->
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+        <div class="progress-text" id="progressText">Memproses...</div>
+    </div>
+
+    <!-- Results -->
+    <div class="results" id="results">
+        <div class="summary-grid" id="summaryGrid"></div>
+
+        <div class="filter-bar" id="filterBar"></div>
+
+        <div class="issues-table-wrap">
+            <table class="issues-table" id="issuesTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tipe</th>
+                        <th>Severity</th>
+                        <th>Lokasi</th>
+                        <th>Detail</th>
+                    </tr>
+                </thead>
+                <tbody id="issuesBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Config Section -->
+    <div class="config-section reveal">
+        <h3>⚙️ Konfigurasi Endpoint Hermes</h3>
+        <div class="config-row">
+            <label>Endpoint</label>
+            <input type="text" id="cfgEndpoint" placeholder="http://localhost:3000/v1/chat/completions">
+            <button class="config-save-btn" id="cfgSave">Simpan</button>
+        </div>
+        <div class="config-row">
+            <label>Model</label>
+            <input type="text" id="cfgModel" placeholder="hermes">
+        </div>
+        <div class="config-row">
+            <label>Max Tokens</label>
+            <input type="number" id="cfgMaxTokens" placeholder="4096">
+        </div>
+        <div class="config-row">
+            <label>Temperature</label>
+            <input type="number" id="cfgTemperature" placeholder="0.1" step="0.1">
+        </div>
+        <p class="config-hint">💡 Simpan konfigurasi di browser (localStorage). Panggilan API ke Hermes lokal memerlukan Cloudflare Tunnel jika diakses via HTTPS.</p>
+    </div>
+
+</div>
+
+<footer>
+    <p>DOCX Analyzer · theltsoul.my.id · Powered by Hermes AI</p>
+</footer>
+
+<script>
+    // ══════════════════════════════════════════
+    // CONFIGURATION
+    // ══════════════════════════════════════════
+    const HERMES_CONFIG = {
+        endpoint: localStorage.getItem('hermes_endpoint') || 'http://localhost:3000/v1/chat/completions',
+        model: localStorage.getItem('hermes_model') || 'hermes',
+        max_tokens: parseInt(localStorage.getItem('hermes_max_tokens')) || 4096,
+        temperature: parseFloat(localStorage.getItem('hermes_temperature')) || 0.1
+    };
+
+    // ══════════════════════════════════════════
+    // DOM ELEMENTS
+    // ══════════════════════════════════════════
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const btnRemove = document.getElementById('btnRemove');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const results = document.getElementById('results');
+    const summaryGrid = document.getElementById('summaryGrid');
+    const filterBar = document.getElementById('filterBar');
+    const issuesBody = document.getElementById('issuesBody');
+
+    let selectedFile = null;
+    let analysisResult = null;
+    let currentFilter = 'ALL';
+
+    // ══════════════════════════════════════════
+    // FILE UPLOAD HANDLING
+    // ══════════════════════════════════════════
+    uploadZone.addEventListener('click', () => fileInput.click());
+
+    uploadZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadZone.classList.add('dragover');
+    });
+
+    uploadZone.addEventListener('dragleave', () => {
+        uploadZone.classList.remove('dragover');
+    });
+
+    uploadZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].name.endsWith('.docx')) {
+            handleFile(files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleFile(e.target.files[0]);
+        }
+    });
+
+    btnRemove.addEventListener('click', () => {
+        selectedFile = null;
+        fileInput.value = '';
+        fileInfo.classList.remove('visible');
+        analyzeBtn.classList.remove('visible');
+        results.classList.remove('visible');
+        progressContainer.classList.remove('visible');
+    });
+
+    function handleFile(file) {
+        if (!file.name.endsWith('.docx')) {
+            alert('Hanya file .docx yang diterima.');
+            return;
+        }
+        if (file.size > 20 * 1024 * 1024) {
+            alert('Ukuran file maksimal 20MB.');
+            return;
+        }
+        selectedFile = file;
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.classList.add('visible');
+        analyzeBtn.classList.add('visible');
+        results.classList.remove('visible');
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    // ══════════════════════════════════════════
+    // PARSE DOCX WITH MAMMOTH.JS
+    // ══════════════════════════════════════════
+    async function parseDocx(file) {
+        const arrayBuffer = await file.arrayBuffer();
+
+        // Extract raw text
+        const textResult = await mammoth.extractRawText({ arrayBuffer });
+        const docText = textResult.value;
+
+        // Extract images for bad image detection
+        const images = [];
+        await mammoth.convertToHtml(
+            { arrayBuffer },
+            {
+                convertImage: mammoth.images.imgElement(async (image) => {
+                    try {
+                        const base64 = await image.read('base64');
+                        images.push(base64);
+                    } catch (e) {
+                        // broken image
+                    }
+                    return { src: '' };
+                })
+            }
+        );
+
+        return { docText, imageCount: images.length };
+    }
+
+    // ══════════════════════════════════════════
+    // LOCAL BAD IMAGE DETECTION
+    // ══════════════════════════════════════════
+    function detectBadImagesLocal(docText, imageCount) {
+        const issues = [];
+
+        // Find all image caption patterns: "Gambar X.Y", "Gambar X.Y.Z"
+        const captionPattern = /Gambar\s+(\d+(?:\.\d+)+)/gi;
+        const captions = [];
+        let match;
+        while ((match = captionPattern.exec(docText)) !== null) {
+            captions.push({
+                number: match[1],
+                index: match.index,
+                line: docText.substring(0, match.index).split('\n').length
+            });
+        }
+
+        // Check for sequential numbering gaps
+        if (captions.length > 0) {
+            // Extract major numbers (e.g., "3.1" -> "3")
+            const majorGroups = {};
+            captions.forEach(cap => {
+                const major = cap.number.split('.')[0];
+                if (!majorGroups[major]) majorGroups[major] = [];
+                majorGroups[major].push(cap);
+            });
+
+            // Check each group for gaps
+            for (const [major, caps] of Object.entries(majorGroups)) {
+                const numbers = caps.map(c => {
+                    const parts = c.number.split('.');
+                    return parts.length > 1 ? parseInt(parts[parts.length - 1]) : 0;
+                }).sort((a, b) => a - b);
+
+                for (let i = 1; i < numbers.length; i++) {
+                    if (numbers[i] - numbers[i - 1] > 1) {
+                        const missing = [];
+                        for (let j = numbers[i - 1] + 1; j < numbers[i]; j++) {
+                            missing.push(`${major}.${j}`);
+                        }
+                        issues.push({
+                            type: 'BAD_IMAGE',
+                            severity: 'WARNING',
+                            location: `Daftar Gambar - Bab ${major}`,
+                            original: `Gambar ${caps[i - 1].number} → Gambar ${caps[i].number}`,
+                            suggestion: `Gambar ${missing.join(', ')} tidak ditemukan — periksa apakah gambar hilang atau caption salah`,
+                            explanation: `Terdapat loncatan penomoran gambar. ${missing.length} gambar (${missing.join(', ')}) tidak ada di antara ${caps[i - 1].number} dan ${caps[i].number}.`
+                        });
+                    }
+                }
+            }
+        }
+
+        // If we have captions but fewer images than captions, flag it
+        if (captions.length > 0 && imageCount < captions.length) {
+            const diff = captions.length - imageCount;
+            issues.push({
+                type: 'BAD_IMAGE',
+                severity: 'ERROR',
+                location: 'Dokumen',
+                original: `${captions.length} caption gambar ditemukan, hanya ${imageCount} gambar aktual`,
+                suggestion: `Periksa ${diff} caption gambar yang tidak memiliki data gambar aktual`,
+                explanation: `Terdapat ${diff} caption gambar yang tidak memiliki gambar di dalam dokumen (placeholder kosong atau gambar rusak).`
+            });
+        }
+
+        return issues;
+    }
+
+    // ══════════════════════════════════════════
+    // ANALYZE WITH HERMES AI
+    // ══════════════════════════════════════════
+    const SYSTEM_PROMPT = `Kamu adalah asisten analisis dokumen yang ahli dalam Bahasa Indonesia dan format dokumen teknis. Tugasmu adalah menganalisis konten dari file .docx yang diberikan pengguna, lalu menghasilkan laporan terstruktur dalam format JSON.
+
+Kamu harus mendeteksi tiga jenis masalah:
+1. TYPO — kesalahan penulisan kata dalam Bahasa Indonesia (ejaan salah, spasi ganda, huruf hilang, kata tidak baku)
+2. NUMBERING — urutan penomoran pada tabel, gambar, atau daftar yang tidak konsisten atau loncat
+3. BAD_IMAGE — referensi gambar dalam teks yang tidak memiliki gambar aktual (placeholder kosong, gambar rusak, atau caption tanpa gambar)
+
+Selalu balas HANYA dengan JSON valid. Jangan tambahkan teks di luar JSON. Jangan gunakan markdown code block.`;
+
+    function buildUserPrompt(docText) {
+        return `Analisis konten dokumen berikut dan temukan semua masalah yang ada.
+
+--- KONTEN DOKUMEN ---
+${docText}
+--- AKHIR DOKUMEN ---
+
+Kembalikan hasil analisis dalam format JSON berikut:
+
+{
+  "summary": {
+    "total_issues": 0,
+    "typo_count": 0,
+    "numbering_count": 0,
+    "bad_image_count": 0
+  },
+  "issues": [
+    {
+      "type": "TYPO | NUMBERING | BAD_IMAGE",
+      "severity": "ERROR | WARNING",
+      "location": "Nama bagian atau halaman tempat ditemukan",
+      "original": "Teks asli yang bermasalah",
+      "suggestion": "Perbaikan yang disarankan",
+      "explanation": "Penjelasan singkat mengapa ini masalah"
+    }
+  ]
+}
+
+Aturan penting:
+- Untuk TYPO: periksa ejaan Bahasa Indonesia baku (KBBI), bukan Bahasa Inggris
+- Untuk NUMBERING: cek urutan Gambar 3.X, Tabel X, dan daftar bernomor — apakah loncat atau duplikat
+- Untuk BAD_IMAGE: tandai jika ada caption gambar tapi tidak ada data gambar aktual di atasnya
+- Jika tidak ada masalah pada salah satu kategori, tetap sertakan array kosong
+- severity ERROR = wajib diperbaiki, WARNING = disarankan diperbaiki`;
+    }
+
+    async function analyzeWithHermes(docText) {
+        const userPrompt = buildUserPrompt(docText);
+
+        const response = await fetch(HERMES_CONFIG.endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: HERMES_CONFIG.model,
+                max_tokens: HERMES_CONFIG.max_tokens,
+                temperature: HERMES_CONFIG.temperature,
+                messages: [
+                    { role: 'system', content: SYSTEM_PROMPT },
+                    { role: 'user', content: userPrompt }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const raw = data.choices?.[0]?.message?.content ?? '';
+
+        // Clean markdown code blocks if present
+        const clean = raw.replace(/```json|```/g, '').trim();
+
+        try {
+            return JSON.parse(clean);
+        } catch (e) {
+            // Try to extract JSON from text
+            const jsonMatch = clean.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                return JSON.parse(jsonMatch[0]);
+            }
+            throw new Error('Gagal parse JSON response dari Hermes');
+        }
+    }
+
+    // ══════════════════════════════════════════
+    // RENDER RESULTS
+    // ══════════════════════════════════════════
+    function renderResults(mergedIssues, summary) {
+        // Summary cards
+        summaryGrid.innerHTML = `
+            <div class="summary-card total">
+                <div class="summary-num">${summary.total_issues}</div>
+                <div class="summary-label">Total Issue</div>
+            </div>
+            <div class="summary-card typo">
+                <div class="summary-num">${summary.typo_count}</div>
+                <div class="summary-label">Typo</div>
+            </div>
+            <div class="summary-card numbering">
+                <div class="summary-num">${summary.numbering_count}</div>
+                <div class="summary-label">Numbering</div>
+            </div>
+            <div class="summary-card bad-image">
+                <div class="summary-num">${summary.bad_image_count}</div>
+                <div class="summary-label">Bad Image</div>
+            </div>
+        `;
+
+        // Filter buttons
+        const counts = {
+            ALL: mergedIssues.length,
+            TYPO: mergedIssues.filter(i => i.type === 'TYPO').length,
+            NUMBERING: mergedIssues.filter(i => i.type === 'NUMBERING').length,
+            BAD_IMAGE: mergedIssues.filter(i => i.type === 'BAD_IMAGE').length
+        };
+
+        filterBar.innerHTML = Object.entries(counts).map(([key, count]) => `
+            <button class="filter-btn ${currentFilter === key ? 'active' : ''}" data-filter="${key}">
+                ${key === 'ALL' ? 'Semua' : key === 'BAD_IMAGE' ? 'Bad Image' : key === 'TYPO' ? 'Typo' : 'Numbering'}
+                <span class="count">${count}</span>
+            </button>
+        `).join('');
+
+        // Filter button events
+        filterBar.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentFilter = btn.dataset.filter;
+                filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderIssuesTable(mergedIssues);
+            });
+        });
+
+        renderIssuesTable(mergedIssues);
+    }
+
+    function renderIssuesTable(issues) {
+        const filtered = currentFilter === 'ALL'
+            ? issues
+            : issues.filter(i => i.type === currentFilter);
+
+        if (filtered.length === 0) {
+            issuesBody.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-icon">✅</div>
+                            <h3>Tidak ada issue ditemukan</h3>
+                            <p>Semua bersih pada kategori ini!</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        issuesBody.innerHTML = filtered.map((issue, idx) => `
+            <tr>
+                <td>${idx + 1}</td>
+                <td><span class="type-badge ${issue.type.toLowerCase().replace('_', '-')}">${formatType(issue.type)}</span></td>
+                <td><span class="severity-badge ${issue.severity.toLowerCase()}">${issue.severity}</span></td>
+                <td>${escapeHtml(issue.location)}</td>
+                <td>
+                    <div style="margin-bottom:4px;"><strong>Asli:</strong> <span class="original-text">${escapeHtml(issue.original)}</span></div>
+                    <div style="margin-bottom:4px;"><strong>Saran:</strong> <span class="suggestion-text">${escapeHtml(issue.suggestion)}</span></div>
+                    <div style="font-size:0.8rem;color:var(--text-tertiary);">${escapeHtml(issue.explanation)}</div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function formatType(type) {
+        const labels = { TYPO: 'Typo', NUMBERING: 'Numbering', BAD_IMAGE: 'Bad Image' };
+        return labels[type] || type;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ══════════════════════════════════════════
+    // ANALYZE BUTTON HANDLER
+    // ══════════════════════════════════════════
+    analyzeBtn.addEventListener('click', async () => {
+        if (!selectedFile) return;
+
+        analyzeBtn.disabled = true;
+        analyzeBtn.innerHTML = '<span class="spinner"></span> Menganalisis...';
+        progressContainer.classList.add('visible');
+        results.classList.remove('visible');
+        progressBar.style.width = '0%';
+        progressText.textContent = 'Membaca file...';
+
+        try {
+            // Step 1: Parse docx
+            progressBar.style.width = '15%';
+            progressText.textContent = 'Parsing dokumen .docx...';
+            const { docText, imageCount } = await parseDocx(selectedFile);
+
+            // Step 2: Local bad image detection
+            progressBar.style.width = '30%';
+            progressText.textContent = 'Deteksi bad image lokal...';
+            const localIssues = detectBadImagesLocal(docText, imageCount);
+
+            // Step 3: AI Analysis
+            progressBar.style.width = '50%';
+            progressText.textContent = 'Mengirim ke Hermes AI...';
+            const aiResult = await analyzeWithHermes(docText);
+
+            progressBar.style.width = '80%';
+            progressText.textContent = 'Menggabungkan hasil...';
+
+            // Step 4: Merge results (avoid duplicates)
+            const aiIssues = aiResult.issues || [];
+            const mergedIssues = [...aiIssues];
+
+            // Add local issues that aren't already covered by AI
+            for (const localIssue of localIssues) {
+                const isDuplicate = aiIssues.some(ai =>
+                    ai.type === localIssue.type &&
+                    ai.location === localIssue.location &&
+                    ai.original === localIssue.original
+                );
+                if (!isDuplicate) {
+                    mergedIssues.push(localIssue);
+                }
+            }
+
+            // Recalculate summary
+            const summary = {
+                total_issues: mergedIssues.length,
+                typo_count: mergedIssues.filter(i => i.type === 'TYPO').length,
+                numbering_count: mergedIssues.filter(i => i.type === 'NUMBERING').length,
+                bad_image_count: mergedIssues.filter(i => i.type === 'BAD_IMAGE').length
+            };
+
+            analysisResult = { summary, issues: mergedIssues };
+
+            // Step 5: Render
+            progressBar.style.width = '100%';
+            progressText.textContent = 'Selesai!';
+
+            currentFilter = 'ALL';
+            renderResults(mergedIssues, summary);
+            results.classList.add('visible');
+
+            // Scroll to results
+            results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        } catch (error) {
+            console.error('Analysis error:', error);
+            progressText.textContent = 'Error: ' + error.message;
+            alert('Gagal menganalisis dokumen:\n\n' + error.message +
+                  '\n\nPastikan endpoint Hermes sudah benar. Cek di bagian Konfigurasi di bawah.');
+        } finally {
+            analyzeBtn.disabled = false;
+            analyzeBtn.innerHTML = '🔍 Analisis Dokumen';
+        }
+    });
+
+    // ══════════════════════════════════════════
+    // CONFIG SAVE
+    // ══════════════════════════════════════════
+    document.getElementById('cfgEndpoint').value = HERMES_CONFIG.endpoint;
+    document.getElementById('cfgModel').value = HERMES_CONFIG.model;
+    document.getElementById('cfgMaxTokens').value = HERMES_CONFIG.max_tokens;
+    document.getElementById('cfgTemperature').value = HERMES_CONFIG.temperature;
+
+    document.getElementById('cfgSave').addEventListener('click', () => {
+        const endpoint = document.getElementById('cfgEndpoint').value.trim();
+        const model = document.getElementById('cfgModel').value.trim();
+        const maxTokens = document.getElementById('cfgMaxTokens').value.trim();
+        const temperature = document.getElementById('cfgTemperature').value.trim();
+
+        if (endpoint) localStorage.setItem('hermes_endpoint', endpoint);
+        if (model) localStorage.setItem('hermes_model', model);
+        if (maxTokens) localStorage.setItem('hermes_max_tokens', maxTokens);
+        if (temperature) localStorage.setItem('hermes_temperature', temperature);
+
+        // Reload config
+        HERMES_CONFIG.endpoint = endpoint || HERMES_CONFIG.endpoint;
+        HERMES_CONFIG.model = model || HERMES_CONFIG.model;
+        HERMES_CONFIG.max_tokens = parseInt(maxTokens) || HERMES_CONFIG.max_tokens;
+        HERMES_CONFIG.temperature = parseFloat(temperature) || HERMES_CONFIG.temperature;
+
+        alert('Konfigurasi disimpan!');
+    });
+
+    // ══════════════════════════════════════════
+    // SCROLL REVEAL
+    // ══════════════════════════════════════════
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+</script>
+
+</body>
+</html>
