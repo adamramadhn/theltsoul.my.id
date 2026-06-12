@@ -1,17 +1,17 @@
 {
-  "updated_at": 1781235245.183118,
-  "last_update": "2026-06-12T10:34:05",
+  "updated_at": 1781239087.826052,
+  "last_update": "2026-06-12T04:38:07.826341+00:00",
   "data": {
-    "total_input_tokens": 8682941,
-    "total_output_tokens": 713230,
-    "total_tokens": 189934896,
-    "total_sessions": 112,
+    "total_input_tokens": 8820168,
+    "total_output_tokens": 725563,
+    "total_tokens": 191996136,
+    "total_sessions": 114,
     "model_usage": [
       {
         "model": "owl-alpha",
-        "sessions": 15,
-        "tokens": 71234422,
-        "percentage": 37
+        "sessions": 17,
+        "tokens": 73295662,
+        "percentage": 38
       },
       {
         "model": "glm-5.1",
@@ -51,8 +51,8 @@
       }
     ],
     "platform_split": {
-      "cron": 1588884,
-      "discord": 112959591,
+      "cron": 1630582,
+      "discord": 114979133,
       "telegram": 75347832,
       "cli": 38589
     }
