@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenRouter Token Monitor — Oyeng Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #07070d;
+            --surface: #0e0e18;
+            --surface2: #151525;
+            --border: #1e1e32;
+            --border-light: #2a2a44;
+            --text: #e8e8f0;
+            --text-secondary: #8888a8;
+            --text-tertiary: #5c5c78;
+            --accent: #7c5cfc;
+            --accent-soft: rgba(124, 92, 252, 0.12);
+            --accent-glow: rgba(124, 92, 252, 0.22);
+            --accent2: #a855f7;
+            --green: #34d399;
+            --green-soft: rgba(52, 211, 153, 0.12);
+            --blue: #60a5fa;
+            --blue-soft: rgba(96, 165, 250, 0.12);
+            --orange: #fb923c;
+            --orange-soft: rgba(251, 146, 60, 0.12);
+            --red: #ef4444;
+            --red-soft: rgba(239, 68, 68, 0.12);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(124, 92, 252, 0.15);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-normal { background: var(--green-soft); color: var(--green); }
+        .status-warning { background: var(--orange-soft); color: var(--orange); }
+        .status-critical { background: var(--red-soft); color: var(--red); }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 1rem 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--surface2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-low { background: var(--green); }
+        .progress-medium { background: var(--orange); }
+        .progress-high { background: var(--red); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .feature-card {
+            background: var(--surface2);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--green);
+        }
+
+        .alert-box {
+            background: var(--red-soft);
+            border: 1px solid var(--red);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .alert-box.show {
+            display: block;
+        }
+
+        .refresh-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2rem auto;
+        }
+
+        .refresh-btn:hover {
+            background: var(--accent2);
+            transform: translateY(-2px);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-tertiary);
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🦉 OpenRouter Token Monitor</h1>
+            <p class="subtitle">Real-time monitoring for Owl Alpha API usage</p>
+        </header>
+
+        <div id="alertBox" class="alert-box">
+            <strong>⚠️ Alert:</strong> <span id="alertMessage"></span>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Usage Overview Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📊 Usage Overview</h2>
+                    <span id="usageStatus" class="status-badge status-normal">Normal</span>
+                </div>
+                <div class="metric-value" id="usagePercentage">0%</div>
+                <div class="metric-label">Total Usage</div>
+                <div class="progress-bar">
+                    <div id="usageProgress" class="progress-fill progress-low" style="width: 0%"></div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="dailyUsage">0</div>
+                        <div class="stat-label">Daily Tokens</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalUsage">0</div>
+                        <div class="stat-label">Total Tokens</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Limit Status Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🎯 Limit Status</h2>
+                    <span id="tierStatus" class="status-badge status-normal">Free</span>
+                </div>
+                <div class="metric-value" id="remainingTokens">0</div>
+                <div class="metric-label">Remaining Tokens</div>
+                <div class="progress-bar">
+                    <div id="remainingProgress" class="progress-fill progress-low" style="width: 100%"></div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">Plan Details</div>
+                    <ul class="feature-list" id="planFeatures">
+                        <li>Rate: 20 requests/minute</li>
+                        <li>Daily Limit: 50 requests</li>
+                        <li>Context: 1M tokens</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Activity Timeline Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">⏰ Activity Timeline</h2>
+                </div>
+                <div class="metric-value" id="lastUpdate">--:--</div>
+                <div class="metric-label">Last Updated</div>
+                <div class="feature-card">
+                    <div class="feature-title">Usage History</div>
+                    <ul class="feature-list" id="usageHistory">
+                        <li>Daily: <span id="dailyHistory">--</span></li>
+                        <li>Weekly: <span id="weeklyHistory">--</span></li>
+                        <li>Monthly: <span id="monthlyHistory">--</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <button class="refresh-btn" onclick="refreshData()">
+            <span id="refreshIcon">🔄</span>
+            <span>Refresh Data</span>
+        </button>
+    </div>
+
+    <footer class="footer">
+        <p>OpenRouter Token Monitor • Auto-updated every 5 minutes • 
+        <a href="https://theltsoul.my.id/dashboard.html" style="color: var(--accent);">Full Dashboard</a></p>
+    </footer>
+
+    <script>
+        // Fetch data from token-data.json
+        async function fetchDashboardData() {
+            try {
+                const response = await fetch('token-data.json?cache=' + Date.now(), { 
+                    cache: 'no-cache' 
+                });
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                return null;
+            }
+        }
+
+        // Update UI with data
+        function updateUI(data) {
+            if (!data || !data.openrouter_status) return;
+
+            const orStatus = data.openrouter_status;
+            
+            // Update usage overview
+            const usagePct = Math.round(orStatus.usage_percentage || 0);
+            document.getElementById('usagePercentage').textContent = usagePct + '%';
+            document.getElementById('usageProgress').style.width = usagePct + '%';
+            
+            // Update status badge
+            const statusBadge = document.getElementById('usageStatus');
+            const progressClass = usagePct >= 95 ? 'progress-high' : usagePct >= 80 ? 'progress-medium' : 'progress-low';
+            const statusText = usagePct >= 95 ? 'Critical' : usagePct >= 80 ? 'Warning' : 'Normal';
+            const statusClass = usagePct >= 95 ? 'status-critical' : usagePct >= 80 ? 'status-warning' : 'status-normal';
+            
+            statusBadge.textContent = statusText;
+            statusBadge.className = 'status-badge ' + statusClass;
+            document.getElementById('usageProgress').className = 'progress-fill ' + progressClass;
+            
+            // Show alert if needed
+            const alertBox = document.getElementById('alertBox');
+            if (usagePct >= 80) {
+                alertBox.classList.add('show');
+                document.getElementById('alertMessage').textContent = 
+                    `Token usage ${usagePct}% is approaching limit!`;
+            } else {
+                alertBox.classList.remove('show');
+            }
+            
+            // Update limit status
+            const remaining = orStatus.remaining || 0;
+            document.getElementById('remainingTokens').textContent = remaining.toLocaleString();
+            
+            // Update remaining progress (inverted)
+            const remainingPct = orStatus.limit ? ((orStatus.limit - orStatus.total_usage) / orStatus.limit) * 100 : 100;
+            document.getElementById('remainingProgress').style.width = remainingPct + '%';
+            
+            // Update tier status
+            const tierBadge = document.getElementById('tierStatus');
+            if (orStatus.is_free_tier) {
+                tierBadge.textContent = 'Free Tier';
+                tierBadge.className = 'status-badge status-normal';
+            } else {
+                tierBadge.textContent = 'Paid';
+                tierBadge.className = 'status-badge status-warning';
+            }
+            
+            // Update plan features
+            const planFeatures = document.getElementById('planFeatures');
+            if (orStatus.free_tier) {
+                planFeatures.innerHTML = `
+                    <li>Rate: ${orStatus.free_tier.rate_limit}</li>
+                    <li>Daily Limit: ${orStatus.free_tier.daily_limit}</li>
+                    <li>Model: ${orStatus.free_tier.model_type}</li>
+                `;
+            }
+            
+            // Update timeline
+            const lastUpdate = orStatus.last_update || 'Unknown';
+            document.getElementById('lastUpdate').textContent = lastUpdate;
+            
+            // Update usage history
+            document.getElementById('dailyHistory').textContent = orStatus.daily_usage?.toLocaleString() || '--';
+            document.getElementById('weeklyHistory').textContent = orStatus.weekly_usage?.toLocaleString() || '--';
+            document.getElementById('monthlyHistory').textContent = orStatus.monthly_usage?.toLocaleString() || '--';
+        }
+
+        // Refresh data function
+        async function refreshData() {
+            const btn = document.querySelector('.refresh-btn');
+            const icon = document.getElementById('refreshIcon');
+            
+            // Show loading
+            icon.textContent = '⏳';
+            btn.disabled = true;
+            
+            try {
+                const data = await fetchDashboardData();
+                updateUI(data);
+            } catch (error) {
+                console.error('Refresh failed:', error);
+                alert('Failed to refresh data');
+            } finally {
+                icon.textContent = '🔄';
+                btn.disabled = false;
+            }
+        }
+
+        // Auto-refresh every 5 minutes
+        setInterval(refreshData, 5 * 60 * 1000);
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshData();
+        });
+    </script>
+</body>
+</html>

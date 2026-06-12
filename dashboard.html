@@ -419,7 +419,7 @@
         </div>
         <div class="stat-card">
             <div class="card-icon blue">⚡</div>
-            <span class="stat-value">3</span>
+            <span class="stat-value">4</span>
             <span class="stat-label">Active Cron Jobs</span>
             <span class="stat-sub">Scheduled automation</span>
         </div>
@@ -445,7 +445,7 @@
             <div class="item-right"><div class="item-value" id="token-input">Loading...</div></div>
         </div>
         <div class="progress-bar">
-            <div class="fill purple" style="width: 78%"></div>
+            <div class="fill purple" style="width: 72%"></div>
         </div>
         <div class="list-item" style="margin-top: 12px;">
             <div class="item-left">
@@ -458,7 +458,7 @@
             <div class="item-right"><div class="item-value" id="token-output">Loading...</div></div>
         </div>
         <div class="progress-bar">
-            <div class="fill blue" style="width: 45%"></div>
+            <div class="fill blue" style="width: 8%"></div>
         </div>
         <div class="list-item" style="margin-top: 12px;">
             <div class="item-left">
@@ -498,7 +498,7 @@
                     <div class="item-sub">Telegram · Discord · CLI · Cron</div>
                 </div>
             </div>
-            <div class="item-right"><div class="item-value" style="font-size:0.75rem">45% · 30% · 15% · 10%</div></div>
+            <div class="item-right"><div class="item-value" style="font-size:0.75rem">59% · 40% · 1% · 0%</div></div>
         </div>
     </div>
 
@@ -522,7 +522,7 @@
                         <div class="item-sub">Primary workload</div>
                     </div>
                 </div>
-                <div class="item-right"><div class="item-value">DeepSeek V4 Flash Free</div></div>
+                <div class="item-right"><div class="item-value">OWL Alpha</div></div>
             </div>
             <div class="list-item">
                 <div class="item-left">
@@ -532,7 +532,7 @@
                         <div class="item-sub">Last resort</div>
                     </div>
                 </div>
-                <div class="item-right"><div class="item-value">GLM 4.7</div></div>
+                <div class="item-right"><div class="item-value">DeepSeek V4 Flash Free</div></div>
             </div>
             <div class="list-item">
                 <div class="item-left">
@@ -542,7 +542,7 @@
                         <div class="item-sub">Fallback 1 + 2</div>
                     </div>
                 </div>
-                <div class="item-right"><div class="item-value">OWL Alpha + GLM 4.7</div></div>
+                <div class="item-right"><div class="item-value">GLM 4.7 + DeepSeek V4</div></div>
             </div>
             <div class="list-item">
                 <div class="item-left">
@@ -565,8 +565,8 @@
                 <div class="item-left">
                     <div class="item-icon">⚡</div>
                     <div>
-                        <div class="item-name">DeepSeek V4 Flash Free</div>
-                        <div class="item-sub">Primary · OpenCode Zen</div>
+                        <div class="item-name">OWL Alpha</div>
+                        <div class="item-sub">Primary · OpenRouter</div>
                     </div>
                 </div>
                 <div class="item-right"><span class="item-status active">Primary</span></div>
@@ -575,8 +575,8 @@
                 <div class="item-left">
                     <div class="item-icon">⭐</div>
                     <div>
-                        <div class="item-name">OWL Alpha</div>
-                        <div class="item-sub">Fallback 1 · OpenRouter</div>
+                        <div class="item-name">GLM 4.7</div>
+                        <div class="item-sub">Fallback 1 · z.ai</div>
                     </div>
                 </div>
                 <div class="item-right"><span class="item-status idle">Fallback</span></div>
@@ -585,8 +585,8 @@
                 <div class="item-left">
                     <div class="item-icon">🔄</div>
                     <div>
-                        <div class="item-name">GLM 4.7</div>
-                        <div class="item-sub">Fallback 2 · z.ai</div>
+                        <div class="item-name">DeepSeek V4 Flash Free</div>
+                        <div class="item-sub">Fallback 2 · OpenRouter</div>
                     </div>
                 </div>
                 <div class="item-right"><span class="item-status idle">Fallback</span></div>
@@ -705,7 +705,7 @@
                     <div class="item-icon">🔄</div>
                     <div><div class="item-name">Fallback</div></div>
                 </div>
-                <div class="item-right"><div class="item-value">GLM 4.5</div></div>
+                <div class="item-right"><div class="item-value">GLM 4.7 + DeepSeek V4</div></div>
             </div>
             <div class="list-item">
                 <div class="item-left">
@@ -838,17 +838,7 @@
                     <div class="item-icon">🔄</div>
                     <div>
                         <div class="item-name">Memory Sync</div>
-                        <div class="item-sub">Hermes → Honcho (6h)</div>
-                    </div>
-                </div>
-                <div class="item-right"><span class="item-status active">Active</span></div>
-            </div>
-            <div class="list-item">
-                <div class="item-left">
-                    <div class="item-icon">🎲</div>
-                    <div>
-                        <div class="item-name">Free Model Rotator</div>
-                        <div class="item-sub">Zen + OpenRouter (09:00)</div>
+                        <div class="item-sub">Hermes → Honcho (every 6h)</div>
                     </div>
                 </div>
                 <div class="item-right"><span class="item-status active">Active</span></div>
@@ -865,6 +855,26 @@
             </div>
             <div class="list-item">
                 <div class="item-left">
+                    <div class="item-icon">📊</div>
+                    <div>
+                        <div class="item-name">Token Usage Updater</div>
+                        <div class="item-sub">Dashboard sync (every 1h)</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Active</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🧹</div>
+                    <div>
+                        <div class="item-name">Laporan Isu Cleanup</div>
+                        <div class="item-sub">Honcho cleanup (Mon 01:00)</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Active</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
                     <div class="item-icon">🔍</div>
                     <div>
                         <div class="item-name">GLM Token Reset Watcher</div>
@@ -872,6 +882,16 @@
                     </div>
                 </div>
                 <div class="item-right"><span class="item-status idle">Completed</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">📋</div>
+                    <div>
+                        <div class="item-name">Laporan Isu Sync</div>
+                        <div class="item-sub">Discord → Honcho (every 15m, paused)</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status idle">Paused</span></div>
             </div>
         </div>
 
@@ -1044,18 +1064,22 @@ async function fetchTokenUsage() {
 
     // Fallback: show default values with note
     updateTokenUI({
-        inputTokens: '~2.5M',
-        outputTokens: '~420K',
-        totalTokens: '~2.9M',
-        sessions: '47',
-        avgTokens: '~62K'
+        inputTokens: '8.6M',
+        outputTokens: '705K',
+        totalTokens: '188.9M',
+        sessions: '111',
+        avgTokens: '~1.7M'
     });
 
     // Fallback model usage
     updateModelUsageUI([
-        { model: 'OWL Alpha', provider: 'OpenRouter', tokens: '~1.8M', percentage: 62 },
-        { model: 'GLM 4.5', provider: 'z.ai', tokens: '~720K', percentage: 25 },
-        { model: 'OpenCode Zen', provider: 'OpenCode', tokens: '~380K', percentage: 13 }
+        { model: 'OWL Alpha', provider: 'OpenRouter', tokens: '70.3M', percentage: 37 },
+        { model: 'GLM 5.1', provider: 'z.ai', tokens: '51.6M', percentage: 27 },
+        { model: 'GLM 4.7', provider: 'z.ai', tokens: '43.4M', percentage: 23 },
+        { model: 'DeepSeek V4', provider: 'OpenRouter', tokens: '19.2M', percentage: 10 },
+        { model: 'GLM 4.5 Air', provider: 'z.ai', tokens: '2.5M', percentage: 1 },
+        { model: 'GLM 4.5', provider: 'z.ai', tokens: '1.0M', percentage: 1 },
+        { model: 'OWL Alpha (legacy)', provider: 'OpenRouter', tokens: '0.9M', percentage: 1 }
     ]);
 
     const inputEl = document.getElementById('token-input');
@@ -1112,26 +1136,26 @@ function manualRefresh() {
 
 // ══════════ TERMINAL ANIMATION ══════════
 var terminalLines = [
-    { output: '\u250C\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510' },
-    { output: '\u2502  \uD83E\uDDE0 Oyeng AI Research Assistant     \u2502' },
-    { output: '\u2502  Status: \u25CF Online                   \u2502' },
-    { output: '\u2502  Model: DeepSeek V4 Flash Free (Zen)    \u2502' },
+    { output: '\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510' },
+    { output: '\u2502  \ud83e\udde0 Oyeng AI Research Assistant     \u2502' },
+    { output: '\u2502  Status: \u25cf Online                   \u2502' },
+    { output: '\u2502  Model: OWL Alpha (OpenRouter)         \u2502' },
     { output: '\u2502  Memory: 2 tiers (hot + cold)         \u2502' },
     { output: '\u2502  Honcho: 113+ conclusions             \u2502' },
-    { output: '\u2502  Cron Jobs: 3 active                  \u2502' },
+    { output: '\u2502  Cron Jobs: 4 active                  \u2502' },
     { output: '\u2502  Platforms: TG, Discord, Gmail, GH    \u2502' },
     { output: '\u2502  Host: Mac mini M2 (8GB)              \u2502' },
-    { output: '\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518' },
+    { output: '\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518' },
     { output: '' },
     { prompt: '$', cmd: 'oyeng tokens --summary' },
-    { output: '\u2713 Token Usage (7d): 2.9M total', cls: 'info' },
-    { output: '  Input: ~2.5M  |  Output: ~420K' },
-    { output: '  Sessions: 47+  |  Avg: ~62K/session' },
+    { output: '\u2713 Token Usage (7d): 188.9M total', cls: 'info' },
+    { output: '  Input: 8.6M  |  Output: 705K' },
+    { output: '  Sessions: 111  |  Avg: ~1.7M/session' },
     { output: '' },
     { prompt: '$', cmd: 'oyeng models --list' },
-    { output: '\u2713 Active: DeepSeek V4 Flash Free (Zen)', cls: 'success' },
-    { output: '\u2713 Fallback: OWL Alpha (OR) · GLM 4.7 (z.ai)', cls: 'success' },
-    { output: '\u2713 Providers: Zen · OR · z.ai · Nous', cls: 'success' },
+    { output: '\u2713 Active: OWL Alpha (OpenRouter)', cls: 'success' },
+    { output: '\u2713 Fallback: GLM 4.7 (z.ai) + DeepSeek V4 (OR)', cls: 'success' },
+    { output: '\u2713 Providers: OR + z.ai + Nous', cls: 'success' },
     { output: '' },
     { prompt: '$', cmd: '', cursor: true }
 ];

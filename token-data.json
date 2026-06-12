@@ -2,20 +2,65 @@
   "updated_at": 1781231598.4171526,
   "last_update": "Auto-updated",
   "data": {
-    "total_input_tokens": 8597486,
-    "total_output_tokens": 0,
-    "total_tokens": 188767161,
-    "total_sessions": 110,
+    "total_input_tokens": 8612626,
+    "total_output_tokens": 705017,
+    "total_tokens": 188963184,
+    "total_sessions": 111,
     "model_usage": [
       {
-        "model": null,
-        "provider": null,
-        "tokens": 103821938,
-        "percentage": 55
+        "model": "owl-alpha",
+        "provider": "OpenRouter",
+        "tokens": 70262710,
+        "percentage": 37
+      },
+      {
+        "model": "glm-5.1",
+        "provider": "z.ai",
+        "tokens": 51628658,
+        "percentage": 27
+      },
+      {
+        "model": "glm-4.7",
+        "provider": "z.ai",
+        "tokens": 43394385,
+        "percentage": 23
+      },
+      {
+        "model": "deepseek-v4-flash-free",
+        "provider": "OpenCode Zen",
+        "tokens": 19231264,
+        "percentage": 10
+      },
+      {
+        "model": "glm-4.5-air",
+        "provider": "z.ai",
+        "tokens": 2545777,
+        "percentage": 1
+      },
+      {
+        "model": "glm-4.5",
+        "provider": "z.ai",
+        "tokens": 998774,
+        "percentage": 1
+      },
+      {
+        "model": "openrouter-owl-alpha",
+        "provider": "OpenRouter",
+        "tokens": 901616,
+        "percentage": 1
       }
     ],
-    "primary_model": null,
-    "primary_provider": null,
-    "fallback_chain": []
+    "primary_model": "owl-alpha",
+    "primary_provider": "openrouter",
+    "fallback_chain": [
+      {
+        "model": "glm-4.7",
+        "provider": "zai-glm"
+      },
+      {
+        "model": "deepseek-v4-flash-free",
+        "provider": "openrouter"
+      }
+    ]
   }
 }
