@@ -599,7 +599,6 @@ function unlockDashboard() {
         document.getElementById('dashboard').classList.add('unlocked');
         sessionStorage.setItem(STORAGE_KEY, 'true');
         restoreLastStock();
-        // Restore price from cache if available
         restorePriceFromCache(currentStock);
         initCharts();
     } else {
@@ -830,7 +829,7 @@ function stopAutoFetch() {
 }
 
 // ═══════════════════════════════════════════
-// FETCH PRICE (Yahoo Finance via CORS proxy)
+// FETCH PRICE (Yahoo Finance via multiple strategies)
 // ═══════════════════════════════════════════
 async function fetchPrice() {
     updateFetchStatus('fetching', 'Mengambil data harga...');
@@ -838,60 +837,106 @@ async function fetchPrice() {
 
     const symbol = currentStock + '.JK';
 
-    // Build list of all URLs to try (direct + CORS proxies)
-    const urls = [
-        { url: `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`, timeout: 8000 },
-        { url: `https://query2.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`, timeout: 8000 },
-        { url: `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`)}`, timeout: 12000 },
-        { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`)}`, timeout: 12000 },
+    // Strategy 1: Yahoo Finance v8 chart API (direct, sometimes works)
+    // Strategy 2: Yahoo Finance v7 quote API (direct, sometimes works)
+    // Strategy 3-5: CORS proxy fallbacks
+    const strategies = [
+        // Direct Yahoo v8 — works if user has Yahoo cookies
+        {
+            url: `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`,
+            timeout: 8000,
+            parser: 'yahoo_v8'
+        },
+        // Direct Yahoo v7 quote — lighter endpoint
+        {
+            url: `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbol}`,
+            timeout: 8000,
+            parser: 'yahoo_v7'
+        },
+        // CORS proxy: corsproxy.io
+        {
+            url: `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`)}`,
+            timeout: 15000,
+            parser: 'yahoo_v8'
+        },
+        // CORS proxy: allorigins
+        {
+            url: `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=5d&interval=1d`)}`,
+            timeout: 15000,
+            parser: 'yahoo_v8'
+        },
+        // CORS proxy: corsproxy.io for v7
+        {
+            url: `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbol}`)}`,
+            timeout: 15000,
+            parser: 'yahoo_v7'
+        },
     ];
 
-    let data = null;
     let lastError = '';
-    let attemptCount = 0;
+    let rawJson = null;
+    let parserType = null;
 
-    for (const { url, timeout } of urls) {
-        attemptCount++;
+    for (const strat of strategies) {
         try {
-            const resp = await fetch(url, { signal: AbortSignal.timeout(timeout) });
-            if (resp.ok) {
-                const json = await resp.json();
-                // Validate response structure
-                if (json && json.chart && json.chart.result && json.chart.result[0] && json.chart.result[0].meta) {
-                    data = json;
-                    break;
-                } else {
-                    lastError = 'Invalid response structure';
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), strat.timeout);
+
+            const resp = await fetch(strat.url, {
+                signal: controller.signal,
+                headers: {
+                    'Accept': 'application/json',
                 }
-            } else {
+            });
+            clearTimeout(timer);
+
+            if (!resp.ok) {
                 lastError = `HTTP ${resp.status}`;
+                continue;
+            }
+
+            const text = await resp.text();
+            // Try to parse JSON
+            try {
+                const json = JSON.parse(text);
+                // Validate it's not an HTML error page
+                if (typeof json === 'object' && json !== null) {
+                    rawJson = json;
+                    parserType = strat.parser;
+                    break;
+                }
+            } catch(e) {
+                lastError = 'Invalid JSON response';
+                continue;
             }
         } catch(e) {
-            lastError = e.name === 'TimeoutError' ? 'Timeout' : (e.message || 'Network error');
-            continue; // Try next URL
+            if (e.name === 'AbortError') {
+                lastError = 'Timeout';
+            } else {
+                lastError = e.message || 'Network error';
+            }
+            continue;
         }
     }
 
-    // If all URLs failed
-    if (!data) {
+    // If all strategies failed
+    if (!rawJson) {
         consecutiveFailures++;
-        // Check if we have cached data to fall back to
+        // Fall back to cache
         const cache = loadPriceCache(currentStock);
         if (cache) {
             const ageMin = Math.floor((Date.now() - cache.timestamp) / 60000);
             const timeStr = new Date(cache.timestamp).toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit' });
-            // Restore from cache silently
             restorePriceFromCache(currentStock);
             const retryMsg = consecutiveFailures >= 3 ? ` — ${consecutiveFailures}x gagal berturut, cek jaringan!` : '';
             updateFetchStatus('error', `Fetch gagal (${lastError}) — Cache ${timeStr} (${ageMin}m lalu). Auto-fetch coba lagi.${retryMsg}`);
             return;
         }
 
-        // No cache either — show helpful error
         let errorMsg = 'Gagal fetch dari semua sumber';
         if (lastError.includes('Timeout')) {
             errorMsg += ' — koneksi lambat. Cek jaringan atau coba lagi.';
-        } else if (lastError.includes('Network') || lastError.includes('Failed to fetch')) {
+        } else if (lastError.includes('Network') || lastError.includes('Failed to fetch') || lastError.includes('network')) {
             errorMsg += ' — tidak bisa reach server. Mungkin CORS proxy down.';
         } else {
             errorMsg += ` (${lastError})`;
@@ -905,19 +950,49 @@ async function fetchPrice() {
         return;
     }
 
+    // Parse the validated JSON
     try {
-        const result = data.chart.result[0];
-        const meta = result.meta;
-        const price = meta.regularMarketPrice;
-        const prevClose = meta.chartPreviousClose || meta.previousClose;
+        let price, prevClose, open, high, low, volume, weekHigh, weekLow;
+
+        if (parserType === 'yahoo_v8') {
+            // v8 chart API
+            if (!rawJson.chart || !rawJson.chart.result || !rawJson.chart.result[0] || !rawJson.chart.result[0].meta) {
+                throw new Error('Invalid v8 response structure');
+            }
+            const meta = rawJson.chart.result[0].meta;
+            price = meta.regularMarketPrice;
+            prevClose = meta.chartPreviousClose || meta.previousClose;
+            open = meta.regularMarketOpen || 0;
+            high = meta.regularMarketDayHigh || 0;
+            low = meta.regularMarketDayLow || 0;
+            volume = meta.regularMarketVolume || 0;
+            weekHigh = meta.fiftyTwoWeekHigh || 0;
+            weekLow = meta.fiftyTwoWeekLow || 0;
+        } else if (parserType === 'yahoo_v7') {
+            // v7 quote API
+            if (!rawJson.quoteResponse || !rawJson.quoteResponse.result || !rawJson.quoteResponse.result[0]) {
+                throw new Error('Invalid v7 response structure');
+            }
+            const q = rawJson.quoteResponse.result[0];
+            price = q.regularMarketPrice;
+            prevClose = q.regularMarketPreviousClose || q.regularMarketPrice;
+            open = q.regularMarketOpen || 0;
+            high = q.regularMarketDayHigh || 0;
+            low = q.regularMarketDayLow || 0;
+            volume = q.regularMarketVolume || 0;
+            weekHigh = q.fiftyTwoWeekHigh || 0;
+            weekLow = q.fiftyTwoWeekLow || 0;
+        } else {
+            throw new Error('Unknown parser type');
+        }
+
+        // Validate we got actual numbers
+        if (!price || typeof price !== 'number' || price <= 0) {
+            throw new Error('Invalid price data received');
+        }
+
         const change = price - prevClose;
-        const changePct = (change / prevClose) * 100;
-        const open = meta.regularMarketOpen || 0;
-        const high = meta.regularMarketDayHigh || 0;
-        const low = meta.regularMarketDayLow || 0;
-        const volume = meta.regularMarketVolume || 0;
-        const weekHigh = meta.fiftyTwoWeekHigh || 0;
-        const weekLow = meta.fiftyTwoWeekLow || 0;
+        const changePct = prevClose ? (change / prevClose) * 100 : 0;
 
         lastPriceData = { price, prevClose, change, changePct, open, high, low, volume, weekHigh, weekLow };
 
@@ -1329,9 +1404,14 @@ function updateChartsWithLiveData() {
 // ═══════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════
-window.addEventListener('load', function() {
+document.addEventListener('DOMContentLoaded', function() {
     if (sessionStorage.getItem(STORAGE_KEY) === 'true') {
+        // DOM is ready AND user already unlocked (session restore)
+        // Charts will be init'd by unlockDashboard which checks chartsInitialized flag
+        // But we need init here since unlockDashboard won't be called on session restore
         initCharts();
+        restoreLastStock();
+        restorePriceFromCache(currentStock);
     }
 });
 </script>
