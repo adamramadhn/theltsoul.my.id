@@ -312,8 +312,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="channel-username">Channel Username (tanpa @)</label>
-                    <input type="text" id="channel-username" placeholder="my_private_channel">
+                    <label for="channel-username">Channel Username / ID</label>
+                    <input type="text" id="channel-username" placeholder="Public: my_channel atau Private: -1001234567890">
+                    <small style="color: #666; font-size: 0.9rem;">
+                        • Public channel: username (tanpa @), contoh: <code>MyDrive123</code><br>
+                        • Private channel: chat ID, contoh: <code>-1001234567890</code>
+                    </small>
                 </div>
 
                 <button class="btn" onclick="connectBot()">Hubungkan Bot</button>
@@ -441,7 +445,7 @@
         async function loadFiles() {
             const loadingDiv = document.getElementById('loading');
             const fileGrid = document.getElementById('file-grid');
-            
+
             loadingDiv.style.display = 'block';
             fileGrid.innerHTML = '';
 
@@ -457,9 +461,24 @@
                 const updates = data.result || [];
                 const files = [];
 
+                // Cek apakah channelUsername adalah numeric ID (private channel)
+                const isPrivateChannel = /^-?\d+$/.test(channelUsername);
+                const targetChatId = channelUsername.startsWith('@') ? channelUsername : '@' + channelUsername;
+
                 for (const update of updates) {
-                    if (update.channel_post && update.channel_post.chat.username === channelUsername) {
+                    if (update.channel_post) {
                         const message = update.channel_post;
+                        let isTargetChannel = false;
+
+                        if (isPrivateChannel) {
+                            // Private channel: cek berdasarkan chat ID
+                            isTargetChannel = String(message.chat.id) === channelUsername;
+                        } else {
+                            // Public channel: cek berdasarkan username
+                            isTargetChannel = message.chat.username === channelUsername;
+                        }
+
+                        if (!isTargetChannel) continue;
 
                         if (message.document) {
                             files.push({
@@ -556,7 +575,8 @@
         // Upload files
         async function uploadFiles(files) {
             const statusDiv = document.getElementById('upload-status');
-            const channelId = channelUsername.startsWith('@') ? channelUsername : '@' + channelUsername;
+            const isPrivateChannel = /^-?\d+$/.test(channelUsername);
+            const chatId = isPrivateChannel ? channelUsername : (channelUsername.startsWith('@') ? channelUsername : '@' + channelUsername);
 
             for (const file of files) {
                 if (file.size > 50 * 1024 * 1024) {
@@ -567,7 +587,7 @@
                 statusDiv.innerHTML = `<div class="status info">📤 Uploading ${file.name}...</div>`;
 
                 const formData = new FormData();
-                formData.append('chat_id', channelId);
+                formData.append('chat_id', chatId);
                 formData.append('document', file);
                 formData.append('caption', file.name);
 
