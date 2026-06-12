@@ -965,7 +965,6 @@
 // ══════════ CONSTANTS ══════════
 const DASHBOARD_PASSWORD=String.fromCharCode(67,97,107,114,97,86,105,115,116,97,65,49);
 const STORAGE_KEY = 'oyeng_dashboard_unlocked';
-const REFRESH_INTERVAL = 60 * 60 * 1000; // 1 hour
 let refreshTimer = null;
 
 // ══════════ HELPER FUNCTIONS (defined first) ══════════
@@ -1038,17 +1037,18 @@ function updateModelUsageUI(modelData) {
 // Fetch token usage from token-data.json
 async function fetchTokenUsage() {
     try {
-        const response = await fetch('token-data.json', { cache: 'no-cache' });
+        const response = await fetch('token-data.json?t=' + Date.now(), { cache: 'no-cache' });
         if (response.ok) {
             const raw = await response.json();
-            // token-data.json wraps in .data, hermes insights style
-            const data = (raw.data && raw.data.total_tokens) ? raw.data : raw;
+            const data = (raw.data && (raw.data.total_tokens || raw.data.token_usage)) ? raw.data : raw;
+            const totalTokens = data.total_tokens || data.token_usage || 0;
+            const totalSessions = data.total_sessions || data.sessions || 0;
             const parsed = {
                 inputTokens: formatTokens(data.total_input_tokens || data.input_tokens || 0),
                 outputTokens: formatTokens(data.total_output_tokens || data.output_tokens || 0),
-                totalTokens: formatTokens(data.total_tokens || 0),
-                sessions: String(data.total_sessions || data.sessions || 0),
-                avgTokens: formatTokens(Math.round((data.total_tokens || 0) / Math.max(data.total_sessions || data.sessions || 1, 1)))
+                totalTokens: formatTokens(totalTokens),
+                sessions: String(totalSessions),
+                avgTokens: formatTokens(Math.round(totalTokens / Math.max(totalSessions, 1)))
             };
             updateTokenUI(parsed);
 
@@ -1061,35 +1061,47 @@ async function fetchTokenUsage() {
                 updateModelUsageUI(formatted);
             }
 
+            // Update model info (primary model, provider, fallback chain)
+            if (data.primary_model) {
+                updateModelInfo(data);
+            }
+
             return;
         }
     } catch (e) {
         console.log('Token data fetch failed:', e.message);
     }
 
-    // Fallback: show default values with note
+    // Fallback: show default values
     updateTokenUI({
-        inputTokens: '8.6M',
-        outputTokens: '705K',
-        totalTokens: '188.9M',
-        sessions: '111',
-        avgTokens: '~1.7M'
+        inputTokens: '—',
+        outputTokens: '—',
+        totalTokens: '—',
+        sessions: '—',
+        avgTokens: '—'
     });
+}
 
-    // Fallback model usage
-    updateModelUsageUI([
-        { model: 'OWL Alpha', provider: 'OpenRouter', tokens: '70.3M', percentage: 37 },
-        { model: 'GLM 5.1', provider: 'z.ai', tokens: '51.6M', percentage: 27 },
-        { model: 'GLM 4.7', provider: 'z.ai', tokens: '43.4M', percentage: 23 },
-        { model: 'DeepSeek V4', provider: 'OpenRouter', tokens: '19.2M', percentage: 10 },
-        { model: 'GLM 4.5 Air', provider: 'z.ai', tokens: '2.5M', percentage: 1 },
-        { model: 'GLM 4.5', provider: 'z.ai', tokens: '1.0M', percentage: 1 },
-        { model: 'OWL Alpha (legacy)', provider: 'OpenRouter', tokens: '0.9M', percentage: 1 }
-    ]);
+// Update model info section
+function updateModelInfo(data) {
+    const modelEl = document.getElementById('model-name');
+    const providerEl = document.getElementById('model-provider');
+    const fallbackEl = document.getElementById('model-fallback');
 
-    const inputEl = document.getElementById('token-input');
-    if (inputEl && inputEl.textContent.includes('~')) {
-        inputEl.style.opacity = '0.6';
+    if (modelEl && data.primary_model) {
+        modelEl.textContent = data.primary_model;
+    }
+    if (providerEl && data.primary_provider) {
+        providerEl.textContent = data.primary_provider;
+    }
+    if (fallbackEl) {
+        if (data.fallback_chain && data.fallback_chain.length > 0) {
+            fallbackEl.textContent = data.fallback_chain.map(f => f.model).join(', ');
+            fallbackEl.style.opacity = '1';
+        } else {
+            fallbackEl.textContent = 'No fallback configured';
+            fallbackEl.style.opacity = '0.5';
+        }
     }
 }
 
@@ -1128,8 +1140,8 @@ function fetchDashboardData() {
 }
 
 function startAutoRefresh() {
+    // No more auto-refresh — data updates only on manual refresh
     fetchDashboardData();
-    refreshTimer = setInterval(fetchDashboardData, REFRESH_INTERVAL);
 }
 
 function manualRefresh() {
