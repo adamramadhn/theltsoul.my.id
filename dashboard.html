@@ -1041,19 +1041,25 @@ async function fetchTokenUsage() {
     try {
         const response = await fetch('token-data.json', { cache: 'no-cache' });
         if (response.ok) {
-            const data = await response.json();
+            const raw = await response.json();
+            // token-data.json wraps in .data, hermes insights style
+            const data = (raw.data && raw.data.total_tokens) ? raw.data : raw;
             const parsed = {
-                inputTokens: data.input_tokens,
-                outputTokens: data.output_tokens,
-                totalTokens: data.total_tokens,
-                sessions: data.sessions,
-                avgTokens: data.avg_tokens_session
+                inputTokens: formatTokens(data.total_input_tokens || data.input_tokens || 0),
+                outputTokens: formatTokens(data.total_output_tokens || data.output_tokens || 0),
+                totalTokens: formatTokens(data.total_tokens || 0),
+                sessions: String(data.total_sessions || data.sessions || 0),
+                avgTokens: formatTokens(Math.round((data.total_tokens || 0) / Math.max(data.total_sessions || data.sessions || 1, 1)))
             };
             updateTokenUI(parsed);
 
             // Update model usage if available
             if (data.model_usage && Array.isArray(data.model_usage)) {
-                updateModelUsageUI(data.model_usage);
+                const formatted = data.model_usage.map(m => ({
+                    ...m,
+                    tokens: formatTokens(m.tokens)
+                }));
+                updateModelUsageUI(formatted);
             }
 
             return;
@@ -1086,6 +1092,14 @@ async function fetchTokenUsage() {
     if (inputEl && inputEl.textContent.includes('~')) {
         inputEl.style.opacity = '0.6';
     }
+}
+
+// Format large numbers: 8612626 → "8.6M", 705017 → "705K"
+function formatTokens(num) {
+    if (!num && num !== 0) return '—';
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(0) + 'K';
+    return String(num);
 }
 
 function fetchDashboardData() {
