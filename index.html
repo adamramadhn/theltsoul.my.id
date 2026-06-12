@@ -87,13 +87,23 @@
         nav .logo {
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-weight: 800; font-size: 1.2rem; color: var(--accent);
-            letter-spacing: -0.5px;
+            letter-spacing: -0.5px; flex-shrink: 0;
+        }
+        nav .links {
+            display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end;
         }
         nav .links a {
-            color: var(--text-secondary); text-decoration: none; font-size: 0.88rem;
-            margin-left: 24px; transition: color 0.2s; font-weight: 500;
+            color: var(--text-secondary); text-decoration: none; font-size: 0.82rem;
+            padding: 6px 12px; border-radius: var(--radius-sm);
+            transition: all 0.2s; font-weight: 500;
         }
-        nav .links a:hover { color: var(--accent); }
+        nav .links a:hover { color: var(--accent); background: var(--accent-soft); }
+        nav .links a.nav-section { color: var(--text-secondary); }
+        nav .links a.nav-external { color: var(--text-tertiary); }
+        nav .links a.nav-external:hover { color: var(--accent); }
+        nav .links .nav-separator {
+            width: 1px; height: 18px; background: var(--border); margin: 0 4px;
+        }
 
         /* ══════════ HERO ══════════ */
         .hero {
@@ -382,14 +392,13 @@
 <nav>
     <span class="logo">~/theltsoul</span>
     <div class="links">
-        <a href="#tentang">Tentang</a>
-        <a href="#proyek">Proyek</a>
-        <a href="#freelance">Freelance</a>
-        <a href="#kontak">Kontak</a>
-        <a href="laporan-isu.html" style="color:var(--coral);">📋 Laporan Isu</a>
-        <a href="stock-dashboard.html" style="color:var(--accent2);">📊 Stock Analysis</a>
-        <a href="openrouter-monitor.html" style="color:var(--purple);">🦉 Token Monitor</a>
-        <a href="dashboard.html" style="color:var(--accent);">🧠 Dashboard</a>
+        <a href="#tentang" class="nav-section">Tentang</a>
+        <a href="#proyek" class="nav-section">Proyek</a>
+        <a href="#freelance" class="nav-section">Freelance</a>
+        <a href="#kontak" class="nav-section">Kontak</a>
+        <span class="nav-separator"></span>
+        <a href="stock-dashboard.html" class="nav-external">📊 Stock</a>
+        <a href="dashboard.html" class="nav-external">🧠 Dashboard</a>
     </div>
 </nav>
 
