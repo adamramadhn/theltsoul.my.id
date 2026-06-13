@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Drive Web - Bot API Version</title>
+    <title>Telegram Drive Web - Enhanced</title>
     <style>
         * {
             margin: 0;
@@ -11,15 +11,37 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: white;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #e0e0e0;
+            --file-card-bg: #f8f9fa;
+            --file-card-hover: #e9ecef;
+        }
+
+        body.dark-mode {
+            --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --card-bg: #1f2937;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --border-color: #374151;
+            --file-card-bg: #2d3748;
+            --file-card-hover: #4a5568;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-gradient);
             min-height: 100vh;
             padding: 20px;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -27,11 +49,21 @@
             text-align: center;
             color: white;
             margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-title {
+            flex: 1;
+            min-width: 300px;
         }
 
         .header h1 {
             font-size: 2.5rem;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .header p {
@@ -39,12 +71,34 @@
             font-size: 1.1rem;
         }
 
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .dark-mode-toggle {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dark-mode-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
         .card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 16px;
             padding: 30px;
             margin-bottom: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            color: var(--text-primary);
         }
 
         .config-section {
@@ -63,16 +117,18 @@
             display: block;
             font-weight: 600;
             margin-bottom: 8px;
-            color: #333;
+            color: var(--text-primary);
         }
 
         .form-group input {
             width: 100%;
             padding: 12px 16px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
             font-size: 1rem;
             transition: all 0.3s;
+            background: var(--card-bg);
+            color: var(--text-primary);
         }
 
         .form-group input:focus {
@@ -103,16 +159,20 @@
         }
 
         .btn-secondary {
-            background: #f5f5f5;
-            color: #333;
+            background: var(--file-card-bg);
+            color: var(--text-primary);
         }
 
         .btn-secondary:hover {
-            background: #e0e0e0;
+            background: var(--file-card-hover);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
 
         .setup-guide {
-            background: #f8f9fa;
+            background: var(--file-card-bg);
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -125,6 +185,7 @@
 
         .setup-guide ol {
             margin-left: 20px;
+            color: var(--text-primary);
         }
 
         .setup-guide li {
@@ -133,11 +194,11 @@
         }
 
         .setup-guide code {
-            background: white;
+            background: var(--card-bg);
             padding: 2px 8px;
             border-radius: 4px;
             font-family: 'Courier New', monospace;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
         }
 
         .file-browser {
@@ -148,43 +209,6 @@
             display: block;
         }
 
-        .file-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .file-card {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-
-        .file-card:hover {
-            background: #e9ecef;
-            transform: translateY(-2px);
-        }
-
-        .file-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .file-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-            word-break: break-all;
-        }
-
-        .file-size {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
         .upload-area {
             border: 2px dashed #667eea;
             border-radius: 8px;
@@ -193,20 +217,156 @@
             margin-bottom: 20px;
             cursor: pointer;
             transition: all 0.3s;
+            background: var(--file-card-bg);
         }
 
         .upload-area:hover {
-            background: #f8f9fa;
+            background: var(--file-card-hover);
+            transform: scale(1.02);
         }
 
         .upload-area.dragover {
-            background: #e9ecef;
+            background: var(--file-card-hover);
             border-color: #764ba2;
+            transform: scale(1.05);
         }
 
         .upload-icon {
             font-size: 3rem;
             margin-bottom: 10px;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stats-bar {
+            background: var(--file-card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .file-card {
+            background: var(--file-card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-card:hover {
+            background: var(--file-card-hover);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .file-thumbnail {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: var(--border-color);
+        }
+
+        .file-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            text-align: center;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-info {
+            margin-top: 10px;
+        }
+
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            word-break: break-all;
+            font-size: 0.95rem;
+        }
+
+        .file-meta {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none;
+            gap: 5px;
+        }
+
+        .file-card:hover .file-actions {
+            display: flex;
+        }
+
+        .file-action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .file-action-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .file-action-btn.download {
+            background: #667eea;
+            color: white;
+        }
+
+        .file-action-btn.delete {
+            background: #f5576c;
+            color: white;
         }
 
         .loading {
@@ -215,7 +375,7 @@
         }
 
         .loading-spinner {
-            border: 4px solid #f3f3f3;
+            border: 4px solid var(--border-color);
             border-top: 4px solid #667eea;
             border-radius: 50%;
             width: 50px;
@@ -267,7 +427,64 @@
             margin-bottom: 8px;
         }
 
+        /* Preview Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+
         @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
             .header h1 {
                 font-size: 1.8rem;
             }
@@ -275,14 +492,29 @@
             .file-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
+
+            .action-bar {
+                flex-direction: column;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📱 Telegram Drive Web</h1>
-            <p>Bot API Version - Akses file dari mana saja</p>
+            <div class="header-title">
+                <h1>📱 Telegram Drive Web</h1>
+                <p>Enhanced Version - Cloud Storage Tanpa Batas</p>
+            </div>
+            <div class="header-actions">
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                    🌙
+                </button>
+            </div>
         </div>
 
         <!-- Setup Section -->
@@ -302,7 +534,7 @@
                         <li>Buat <strong>Private Channel</strong> di Telegram (sebagai folder)</li>
                         <li>Add bot ke channel (Settings → Administrators → Add Admin)</li>
                         <li>Ketik <code>/start</code> ke bot Anda</li>
-                        <li>Masukkan Bot Token dan Channel Username di bawah</li>
+                        <li>Masukkan Bot Token dan Channel ID di bawah</li>
                     </ol>
                 </div>
 
@@ -312,11 +544,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="channel-username">Channel Username / ID</label>
-                    <input type="text" id="channel-username" placeholder="Public: my_channel atau Private: -1001234567890">
-                    <small style="color: #666; font-size: 0.9rem;">
-                        • Public channel: username (tanpa @), contoh: <code>MyDrive123</code><br>
-                        • Private channel: chat ID, contoh: <code>-1001234567890</code>
+                    <label for="channel-username">Channel ID</label>
+                    <input type="text" id="channel-username" placeholder="-1001234567890 (Private Channel ID)">
+                    <small style="color: var(--text-secondary); font-size: 0.9rem;">
+                        Dapatkan Channel ID dengan forward pesan channel ke <a href="https://t.me/userinfobot" target="_blank">@userinfobot</a>
                     </small>
                 </div>
 
@@ -334,14 +565,33 @@
                      ondrop="handleDrop(event)">
                     <div class="upload-icon">📤</div>
                     <p><strong>Klik atau drag file ke sini untuk upload</strong></p>
-                    <p class="file-size">Max 50MB per file</p>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Max 50MB per file • Mendukung semua jenis file</p>
                 </div>
 
                 <input type="file" id="file-input" style="display: none;" multiple onchange="handleFileSelect(event)">
 
                 <div id="upload-status"></div>
 
-                <div style="margin: 20px 0;">
+                <div class="stats-bar" id="stats-bar">
+                    <div class="stat-item">
+                        <div class="stat-value" id="total-files">0</div>
+                        <div class="stat-label">Total File</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="total-size">0 B</div>
+                        <div class="stat-label">Total Size</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="image-count">0</div>
+                        <div class="stat-label">Gambar</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="other-count">0</div>
+                        <div class="stat-label">Lainnya</div>
+                    </div>
+                </div>
+
+                <div class="action-bar">
                     <button class="btn" onclick="loadFiles()">🔄 Refresh Files</button>
                     <button class="btn btn-secondary" onclick="clearConfig()">⚙️ Reset Config</button>
                 </div>
@@ -356,10 +606,34 @@
         </div>
     </div>
 
+    <!-- Preview Modal -->
+    <div class="modal" id="preview-modal" onclick="closePreview(event)">
+        <span class="modal-close" onclick="closePreview(event)">&times;</span>
+        <img class="modal-content" id="modal-image" alt="Preview">
+    </div>
+
     <script>
         const TELEGRAM_API_URL = 'https://api.telegram.org/bot';
         let botToken = '';
         let channelUsername = '';
+        let allFiles = [];
+
+        // Load dark mode preference
+        function loadDarkMode() {
+            const darkMode = localStorage.getItem('telegramDriveDarkMode') === 'true';
+            if (darkMode) {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.dark-mode-toggle').textContent = '☀️';
+            }
+        }
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('telegramDriveDarkMode', isDark);
+            document.querySelector('.dark-mode-toggle').textContent = isDark ? '☀️' : '🌙';
+        }
 
         // Load config from localStorage
         function loadConfig() {
@@ -400,13 +674,15 @@
         }
 
         // Show status message
-        function showStatus(message, type = 'info') {
+        function showStatus(message, type = 'info', duration = 5000) {
             const statusDiv = document.getElementById('connection-status');
             statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
 
-            setTimeout(() => {
-                statusDiv.innerHTML = '';
-            }, 5000);
+            if (duration > 0) {
+                setTimeout(() => {
+                    statusDiv.innerHTML = '';
+                }, duration);
+            }
         }
 
         // Connect to bot
@@ -419,25 +695,25 @@
                 return;
             }
 
-            showStatus('🔄 Menghubungkan ke bot...', 'info');
+            showStatus('🔄 Menghubungkan ke bot...', 'info', 0);
 
             try {
                 const response = await fetch(`${TELEGRAM_API_URL}${botToken}/getMe`);
                 const data = await response.json();
 
                 if (!data.ok) {
-                    showStatus('❌ Bot token invalid!', 'error');
+                    showStatus('❌ Bot token invalid!', 'error', 5000);
                     return;
                 }
 
                 saveConfig();
                 document.getElementById('setup-section').style.display = 'none';
                 document.getElementById('file-browser').classList.add('active');
-                showStatus(`✅ Terhubung ke @${data.result.username}`, 'success');
+                showStatus(`✅ Terhubung ke @${data.result.username}`, 'success', 3000);
                 loadFiles();
 
             } catch (error) {
-                showStatus('❌ Gagal menghubungkan bot: ' + error.message, 'error');
+                showStatus('❌ Gagal menghubungkan bot: ' + error.message, 'error', 5000);
             }
         }
 
@@ -459,11 +735,10 @@
                 }
 
                 const updates = data.result || [];
-                const files = [];
+                allFiles = [];
 
                 // Cek apakah channelUsername adalah numeric ID (private channel)
                 const isPrivateChannel = /^-?\d+$/.test(channelUsername);
-                const targetChatId = channelUsername.startsWith('@') ? channelUsername : '@' + channelUsername;
 
                 for (const update of updates) {
                     if (update.channel_post) {
@@ -481,33 +756,36 @@
                         if (!isTargetChannel) continue;
 
                         if (message.document) {
-                            files.push({
+                            allFiles.push({
                                 id: message.message_id,
                                 fileId: message.document.file_id,
                                 name: message.document.file_name || 'Unnamed',
                                 size: message.document.file_size || 0,
                                 mime: message.document.mime_type || 'application/octet-stream',
-                                date: message.date
+                                date: message.date,
+                                thumb_id: message.document.thumb?.file_id
                             });
                         } else if (message.photo) {
                             const largestPhoto = message.photo[message.photo.length - 1];
-                            files.push({
+                            allFiles.push({
                                 id: message.message_id,
                                 fileId: largestPhoto.file_id,
                                 name: `photo_${message.message_id}.jpg`,
                                 size: largestPhoto.file_size || 0,
                                 mime: 'image/jpeg',
-                                date: message.date
+                                date: message.date,
+                                thumb_id: largestPhoto.file_id
                             });
                         }
                     }
                 }
 
-                displayFiles(files);
-                showStatus(`✅ ${files.length} file dimuat`, 'success');
+                displayFiles(allFiles);
+                updateStats(allFiles);
+                showStatus(`✅ ${allFiles.length} file dimuat`, 'success', 3000);
 
             } catch (error) {
-                showStatus('❌ Gagal memuat file: ' + error.message, 'error');
+                showStatus('❌ Gagal memuat file: ' + error.message, 'error', 5000);
             } finally {
                 loadingDiv.style.display = 'none';
             }
@@ -518,23 +796,61 @@
             const fileGrid = document.getElementById('file-grid');
 
             if (files.length === 0) {
-                fileGrid.innerHTML = '<p style="text-align: center; color: #666; grid-column: 1/-1;">Tidak ada file. Upload file pertama Anda!</p>';
+                fileGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1; padding: 40px;">Belum ada file. Upload file pertama Anda!</p>';
                 return;
             }
 
             files.forEach(file => {
-                const icon = getFileIcon(file.mime);
-                const size = formatSize(file.size);
-                const date = new Date(file.date * 1000).toLocaleDateString('id-ID');
+                const card = document.createElement('div');
+                card.className = 'file-card';
 
-                fileGrid.innerHTML += `
-                    <div class="file-card" onclick="downloadFile('${file.fileId}', '${file.name}')">
-                        <div class="file-icon">${icon}</div>
+                const isImage = file.mime.startsWith('image/');
+                const icon = getFileIcon(file.mime);
+
+                let thumbnail = '';
+                if (isImage) {
+                    thumbnail = `<img class="file-thumbnail" src="${TELEGRAM_API_URL}${botToken}/getFile?file_id=${file.fileId}" alt="${file.name}" onclick="previewImage('${file.fileId}', '${file.name}')" style="cursor: pointer;">`;
+                } else {
+                    thumbnail = `<div class="file-icon">${icon}</div>`;
+                }
+
+                card.innerHTML = `
+                    ${thumbnail}
+                    <div class="file-info">
                         <div class="file-name">${file.name}</div>
-                        <div class="file-size">${size} • ${date}</div>
+                        <div class="file-meta">
+                            <span>${formatSize(file.size)}</span>
+                            <span>${new Date(file.date * 1000).toLocaleDateString('id-ID')}</span>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="file-action-btn download" onclick="event.stopPropagation(); downloadFile('${file.fileId}', '${file.name}')" title="Download">
+                            ⬇️
+                        </button>
+                        <button class="file-action-btn delete" onclick="event.stopPropagation(); deleteFile('${file.id}')" title="Hapus">
+                            🗑️
+                        </button>
                     </div>
                 `;
+
+                if (isImage) {
+                    card.onclick = () => previewImage(file.fileId, file.name);
+                }
+
+                fileGrid.appendChild(card);
             });
+        }
+
+        // Update statistics
+        function updateStats(files) {
+            const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+            const imageCount = files.filter(f => f.mime.startsWith('image/')).length;
+            const otherCount = files.length - imageCount;
+
+            document.getElementById('total-files').textContent = files.length;
+            document.getElementById('total-size').textContent = formatSize(totalSize);
+            document.getElementById('image-count').textContent = imageCount;
+            document.getElementById('other-count').textContent = otherCount;
         }
 
         // Get file icon based on MIME type
@@ -545,14 +861,17 @@
             if (mimeType === 'application/pdf') return '📄';
             if (mimeType.includes('text/')) return '📝';
             if (mimeType.includes('zip') || mimeType.includes('rar')) return '📦';
+            if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📊';
+            if (mimeType.includes('word') || mimeType.includes('document')) return '📄';
+            if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return '📽️';
             return '📁';
         }
 
         // Format file size
         function formatSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
+            if (bytes === 0) return '0 B';
             const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const sizes = ['B', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
@@ -578,13 +897,24 @@
             const isPrivateChannel = /^-?\d+$/.test(channelUsername);
             const chatId = isPrivateChannel ? channelUsername : (channelUsername.startsWith('@') ? channelUsername : '@' + channelUsername);
 
+            let uploaded = 0;
+            let failed = 0;
+
             for (const file of files) {
                 if (file.size > 50 * 1024 * 1024) {
                     showStatus(`❌ ${file.name} terlalu besar (max 50MB)`, 'error');
+                    failed++;
                     continue;
                 }
 
-                statusDiv.innerHTML = `<div class="status info">📤 Uploading ${file.name}...</div>`;
+                statusDiv.innerHTML = `
+                    <div class="status info">
+                        <div>📤 Uploading: ${file.name}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 50%"></div>
+                        </div>
+                    </div>
+                `;
 
                 const formData = new FormData();
                 formData.append('chat_id', chatId);
@@ -600,22 +930,59 @@
                     const data = await response.json();
 
                     if (data.ok) {
-                        showStatus(`✅ ${file.name} berhasil diupload!`, 'success');
+                        uploaded++;
+                        statusDiv.innerHTML = `
+                            <div class="status success">
+                                ✅ ${file.name} berhasil diupload!
+                            </div>
+                        `;
                     } else {
+                        failed++;
                         showStatus(`❌ Gagal upload ${file.name}: ${data.description}`, 'error');
                     }
 
                 } catch (error) {
+                    failed++;
                     showStatus(`❌ Error upload ${file.name}: ${error.message}`, 'error');
                 }
 
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
 
             setTimeout(() => {
                 statusDiv.innerHTML = '';
-                loadFiles();
-            }, 1000);
+                if (uploaded > 0) {
+                    loadFiles();
+                }
+            }, 1500);
+        }
+
+        // Preview image
+        async function previewImage(fileId, fileName) {
+            try {
+                const response = await fetch(`${TELEGRAM_API_URL}${botToken}/getFile?file_id=${fileId}`);
+                const data = await response.json();
+
+                if (data.ok) {
+                    const fileUrl = `https://api.telegram.org/file/bot${botToken}/${data.result.file_path}`;
+                    const modal = document.getElementById('preview-modal');
+                    const modalImage = document.getElementById('modal-image');
+                    modalImage.src = fileUrl;
+                    modalImage.alt = fileName;
+                    modal.classList.add('active');
+                } else {
+                    showStatus('❌ Gagal memuat preview', 'error');
+                }
+            } catch (error) {
+                showStatus('❌ Gagal preview: ' + error.message, 'error');
+            }
+        }
+
+        // Close preview
+        function closePreview(event) {
+            if (event.target.classList.contains('modal') || event.target.classList.contains('modal-close')) {
+                document.getElementById('preview-modal').classList.remove('active');
+            }
         }
 
         // Download file
@@ -641,17 +1008,30 @@
                 link.click();
                 document.body.removeChild(link);
 
-                showStatus('✅ File dimuat untuk download', 'success');
+                showStatus('✅ File dimuat untuk download', 'success', 3000);
 
             } catch (error) {
-                showStatus('❌ Gagal download: ' + error.message, 'error');
+                showStatus('❌ Gagal download: ' + error.message, 'error', 5000);
             }
         }
 
+        // Delete file (from view only - telegram API doesn't support delete)
+        function deleteFile(messageId) {
+            alert('⚠️ Fitur hapus belum tersedia untuk Bot API.\n\nUntuk menghapus file, buka Telegram dan hapus pesan di channel secara manual.');
+        }
+
         // Initialize
+        loadDarkMode();
         if (!loadConfig()) {
             document.getElementById('setup-section').style.display = 'block';
         }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closePreview({target: {classList: {contains: () => true}}});
+            }
+        });
     </script>
 </body>
 </html>
