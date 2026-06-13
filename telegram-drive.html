@@ -593,6 +593,7 @@
 
                 <div class="action-bar">
                     <button class="btn" onclick="loadFiles()">🔄 Refresh Files</button>
+                    <button class="btn btn-secondary" onclick="debugUpdates()">🔍 Debug Updates</button>
                     <button class="btn btn-secondary" onclick="clearConfig()">⚙️ Reset Config</button>
                 </div>
 
@@ -1018,6 +1019,92 @@
         // Delete file (from view only - telegram API doesn't support delete)
         function deleteFile(messageId) {
             alert('⚠️ Fitur hapus belum tersedia untuk Bot API.\n\nUntuk menghapus file, buka Telegram dan hapus pesan di channel secara manual.');
+        }
+
+        // Debug updates
+        async function debugUpdates() {
+            showStatus('🔄 Mengambil debug info...', 'info', 0);
+
+            try {
+                const response = await fetch(`${TELEGRAM_API_URL}${botToken}/getUpdates`);
+                const data = await response.json();
+
+                if (!data.ok) {
+                    alert(`❌ Error getUpdates:\n\n${JSON.stringify(data, null, 2)}`);
+                    return;
+                }
+
+                const updates = data.result || [];
+
+                // Cari channel_post
+                const channelPosts = updates.filter(u => u.channel_post);
+                const messages = updates.filter(u => u.message);
+
+                let debugInfo = `📊 DEBUG INFO\n\n`;
+                debugInfo += `Total Updates: ${updates.length}\n`;
+                debugInfo += `Channel Posts: ${channelPosts.length}\n`;
+                debugInfo += `Direct Messages: ${messages.length}\n\n`;
+
+                if (channelPosts.length > 0) {
+                    debugInfo += `📁 CHANNEL YANG DITEMUKAN:\n\n`;
+                    const channels = {};
+
+                    for (const post of channelPosts) {
+                        const chat = post.channel_post.chat;
+                        const key = `${chat.id} (${chat.title || 'No title'})`;
+
+                        if (!channels[key]) {
+                            channels[key] = {
+                                id: chat.id,
+                                title: chat.title,
+                                username: chat.username,
+                                type: chat.type,
+                                count: 0
+                            };
+                        }
+                        channels[key].count++;
+                    }
+
+                    for (const [key, info] of Object.entries(channels)) {
+                        debugInfo += `\n📌 ${info.title || 'No title'}\n`;
+                        debugInfo += `   ID: ${info.id}\n`;
+                        debugInfo += `   Username: ${info.username || 'Private (no username)'}\n`;
+                        debugInfo += `   Type: ${info.type}\n`;
+                        debugInfo += `   Files: ${info.count}\n`;
+
+                        if (String(info.id) === channelUsername) {
+                            debugInfo += `   ✅ MATCH dengan channel ID yang dimasukkan!\n`;
+                        } else {
+                            debugInfo += `   ❌ TIDAK match dengan channel ID yang dimasukkan\n`;
+                        }
+                    }
+
+                    debugInfo += `\n\n💡 CHANNEL ID YANG ANDA MASUKKAN: ${channelUsername}\n`;
+                }
+
+                if (messages.length > 0) {
+                    debugInfo += `\n\n💬 PESAN LANGSUNG KE BOT:\n`;
+                    debugInfo += `(Hanya ${messages.length} pesan langsung, bukan dari channel)\n\n`;
+                }
+
+                if (updates.length === 0) {
+                    debugInfo += `\n❌ TIDAK ADA UPDATE SAMA SEKALI!\n\n`;
+                    debugInfo += `Kemungkinan:\n`;
+                    debugInfo += `1. Bot belum menerima update apapun\n`;
+                    debugInfo += `2. File yang di-upload di channel TIDAK dikirim ke bot\n`;
+                    debugInfo += `3. Channel ID salah\n`;
+                    debugInfo += `4. Bot bukan admin di channel\n\n`;
+                    debugInfo += `SOLUSI:\n`;
+                    debugInfo += `1. Pastikan bot jadi ADMIN di channel\n`;
+                    debugInfo += `2. Kirim satu file lagi untuk test\n`;
+                    debugInfo += `3. Cek channel ID dengan forward pesan ke @userinfobot\n`;
+                }
+
+                alert(debugInfo);
+
+            } catch (error) {
+                alert(`❌ Error debug: ${error.message}`);
+            }
         }
 
         // Initialize
