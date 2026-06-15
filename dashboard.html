@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Oyeng Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #07070d;
+            --surface: #0e0e18;
+            --surface2: #151525;
+            --border: #1e1e32;
+            --border-light: #2a2a44;
+            --text: #e8e8f0;
+            --text-secondary: #8888a8;
+            --text-tertiary: #5c5c78;
+            --accent: #7c5cfc;
+            --accent-soft: rgba(124, 92, 252, 0.12);
+            --accent-glow: rgba(124, 92, 252, 0.22);
+            --accent2: #a855f7;
+            --green: #34d399;
+            --green-soft: rgba(52, 211, 153, 0.12);
+            --blue: #60a5fa;
+            --blue-soft: rgba(96, 165, 250, 0.12);
+            --orange: #fb923c;
+            --orange-soft: rgba(251, 146, 60, 0.12);
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ══════════ BACKGROUND ══════════ */
+        .bg-decoration {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+        }
+        .bg-decoration .gradient-orb {
+            position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.25;
+        }
+        .bg-decoration .orb-1 {
+            width: 600px; height: 600px; top: -15%; right: -15%;
+            background: linear-gradient(135deg, rgba(124,92,252,0.3), rgba(168,85,247,0.15));
+        }
+        .bg-decoration .orb-2 {
+            width: 400px; height: 400px; bottom: 5%; left: -10%;
+            background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(124,92,252,0.1));
+        }
+
+        /* ══════════ PASSWORD GATE ══════════ */
+        .password-gate {
+            position: fixed; inset: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg);
+        }
+        .password-gate .gate-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-xl); padding: 40px 36px;
+            text-align: center; max-width: 400px; width: 90%;
+        }
+        .password-gate .gate-icon {
+            font-size: 2.5rem; margin-bottom: 16px;
+        }
+        .password-gate h2 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.3rem; font-weight: 700; margin-bottom: 8px;
+        }
+        .password-gate p {
+            color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 24px;
+        }
+        .password-gate input[type="password"] {
+            width: 100%; padding: 12px 16px; border-radius: var(--radius);
+            border: 1px solid var(--border); background: var(--surface2);
+            color: var(--text); font-size: 0.95rem; outline: none;
+            margin-bottom: 16px; transition: border-color 0.2s;
+        }
+        .password-gate input[type="password"]:focus {
+            border-color: var(--accent);
+        }
+        .password-gate button {
+            width: 100%; padding: 12px 24px; border-radius: var(--radius);
+            border: none; background: var(--accent); color: #fff;
+            font-size: 0.9rem; font-weight: 600; cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .password-gate button:hover { opacity: 0.9; }
+        .password-gate .error {
+            color: #f87171; font-size: 0.8rem; margin-top: 12px; display: none;
+        }
+        .password-gate .hint {
+            color: var(--text-tertiary); font-size: 0.72rem; margin-top: 16px;
+        }
+        .password-gate .back-to-portfolio {
+            display: inline-block; margin-top: 14px;
+            color: var(--text-secondary); text-decoration: none; font-size: 0.82rem;
+            font-weight: 500; transition: color 0.2s;
+        }
+        .password-gate .back-to-portfolio:hover {
+            color: var(--accent);
+        }
+
+        /* ══════════ DASHBOARD (hidden until unlocked) ══════════ */
+        .dashboard-wrapper {
+            display: none; position: relative; z-index: 1;
+        }
+        .dashboard-wrapper.unlocked { display: block; }
+
+        /* ══════════ NAV ══════════ */
+        .nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 24px; max-width: 1100px; margin: 0 auto;
+        }
+        .nav .logo {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800; font-size: 1.2rem; color: var(--accent);
+            letter-spacing: -0.5px; text-decoration: none;
+        }
+        .nav .nav-right {
+            display: flex; align-items: center; gap: 16px;
+        }
+        .nav .lock-btn {
+            color: var(--text-secondary); text-decoration: none; font-size: 0.82rem;
+            font-weight: 500; transition: color 0.2s; cursor: pointer;
+            background: none; border: none; display: flex; align-items: center; gap: 4px;
+        }
+        .nav .lock-btn:hover { color: var(--text); }
+        .nav .back-link {
+            color: var(--text-secondary); text-decoration: none; font-size: 0.88rem;
+            font-weight: 500; transition: color 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .nav .back-link:hover { color: var(--text); }
+
+        /* ══════════ HEADER ══════════ */
+        .dashboard-header {
+            text-align: center; padding: 48px 24px 40px;
+        }
+        .dashboard-header .status-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 18px; border-radius: 50px;
+            background: var(--green-soft); border: 1px solid rgba(52,211,153,0.25);
+            font-size: 0.82rem; color: var(--green); font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .dashboard-header .status-badge .pulse {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        .dashboard-header h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.4rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px;
+            background: linear-gradient(135deg, #e8e8f0 0%, var(--accent) 60%, var(--accent2) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .dashboard-header p {
+            color: var(--text-secondary); font-size: 1rem; max-width: 500px; margin: 0 auto;
+        }
+
+        /* ══════════ CONTAINER ══════════ */
+        .container {
+            max-width: 1100px; margin: 0 auto; padding: 0 24px;
+        }
+
+        /* ══════════ GRID ══════════ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px; margin-bottom: 32px;
+        }
+
+        /* ══════════ CARDS ══════════ */
+        .stat-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 24px;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .stat-card:hover {
+            border-color: var(--accent); transform: translateY(-2px);
+        }
+        .stat-card .card-icon {
+            width: 44px; height: 44px; border-radius: var(--radius);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; margin-bottom: 14px;
+        }
+        .stat-card .card-icon.purple { background: var(--accent-soft); }
+        .stat-card .card-icon.green { background: var(--green-soft); }
+        .stat-card .card-icon.blue { background: var(--blue-soft); }
+        .stat-card .card-icon.orange { background: var(--orange-soft); }
+
+        .stat-card .stat-value {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 2rem; font-weight: 800; color: var(--text); display: block; line-height: 1.2;
+        }
+        .stat-card .stat-label {
+            font-size: 0.82rem; color: var(--text-secondary); font-weight: 500;
+        }
+        .stat-card .stat-sub {
+            font-size: 0.75rem; color: var(--text-tertiary); margin-top: 4px;
+        }
+
+        /* ══════════ WIDE CARDS ══════════ */
+        .wide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 16px; margin-bottom: 32px;
+        }
+
+        .card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 24px;
+        }
+        .card h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1rem; font-weight: 700; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .card h3 .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+        }
+
+        /* ══════════ LIST ITEMS ══════════ */
+        .list-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 0; border-bottom: 1px solid var(--border);
+        }
+        .list-item:last-child { border-bottom: none; }
+        .list-item .item-left {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .list-item .item-icon {
+            width: 32px; height: 32px; border-radius: var(--radius-sm);
+            background: var(--surface2); display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem;
+        }
+        .list-item .item-name { font-size: 0.88rem; font-weight: 500; }
+        .list-item .item-sub { font-size: 0.75rem; color: var(--text-tertiary); }
+        .list-item .item-right { text-align: right; }
+        .list-item .item-value { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+        .list-item .item-status {
+            font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 50px;
+        }
+        .item-status.active { background: var(--green-soft); color: var(--green); }
+        .item-status.idle { background: var(--orange-soft); color: var(--orange); }
+
+        /* ══════════ REFRESH BUTTON ══════════ */
+        .refresh-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 20px; padding: 12px 16px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+        .refresh-bar .last-updated {
+            font-size: 0.78rem; color: var(--text-tertiary);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .refresh-bar .refresh-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: var(--radius-sm);
+            background: var(--accent-soft); border: 1px solid rgba(124,92,252,0.25);
+            color: var(--accent); font-size: 0.82rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .refresh-bar .refresh-btn:hover {
+            background: var(--accent); color: #fff;
+        }
+        .refresh-bar .refresh-btn.loading {
+            opacity: 0.7; pointer-events: none;
+        }
+        .refresh-bar .refresh-btn .spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ══════════ PROGRESS BAR ══════════ */
+        .progress-bar {
+            width: 100%; height: 6px; background: var(--surface2);
+            border-radius: 3px; overflow: hidden; margin-top: 8px;
+        }
+        .progress-bar .fill {
+            height: 100%; border-radius: 3px; transition: width 1s ease;
+        }
+        .fill.purple { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+        .fill.green { background: var(--green); }
+        .fill.blue { background: var(--blue); }
+
+        /* ══════════ TERMINAL ══════════ */
+        .terminal {
+            background: #0a0a14; border: 1px solid var(--border);
+            border-radius: var(--radius-lg); overflow: hidden;
+        }
+        .terminal .terminal-header {
+            display: flex; align-items: center; gap: 8px;
+            padding: 12px 16px; border-bottom: 1px solid var(--border);
+        }
+        .terminal .terminal-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .terminal .terminal-header .dot.red { background: #ef4444; }
+        .terminal .terminal-header .dot.yellow { background: #eab308; }
+        .terminal .terminal-header .dot.green { background: #22c55e; }
+        .terminal .terminal-header .title {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+            color: var(--text-tertiary); margin-left: 8px;
+        }
+        .terminal .terminal-body {
+            padding: 16px; font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem; line-height: 1.8; max-height: 300px; overflow-y: auto;
+        }
+        .terminal .line { display: flex; gap: 8px; }
+        .terminal .line .prompt { color: var(--accent); flex-shrink: 0; }
+        .terminal .line .cmd { color: var(--text); }
+        .terminal .line .output { color: var(--text-secondary); }
+        .terminal .line .success { color: var(--green); }
+        .terminal .line .info { color: var(--blue); }
+        .terminal .cursor::after {
+            content: '▊'; animation: blink 1s step-end infinite; color: var(--accent);
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* ══════════ FOOTER ══════════ */
+        .dashboard-footer {
+            text-align: center; padding: 32px 24px;
+            color: var(--text-tertiary); font-size: 0.82rem;
+            border-top: 1px solid var(--border); margin-top: 40px;
+        }
+
+        /* ══════════ RESPONSIVE ══════════ */
+        @media (max-width: 600px) {
+            .dashboard-header h1 { font-size: 1.8rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .wide-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════ PASSWORD GATE ══════════ -->
+<div class="password-gate" id="password-gate">
+    <div class="gate-card">
+        <div class="gate-icon">🔐</div>
+        <h2>Agent Dashboard</h2>
+        <p>Masukkan password untuk mengakses dashboard Oyeng.</p>
+        <input type="password" id="password-input" placeholder="Password..." autofocus>
+        <button onclick="unlockDashboard()">Unlock</button>
+        <a href="index.html" class="back-to-portfolio">← Kembali ke Portfolio</a>
+        <div class="error" id="password-error">Password salah. Coba lagi.</div>
+    </div>
+</div>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div class="dashboard-wrapper" id="dashboard">
+
+<div class="bg-decoration">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+</div>
+
+<nav class="nav">
+    <a href="index.html" class="logo">~/theltsoul</a>
+    <div class="nav-right">
+        <a href="index.html" class="back-link">← Portfolio</a>
+        <button class="lock-btn" onclick="lockDashboard()">🔒 Lock</button>
+    </div>
+</nav>
+
+<header class="dashboard-header">
+    <div class="status-badge">
+        <span class="pulse"></span>
+        Oyeng Agent — Online
+    </div>
+    <h1>🧠 Agent Dashboard</h1>
+    <p>Real-time overview of Oyeng AI Research Assistant — capabilities, stats, and activity.</p>
+</header>
+
+<div class="container">
+
+    <!-- ══════════ REFRESH BAR ══════════ -->
+    <div class="refresh-bar">
+        <div class="last-updated">
+            <span>🕐</span>
+            <span id="last-updated">Loading...</span>
+        </div>
+        <button class="refresh-btn" id="refresh-btn" onclick="manualRefresh()">
+            <span>🔄</span> Refresh
+        </button>
+    </div>
+
+    <!-- ══════════ STATS GRID ══════════ -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="card-icon purple">🧠</div>
+            <span class="stat-value">2</span>
+            <span class="stat-label">Memory Tiers</span>
+            <span class="stat-sub">Hot cache + cold storage</span>
+        </div>
+        <div class="stat-card">
+            <div class="card-icon green">✅</div>
+            <span class="stat-value">113+</span>
+            <span class="stat-label">Honcho Conclusions</span>
+            <span class="stat-sub">Auto-extracted observations</span>
+        </div>
+        <div class="stat-card">
+            <div class="card-icon blue">⚡</div>
+            <span class="stat-value">4</span>
+            <span class="stat-label">Active Cron Jobs</span>
+            <span class="stat-sub">Scheduled automation</span>
+        </div>
+        <div class="stat-card">
+            <div class="card-icon orange">🖥️</div>
+            <span class="stat-value">M2</span>
+            <span class="stat-label">Host Chip</span>
+            <span class="stat-sub">Mac mini · 8 GB RAM</span>
+        </div>
+    </div>
+
+    <!-- ══════════ TOKEN USAGE ══════════ -->
+    <div class="card" style="margin-bottom: 16px;">
+        <h3><span class="dot" style="background:var(--orange)"></span> 📊 Token Usage Overview</h3>
+        <div class="list-item">
+            <div class="item-left">
+                <div class="item-icon">📥</div>
+                <div>
+                    <div class="item-name">Input Tokens</div>
+                    <div class="item-sub">Context + system prompt + skills + memory</div>
+                </div>
+            </div>
+            <div class="item-right"><div class="item-value" id="token-input">Loading...</div></div>
+        </div>
+        <div class="progress-bar">
+            <div class="fill purple" style="width: 72%"></div>
+        </div>
+        <div class="list-item" style="margin-top: 12px;">
+            <div class="item-left">
+                <div class="item-icon">📤</div>
+                <div>
+                    <div class="item-name">Output Tokens</div>
+                    <div class="item-sub">Responses + tool calls + reasoning</div>
+                </div>
+            </div>
+            <div class="item-right"><div class="item-value" id="token-output">Loading...</div></div>
+        </div>
+        <div class="progress-bar">
+            <div class="fill blue" style="width: 8%"></div>
+        </div>
+        <div class="list-item" style="margin-top: 12px;">
+            <div class="item-left">
+                <div class="item-icon">🔢</div>
+                <div>
+                    <div class="item-name">Total Tokens (7d)</div>
+                    <div class="item-sub">All platforms combined</div>
+                </div>
+            </div>
+            <div class="item-right"><div class="item-value" style="color:var(--accent)" id="token-total">Loading...</div></div>
+        </div>
+        <div class="list-item" style="margin-top: 8px;">
+            <div class="item-left">
+                <div class="item-icon">💬</div>
+                <div>
+                    <div class="item-name">Sessions</div>
+                    <div class="item-sub">7-day active conversations</div>
+                </div>
+            </div>
+            <div class="item-right"><div class="item-value" id="token-sessions">Loading...</div></div>
+        </div>
+        <div class="list-item">
+            <div class="item-left">
+                <div class="item-icon">⚡</div>
+                <div>
+                    <div class="item-name">Avg Tokens / Session</div>
+                    <div class="item-sub">Including context injection</div>
+                </div>
+            </div>
+            <div class="item-right"><div class="item-value" id="token-avg">Loading...</div></div>
+        </div>
+        <div class="list-item">
+            <div class="item-left">
+                <div class="item-icon">📱</div>
+                <div>
+                    <div class="item-name">Platform Split</div>
+                    <div class="item-sub">Telegram · Discord · CLI · Cron</div>
+                </div>
+            </div>
+            <div class="item-right"><div class="item-value" style="font-size:0.75rem">59% · 40% · 1% · 0%</div></div>
+        </div>
+    </div>
+
+    <!-- ══════════ TOKEN USAGE BY MODEL ══════════ -->
+    <div class="wide-grid" style="margin-bottom: 32px;">
+        <div class="card">
+            <h3><span class="dot" style="background:var(--accent)"></span> 🤖 Token Usage by Model</h3>
+            <div id="model-usage-list">
+                <!-- Dynamic content loaded from token-data.json -->
+                Loading model usage data...
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="dot" style="background:var(--green)"></span> 📈 Model Efficiency</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">⚡</div>
+                    <div>
+                        <div class="item-name">Most Used</div>
+                        <div class="item-sub">Primary workload</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">OWL Alpha</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔄</div>
+                    <div>
+                        <div class="item-name">Final Fallback</div>
+                        <div class="item-sub">Last resort</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">DeepSeek V4 Flash Free</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🎯</div>
+                    <div>
+                        <div class="item-name">Backup Chain</div>
+                        <div class="item-sub">Fallback 1 + 2</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">GLM 4.7 + DeepSeek V4</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">💰</div>
+                    <div>
+                        <div class="item-name">All Free</div>
+                        <div class="item-sub">Zero cost</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Yes</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ AI MODEL LIST + PROVIDERS ══════════ -->
+    <div class="wide-grid" style="margin-bottom: 32px;">
+        <div class="card">
+            <h3><span class="dot" style="background:var(--accent)"></span> 🤖 Active Models</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">⚡</div>
+                    <div>
+                        <div class="item-name">OWL Alpha</div>
+                        <div class="item-sub">Primary · OpenRouter</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Primary</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">⭐</div>
+                    <div>
+                        <div class="item-name">GLM 4.7</div>
+                        <div class="item-sub">Fallback 1 · z.ai</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status idle">Fallback</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔄</div>
+                    <div>
+                        <div class="item-name">DeepSeek V4 Flash Free</div>
+                        <div class="item-sub">Fallback 2 · OpenRouter</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status idle">Fallback</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🧠</div>
+                    <div>
+                        <div class="item-name">Honcho Dialectic</div>
+                        <div class="item-sub">Peer reasoning · embedded</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Internal</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="dot" style="background:var(--green)"></span> 🌐 LLM Providers</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔗</div>
+                    <div>
+                        <div class="item-name">OpenRouter</div>
+                        <div class="item-sub">Multi-model gateway</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Primary</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">⚡</div>
+                    <div>
+                        <div class="item-name">z.ai (GLM)</div>
+                        <div class="item-sub">Free tier · Chinese models</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Connected</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🎮</div>
+                    <div>
+                        <div class="item-name">OpenCode Zen</div>
+                        <div class="item-sub">Free models · coding focus</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Connected</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🏢</div>
+                    <div>
+                        <div class="item-name">Nous Research</div>
+                        <div class="item-sub">Managed tools + subscription</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Subscribed</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ MEMORY + IDENTITY ══════════ -->
+    <div class="wide-grid">
+        <div class="card">
+            <h3><span class="dot" style="background:var(--accent)"></span> Memory Architecture</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">💾</div>
+                    <div>
+                        <div class="item-name">Hot Cache</div>
+                        <div class="item-sub">System prompt — injected every turn</div>
+                    </div>
+                </div>
+                <div class="item-right">
+                    <div class="item-value">~2.2K chars</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="fill purple" style="width: 97%"></div>
+            </div>
+            <div class="list-item" style="margin-top: 12px;">
+                <div class="item-left">
+                    <div class="item-icon">🧊</div>
+                    <div>
+                        <div class="item-name">Cold Storage</div>
+                        <div class="item-sub">Vector search long-term memory</div>
+                    </div>
+                </div>
+                <div class="item-right">
+                    <div class="item-value">113+ entries</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="fill blue" style="width: 100%"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="dot" style="background:var(--green)"></span> Agent Identity</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🏷️</div>
+                    <div><div class="item-name">Name</div></div>
+                </div>
+                <div class="item-right"><div class="item-value">Oyeng</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🤖</div>
+                    <div><div class="item-name">Model</div></div>
+                </div>
+                <div class="item-right"><div class="item-value">OWL Alpha</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔄</div>
+                    <div><div class="item-name">Fallback</div></div>
+                </div>
+                <div class="item-right"><div class="item-value">GLM 4.7 + DeepSeek V4</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">📡</div>
+                    <div><div class="item-name">Provider</div></div>
+                </div>
+                <div class="item-right"><div class="item-value">OpenRouter</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔗</div>
+                    <div><div class="item-name">Memory Sync</div></div>
+                </div>
+                <div class="item-right">
+                    <span class="item-status active">Every 6h</span>
+                </div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">📊</div>
+                    <div><div class="item-name">Embedding</div></div>
+                </div>
+                <div class="item-right">
+                    <span class="item-status active">Local</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ HARDWARE SPECS ══════════ -->
+    <div class="wide-grid">
+        <div class="card">
+            <h3><span class="dot" style="background:var(--green)"></span> 🖥️ Host Hardware</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">💻</div>
+                    <div>
+                        <div class="item-name">Model</div>
+                        <div class="item-sub">Apple Mac mini</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">Mac14,3</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">⚙️</div>
+                    <div>
+                        <div class="item-name">Processor</div>
+                        <div class="item-sub">8-core (4P + 4E)</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">Apple M2</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🧠</div>
+                    <div>
+                        <div class="item-name">Memory</div>
+                        <div class="item-sub">Unified memory</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">8 GB</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🎮</div>
+                    <div>
+                        <div class="item-name">Graphics</div>
+                        <div class="item-sub">Metal 4 support</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">M2 GPU 10-core</div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="dot" style="background:var(--blue)"></span> 💾 Storage & Display</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">💿</div>
+                    <div>
+                        <div class="item-name">Total Storage</div>
+                        <div class="item-sub">Apple SSD</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">228 GB</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">📊</div>
+                    <div>
+                        <div class="item-name">Disk Used</div>
+                        <div class="item-sub">System + Data</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">~12 GB (58%)</div></div>
+            </div>
+            <div class="progress-bar">
+                <div class="fill green" style="width: 58%"></div>
+            </div>
+            <div class="list-item" style="margin-top: 12px;">
+                <div class="item-left">
+                    <div class="item-icon">🖵</div>
+                    <div>
+                        <div class="item-name">Display</div>
+                        <div class="item-sub">Connected monitor</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">2560×1600</div></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔌</div>
+                    <div>
+                        <div class="item-name">OS</div>
+                        <div class="item-sub">Darwin kernel</div>
+                    </div>
+                </div>
+                <div class="item-right"><div class="item-value">macOS 26.5</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ CRON + PLATFORMS ══════════ -->
+    <div class="wide-grid">
+        <div class="card">
+            <h3><span class="dot" style="background:var(--orange)"></span> Cron Jobs</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔄</div>
+                    <div>
+                        <div class="item-name">Memory Sync</div>
+                        <div class="item-sub">Hermes → Honcho (every 6h)</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Active</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">📝</div>
+                    <div>
+                        <div class="item-name">Activity Form</div>
+                        <div class="item-sub">Google Forms (17:15 weekdays)</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Active</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">📊</div>
+                    <div>
+                        <div class="item-name">Token Usage Updater</div>
+                        <div class="item-sub">Dashboard sync (every 1h)</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Active</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🧹</div>
+                    <div>
+                        <div class="item-name">Laporan Isu Cleanup</div>
+                        <div class="item-sub">Honcho cleanup (Mon 01:00)</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Active</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🔍</div>
+                    <div>
+                        <div class="item-name">GLM Token Reset Watcher</div>
+                        <div class="item-sub">One-shot · completed 10 Jun</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status idle">Completed</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">📋</div>
+                    <div>
+                        <div class="item-name">Laporan Isu Sync</div>
+                        <div class="item-sub">Discord → Honcho (every 15m, paused)</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status idle">Paused</span></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="dot" style="background:var(--blue)"></span> Platform Connections</h3>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">💬</div>
+                    <div>
+                        <div class="item-name">Telegram</div>
+                        <div class="item-sub">Primary notification channel</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Connected</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🎮</div>
+                    <div>
+                        <div class="item-name">Discord</div>
+                        <div class="item-sub">Multi-channel gateway</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Connected</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">📧</div>
+                    <div>
+                        <div class="item-name">Gmail / Google Workspace</div>
+                        <div class="item-sub">OAuth2 authenticated</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Connected</span></div>
+            </div>
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">🐙</div>
+                    <div>
+                        <div class="item-name">GitHub</div>
+                        <div class="item-sub">gh CLI + API</div>
+                    </div>
+                </div>
+                <div class="item-right"><span class="item-status active">Connected</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ TERMINAL ══════════ -->
+    <div class="terminal" style="margin-bottom: 32px;">
+        <div class="terminal-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            <span class="title">oyeng@dashboard ~ %</span>
+        </div>
+        <div class="terminal-body" id="terminal-body">
+            <div class="line"><span class="prompt">$</span><span class="cmd">oyeng status</span></div>
+            <div class="line"><span class="output">Loading agent status...</span></div>
+        </div>
+    </div>
+
+</div>
+
+<footer class="dashboard-footer">
+    <div class="container">Oyeng Agent Dashboard · <span id="current-time"></span></div>
+</footer>
+
+</div>
+
+<script>
+// ══════════ CONSTANTS ══════════
+const DASHBOARD_PASSWORD=String.fromCharCode(67,105,101,110,103,105,110,116,105,112,112,97,115,115,119,111,114,100);
+const STORAGE_KEY = 'oyeng_dashboard_unlocked';
+let refreshTimer = null;
+
+// ══════════ HELPER FUNCTIONS (defined first) ══════════
+function updateLastUpdated() {
+    const now = new Date();
+    const el = document.getElementById('last-updated');
+    if (el) {
+        el.textContent = 'Last updated: ' + now.toLocaleString('id-ID', {
+            timeZone: 'Asia/Jakarta',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    }
+}
+
+// Update token usage UI elements
+function updateTokenUI(data) {
+    const inputEl = document.getElementById('token-input');
+    const outputEl = document.getElementById('token-output');
+    const totalEl = document.getElementById('token-total');
+    const sessionsEl = document.getElementById('token-sessions');
+    const avgEl = document.getElementById('token-avg');
+
+    if (inputEl) inputEl.textContent = data.inputTokens;
+    if (outputEl) outputEl.textContent = data.outputTokens;
+    if (totalEl) totalEl.textContent = data.totalTokens;
+    if (sessionsEl) sessionsEl.textContent = data.sessions + '+';
+    if (avgEl) avgEl.textContent = data.avgTokens;
+}
+
+// Update model usage UI from JSON data
+function updateModelUsageUI(modelData) {
+    const container = document.getElementById('model-usage-list');
+    if (!container || !modelData || !Array.isArray(modelData)) return;
+
+    let html = '';
+    const colors = ['purple', 'orange', 'blue', 'green'];
+    const icons = ['⭐', '🔄', '🎲', '🧠'];
+
+    modelData.forEach((model, idx) => {
+        const color = colors[idx % colors.length];
+        const icon = icons[idx % icons.length];
+        const statusClass = idx === 0 ? 'active' : 'idle';
+
+        html += `
+            <div class="list-item">
+                <div class="item-left">
+                    <div class="item-icon">${icon}</div>
+                    <div>
+                        <div class="item-name">${model.model}</div>
+                        <div class="item-sub">${model.provider}</div>
+                    </div>
+                </div>
+                <div class="item-right">
+                    <div class="item-value">${model.tokens}</div>
+                    <span class="item-status ${statusClass}" style="margin-top:2px">${model.percentage}%</span>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="fill ${color}" style="width: ${model.percentage}%"></div>
+            </div>
+            ${idx < modelData.length - 1 ? '<div class="list-item" style="margin-top: 12px;"></div>' : ''}
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+// Fetch token usage from token-data.json
+async function fetchTokenUsage() {
+    try {
+        const response = await fetch('token-data.json?t=' + Date.now(), { cache: 'no-cache' });
+        if (response.ok) {
+            const raw = await response.json();
+            const data = (raw.data && (raw.data.total_tokens || raw.data.token_usage)) ? raw.data : raw;
+            const totalTokens = data.total_tokens || data.token_usage || 0;
+            const totalSessions = data.total_sessions || data.sessions || 0;
+            const parsed = {
+                inputTokens: formatTokens(data.total_input_tokens || data.input_tokens || 0),
+                outputTokens: formatTokens(data.total_output_tokens || data.output_tokens || 0),
+                totalTokens: formatTokens(totalTokens),
+                sessions: String(totalSessions),
+                avgTokens: formatTokens(Math.round(totalTokens / Math.max(totalSessions, 1)))
+            };
+            updateTokenUI(parsed);
+
+            // Update model usage if available
+            if (data.model_usage && Array.isArray(data.model_usage)) {
+                const formatted = data.model_usage.map(m => ({
+                    ...m,
+                    tokens: formatTokens(m.tokens)
+                }));
+                updateModelUsageUI(formatted);
+            }
+
+            // Update model info (primary model, provider, fallback chain)
+            if (data.primary_model) {
+                updateModelInfo(data);
+            }
+
+            return;
+        }
+    } catch (e) {
+        console.log('Token data fetch failed:', e.message);
+    }
+
+    // Fallback: show default values
+    updateTokenUI({
+        inputTokens: '—',
+        outputTokens: '—',
+        totalTokens: '—',
+        sessions: '—',
+        avgTokens: '—'
+    });
+}
+
+// Update model info section
+function updateModelInfo(data) {
+    const modelEl = document.getElementById('model-name');
+    const providerEl = document.getElementById('model-provider');
+    const fallbackEl = document.getElementById('model-fallback');
+
+    if (modelEl && data.primary_model) {
+        modelEl.textContent = data.primary_model;
+    }
+    if (providerEl && data.primary_provider) {
+        providerEl.textContent = data.primary_provider;
+    }
+    if (fallbackEl) {
+        if (data.fallback_chain && data.fallback_chain.length > 0) {
+            fallbackEl.textContent = data.fallback_chain.map(f => f.model).join(', ');
+            fallbackEl.style.opacity = '1';
+        } else {
+            fallbackEl.textContent = 'No fallback configured';
+            fallbackEl.style.opacity = '0.5';
+        }
+    }
+}
+
+// Format large numbers: 8612626 → "8.6M", 705017 → "705K"
+function formatTokens(num) {
+    if (!num && num !== 0) return '—';
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(0) + 'K';
+    return String(num);
+}
+
+function fetchDashboardData() {
+    // Update memory stats (placeholder animations)
+    const memEl = document.getElementById('memory-count');
+    const concEl = document.getElementById('conclusions-count');
+    if (memEl) {
+        memEl.style.transform = 'scale(1.1)';
+        memEl.style.transition = 'transform 0.2s';
+        setTimeout(function() { memEl.style.transform = 'scale(1)'; }, 200);
+    }
+    if (concEl) {
+        concEl.style.transform = 'scale(1.1)';
+        concEl.style.transition = 'transform 0.2s';
+        setTimeout(function() { concEl.style.transform = 'scale(1)'; }, 200);
+    }
+
+    const memBar = document.getElementById('memory-bar');
+    const honchoBar = document.getElementById('honcho-bar');
+    if (memBar) { memBar.style.width = (95 + Math.random() * 5) + '%'; }
+    if (honchoBar) { honchoBar.style.width = (90 + Math.random() * 10) + '%'; }
+
+    // Fetch token usage
+    fetchTokenUsage();
+
+    updateLastUpdated();
+}
+
+function startAutoRefresh() {
+    // No more auto-refresh — data updates only on manual refresh
+    fetchDashboardData();
+}
+
+function manualRefresh() {
+    var btn = document.getElementById('refresh-btn');
+    if (btn) {
+        btn.classList.add('loading');
+        btn.querySelector('span').classList.add('spin');
+    }
+    setTimeout(function() {
+        fetchDashboardData();
+        if (btn) {
+            btn.classList.remove('loading');
+            btn.querySelector('span').classList.remove('spin');
+        }
+    }, 800);
+}
+
+// ══════════ TERMINAL ANIMATION ══════════
+var terminalLines = [
+    { output: '\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510' },
+    { output: '\u2502  \ud83e\udde0 Oyeng AI Research Assistant     \u2502' },
+    { output: '\u2502  Status: \u25cf Online                   \u2502' },
+    { output: '\u2502  Model: OWL Alpha (OpenRouter)         \u2502' },
+    { output: '\u2502  Memory: 2 tiers (hot + cold)         \u2502' },
+    { output: '\u2502  Honcho: 113+ conclusions             \u2502' },
+    { output: '\u2502  Cron Jobs: 4 active                  \u2502' },
+    { output: '\u2502  Platforms: TG, Discord, Gmail, GH    \u2502' },
+    { output: '\u2502  Host: Mac mini M2 (8GB)              \u2502' },
+    { output: '\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518' },
+    { output: '' },
+    { prompt: '$', cmd: 'oyeng tokens --summary' },
+    { output: '\u2713 Token Usage (7d): 188.9M total', cls: 'info' },
+    { output: '  Input: 8.6M  |  Output: 705K' },
+    { output: '  Sessions: 111  |  Avg: ~1.7M/session' },
+    { output: '' },
+    { prompt: '$', cmd: 'oyeng models --list' },
+    { output: '\u2713 Active: OWL Alpha (OpenRouter)', cls: 'success' },
+    { output: '\u2713 Fallback: GLM 4.7 (z.ai) + DeepSeek V4 (OR)', cls: 'success' },
+    { output: '\u2713 Providers: OR + z.ai + Nous', cls: 'success' },
+    { output: '' },
+    { prompt: '$', cmd: '', cursor: true }
+];
+
+var lineIdx = 0;
+function startTerminalAnimation() {
+    var body = document.getElementById('terminal-body');
+    body.innerHTML = '';
+    lineIdx = 0;
+    function typeLine() {
+        if (lineIdx >= terminalLines.length) return;
+        var line = terminalLines[lineIdx];
+        var div = document.createElement('div');
+        div.className = 'line';
+        if (line.cursor) {
+            div.innerHTML = '<span class="prompt">$</span><span class="cursor"></span>';
+        } else if (line.output) {
+            var cls = line.cls || 'output';
+            div.innerHTML = '<span class="' + cls + '">' + line.output + '</span>';
+        } else if (line.cmd) {
+            div.innerHTML = '<span class="prompt">' + line.prompt + '</span><span class="cmd">' + line.cmd + '</span>';
+        }
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
+        lineIdx++;
+        setTimeout(typeLine, 120 + Math.random() * 80);
+    }
+    typeLine();
+}
+
+// ══════════ CLOCK ══════════
+function updateClock() {
+    var now = new Date();
+    var el = document.getElementById('current-time');
+    if (el) {
+        el.textContent = now.toLocaleString('id-ID', {
+            timeZone: 'Asia/Jakarta',
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        });
+    }
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ══════════ PASSWORD PROTECTION ══════════
+function unlockDashboard() {
+    var input = document.getElementById('password-input');
+    var error = document.getElementById('password-error');
+    if (input.value === DASHBOARD_PASSWORD) {
+        document.getElementById('password-gate').style.display = 'none';
+        document.getElementById('dashboard').classList.add('unlocked');
+        sessionStorage.setItem(STORAGE_KEY, 'true');
+        startTerminalAnimation();
+        startAutoRefresh();
+    } else {
+        error.style.display = 'block';
+        input.value = '';
+        input.focus();
+    }
+}
+
+function lockDashboard() {
+    document.getElementById('password-gate').style.display = 'flex';
+    document.getElementById('dashboard').classList.remove('unlocked');
+    sessionStorage.removeItem(STORAGE_KEY);
+    document.getElementById('password-input').value = '';
+    document.getElementById('password-error').style.display = 'none';
+}
+
+// Enter key support
+document.getElementById('password-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') unlockDashboard();
+});
+
+// Auto-unlock if session already active
+if (sessionStorage.getItem(STORAGE_KEY) === 'true') {
+    document.getElementById('password-gate').style.display = 'none';
+    document.getElementById('dashboard').classList.add('unlocked');
+    startTerminalAnimation();
+    startAutoRefresh();
+}
+</script>
+
+</body>
+</html>
