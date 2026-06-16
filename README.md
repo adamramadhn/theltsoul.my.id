@@ -1,13 +1,12 @@
 <div align="center">
 
-# 🚀 theltsoul.my.id — Adam Ramadhan's Portfolio
+# 🚀 theltsoul.my.id — Personal Portfolio
 
-**Professional Portfolio Website for Flutter Mobile Developer**
+**Professional Portfolio Website for Mobile Developer**
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Visit-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://theltsoul.my.id)
 [![GitHub Pages](https://img.shields.io/badge/Hosted_on-GitHub_Pages-3B82F6?style=for-the-badge&logo=github&logoColor=white)](https://github.com/adamramadhn/theltsoul.my.id)
 [![Flutter](https://img.shields.io/badge/Made_with-Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
-[![Cloudflare](https://img.shields.io/badge/DNS_Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://cloudflare.com)
 
 </div>
 
@@ -15,9 +14,9 @@
 
 ## 👨‍💻 About
 
-Welcome to my personal portfolio! I'm **Adam Ramadhan**, a Mobile Developer at **PT Nutech Integrasi** (Telkom Indonesia), specializing in **Flutter** development.
+Professional portfolio website showcasing my work as a **Mobile Developer** specializing in **Flutter** application development.
 
-This portfolio showcases my work, projects, and tools I've built to enhance productivity and streamline workflows.
+This portfolio demonstrates my expertise in building scalable mobile applications with modern technologies and best practices.
 
 ---
 
@@ -25,46 +24,15 @@ This portfolio showcases my work, projects, and tools I've built to enhance prod
 
 ### 🎯 Portfolio Sections
 - ✅ **About Me** - Professional background and skills overview
-- ✅ **Featured Projects** - Showcase of Flutter applications
-  - **C-Access** (KAI Commuter) - Mobile commuter app with Play Store & App Store badges
-  - **DOM** - Domain management application
-  - **Absensi Opr** - Attendance tracking system
-  - **POS GLID** - Point of Sale system
-  - **Patchfly Demo** - API testing tool
-- ✅ **Skills & Tech Stack** - Flutter, Dart, AI tools, productivity automation
-
-### 🛠️ Built-in Tools
-- ✅ **[Dashboard](https://theltsoul.my.id/dashboard.html)** - Personal analytics dashboard (password-protected)
-- ✅ **[Stock Dashboard](https://theltsoul.my.id/stock-dashboard.html)** - Indonesian stock market analysis
-- ✅ **[Laporan Isu](https://theltsoul.my.id/laporan-isu.html)** - Issue reporting with Discord integration
-- ✅ **[OpenRouter Monitor](https://theltsoul.my.id/openrouter-monitor.html)** - API token usage tracking
-- ✅ **[Telegram Drive](https://theltsoul.my.id/telegram-drive.html)** - Google Drive integration
+- ✅ **Featured Projects** - Showcase of mobile applications
+- ✅ **Skills & Tech Stack** - Flutter, Dart, and modern development tools
+- ✅ **Contact** - Easy way to connect
 
 ### 🎨 Design Features
 - ✅ **Modern UI** - Clean, minimalist design with beautiful typography
 - ✅ **Gradient Backgrounds** - Soft gradient orbs for visual appeal
 - ✅ **Responsive Layout** - Fully responsive on all devices
-- ✅ **Dark Theme** - Eye-friendly dark mode for low-light environments
-
----
-
-## 🌟 Featured Projects
-
-### 🚂 C-Access (KAI Commuter)
-Mobile application for KAI Commuter (Indonesian rail service) with:
-- Real-time schedule tracking
-- Ticket booking system
-- QR code generation and validation
-
-**📱 Available on:**
-- [![Play Store](https://img.shields.io/badge/Google_Play-Get_it_on-4285F4?style=flat&logo=google-play)](https://play.google.com)
-- [![App Store](https://img.shields.io/badge/App_Store-Download_on_the-0D96F6?style=flat&logo=app-store)](https://apps.apple.com)
-
-### 📊 Other Projects
-- **DOM** - Domain management for enterprise
-- **Absensi Opr** - Operator attendance tracking
-- **POS GLID** - Point of Sale system for retail
-- **Patchfly Demo** - API testing and monitoring tool
+- ✅ **Optimized Performance** - Fast loading with minimal dependencies
 
 ---
 
@@ -81,7 +49,19 @@ Mobile application for KAI Commuter (Indonesian rail service) with:
 
 ### Infrastructure
 ![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-3B82F6?style=for-the-badge&logo=github&logoColor=white)
-![Cloudflare DNS](https://img.shields.io/badge/Cloudflare_DNS-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)
+![Cloudflare](https://img.shields.io/badge/Cloudflare_DNS-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)
+
+---
+
+## 🌟 Featured Projects
+
+Portfolio showcases various mobile applications including:
+
+- **Commuter App** - Real-time schedule tracking and ticket booking
+- **Domain Management System** - Enterprise domain administration
+- **Attendance System** - Employee attendance tracking
+- **Point of Sale** - Retail POS solution
+- **API Testing Tool** - Development and testing utilities
 
 ---
 
@@ -92,10 +72,11 @@ This project is hosted on GitHub Pages with custom domain and Cloudflare DNS:
 
 **🌐 Live Demo:** https://theltsoul.my.id
 
-### DNS Configuration
-- **Zone ID:** `3fec9bb1a6bf938448a464020ce5cbf4`
-- **Account ID:** `8b55cc4d42b2d75d6db8ac2a32993888`
-- **Domain:** theltsoul.my.id
+### Custom Domain Setup
+1. Add a `CNAME` file with your domain
+2. Configure your domain's DNS:
+   - Add a CNAME record pointing to `your-username.github.io`
+3. Enable GitHub Pages in repository settings
 
 ---
 
@@ -104,42 +85,9 @@ This project is hosted on GitHub Pages with custom domain and Cloudflare DNS:
 ```
 theltsoul.my.id/
 ├── index.html              # Main portfolio page
-├── dashboard.html          # Personal analytics dashboard
-├── stock-dashboard.html    # Indonesian stock market dashboard
-├── laporan-isu.html        # Issue reporting (Discord integration)
-├── openrouter-monitor.html # API token usage tracker
-├── telegram-drive.html     # Google Drive integration
 ├── CNAME                   # Custom domain configuration
-└── token-data.json         # API token storage
+└── Other utility pages
 ```
-
----
-
-## 🔐 Security Features
-
-### Password-Protected Areas
-- **Dashboard** - Protected with secure password
-- No sensitive credentials in source code
-- Client-side encryption for sensitive data
-
-### Discord Integration
-- Real-time issue reporting to Discord forum channels
-- Webhook setup via localStorage (not hardcoded)
-- Thread creation for each issue report
-
----
-
-## 📈 Analytics & Monitoring
-
-### OpenRouter Token Monitoring
-- Real-time token usage tracking
-- Quota monitoring and alerts
-- Automatic model switching based on availability
-
-### Stock Market Data
-- Indonesian Stock Exchange (IDX) data
-- Real-time price updates
-- Technical analysis indicators
 
 ---
 
@@ -162,7 +110,7 @@ This is a personal portfolio, but feel free to:
 
 ## 📄 License
 
-© 2026 Adam Ramadhan. All rights reserved.
+© 2026. All rights reserved.
 
 ---
 
